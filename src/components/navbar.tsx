@@ -6,6 +6,8 @@ import { FaUserDoctor } from "react-icons/fa6";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { CiCircleQuestion } from "react-icons/ci";
+import { Translate } from "../hooks/LanguageContext";
+
 
 export default function Navbar() {
 
@@ -15,22 +17,31 @@ export default function Navbar() {
                 <li>
                     <NavLink to="doctors">
                         <FaUserDoctor />
-                        <div>Doctors</div>
+                        <div>
+                            <Translate token="Doctors" />
+                        </div>
                     </NavLink>
                     <NavLink to="patients">
                         <BsPersonLinesFill />
-                        <div>Patients</div>
+                        <div>
+                            <Translate token="Patients" />
+                        </div>
                     </NavLink>
                     <NavLink to="appointments">
                         <AiOutlineSchedule />
-                        <div>Appointments</div>
+                        <div>
+                            <Translate token="Appointments" />
+                        </div>
                     </NavLink>
                     <NavLink to="questions">
                         <CiCircleQuestion />
-                        <div>Questions</div>
+                        <div>
+                            <Translate token="Questions" />
+                        </div>
                     </NavLink>
                 </li>
             </ul>
+
             <ToastContainer
                 position="bottom-right"
                 autoClose={5000}

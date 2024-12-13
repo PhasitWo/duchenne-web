@@ -47,5 +47,6 @@
 }
 
 #navbar a.active div, #navbar a.active svg{
-    color: rgb(12, 204, 238);
+    color: rgb(0, 203, 238);
 }
+

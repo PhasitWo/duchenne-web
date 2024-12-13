@@ -66,10 +66,16 @@
     text-overflow: ellipsis;
 }
 
-#header-title {
-    padding-left: 30px;
+#header-title-container {
     display: flex;
-    justify-content: center;
+    padding-left: 30px;
+    justify-content: space-between;
     align-items: center;
     font-size: 1.5rem;
+    width: var(--content-width);
+}
+
+#toggle-button {
+    height: calc(0.7 * var(--header-height));
+    margin-right: 20px;
 }
