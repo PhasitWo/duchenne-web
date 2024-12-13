@@ -1,0 +1,42 @@
+:root {
+    font-family: ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji", Segoe UI Symbol,"Noto Color Emoji";
+    font-size: 16px;
+    color-scheme: light;
+    color: black;
+    height: 100%;
+    --light-green: rgba(216, 245, 162, 1);
+    --dark-green: rgb(150, 203, 53);
+    --blue: #5c7cfa;
+    --teal: #0ca678;
+    --purple: #da77f2;
+    background-color: white;
+    --navbar-border-color: #e3e3e3;
+    --navbar-color: #fafafa;
+    --navbar-hover: #ebebeb;
+    --navbar-width: 320px;
+    --header-height: 60px;
+}
+
+a {
+    color: black;
+    text-decoration: inherit;
+}
+
+body {
+    margin: 0;
+}
+
+#root {
+    height: inherit;
+}
+
+#main-container {
+  
+    display: grid;
+    grid-template-columns: var(--navbar-width) auto;
+}
+
+#content {
+    padding-left: 30px;
+    padding-top: 30px;
+}

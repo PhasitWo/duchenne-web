@@ -1,0 +1,75 @@
+#header {
+    position: sticky;
+    background-color: white;
+    height: var(--header-height);
+    width: 100%;
+    top: 0;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--navbar-border-color);
+    --logo-container-width: 80px;
+    z-index: 5;
+    display: flex;
+}
+
+#top-navbar-box {
+    background-color: var(--navbar-color);
+    width: var(--navbar-width);
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-right-color: var(--navbar-border-color);
+    display: grid;
+    grid-template-columns: var(--logo-container-width) calc(var(--navbar-width) - var(--logo-container-width));
+    height: 60px;
+}
+
+#logo-container {
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-right-color: var(--navbar-border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#logo-container img {
+    width: 70px;
+}
+
+#profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#profile-button {
+    height: 60%;
+    width: 90%;
+    height: 60%;
+    padding: 2px;
+    display: grid;
+    grid-template-columns: 25px auto 18px;
+    column-gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+#profile-button:hover {
+    background-color: var(--navbar-hover);
+}
+
+#profile-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#header-title {
+    padding-left: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+}
