@@ -16,7 +16,7 @@ export function useLanguage() {
     return val;
 }
 export function LanguageProvider({ children }: PropsWithChildren) {
-    const [currentLang, setCurrentLang] = useState<Language>("th");
+    const [currentLang, setCurrentLang] = useState<Language>("en");
 
     const translate: TranslateType = (token) => dict[currentLang as keyof Dict][token] ?? "NO TOKEN FOUND IN DICTIONARY";
 

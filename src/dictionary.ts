@@ -10,6 +10,7 @@ const dict: Dict = {
         Questions: "คำถาม",
         Search: "ค้นหา",
         "+ Add": "+ เพิ่ม",
+        Home: "หน้าหลัก"
     },
     en: {
         Doctors: "Doctors",
@@ -18,6 +19,7 @@ const dict: Dict = {
         Questions: "Questions",
         Search: "Search",
         "+ Add": "+ Add",
+        Home: "Home"
     },
 };
 

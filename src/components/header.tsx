@@ -11,13 +11,14 @@ const titleMap: { [x: string]: string } = {
     "/patients": "Patients",
     "/appointments": "Appointments",
     "/questions": "Questions",
+    "/": "Home"
 };
 
 export default function Header() {
     const location = useLocation();
     const { currentLang, setCurrentLang } = useLanguage();
     const onChange = (_: any, target: string) => setCurrentLang(target);
-
+    console.log(location.pathname);
     return (
         <div id="header">
             <div id="top-navbar-box">
@@ -27,7 +28,7 @@ export default function Header() {
                 <div id="profile-container">
                     <div id="profile-button">
                         <BsPersonCircle size={20} style={{ marginLeft: "5px" }} />
-                        <div id="profile-name">พสิษฐ์ โวศรี ฟกหกฟห ๆำ้่เ้หกดหกดฟหก</div>
+                        <div id="profile-name">พสิษฐ์ โวศรี าสวาสฟหกวสาวา</div>
                         <RiExpandUpDownLine />
                     </div>
                 </div>
