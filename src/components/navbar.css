@@ -43,10 +43,10 @@
 
 /* when click link (feature of NavLink) */
 #navbar a.active {
-    background-color: rgb(231, 249, 253);
+    background-color: var(--light-blue);
 }
 
 #navbar a.active div, #navbar a.active svg{
-    color: rgb(0, 203, 238);
+    color: var(--blue);
 }
 

@@ -41,7 +41,13 @@ export default function Navbar() {
                     </NavLink>
                 </li>
             </ul>
-
+            <p>
+                TODO<br/>
+                /doctor/:id page<br/>
+                /patient/:id page<br/>
+                /question/:id page<br/>
+                /doctorProfile page :<br/> view info + change password
+            </p>
             <ToastContainer
                 position="bottom-right"
                 autoClose={5000}

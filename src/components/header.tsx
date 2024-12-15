@@ -4,7 +4,14 @@ import { BsPersonCircle } from "react-icons/bs";
 import { RiExpandUpDownLine } from "react-icons/ri";
 import { NavLink, useLocation } from "react-router-dom";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { useLanguage } from "../hooks/LanguageContext";
+import { Translate, useLanguage } from "../hooks/LanguageContext";
+
+const titleMap: { [x: string]: string } = {
+    "/doctors": "Doctors",
+    "/patients": "Patients",
+    "/appointments": "Appointments",
+    "/questions": "Questions",
+};
 
 export default function Header() {
     const location = useLocation();
@@ -26,8 +33,11 @@ export default function Header() {
                 </div>
             </div>
             <div id="header-title-container">
-                <span id="header-title">{location.pathname}</span>
-                <ToggleButtonGroup onChange={onChange} id="toggle-button">
+                <span id="header-title">
+                    <Translate token={titleMap[location.pathname] ?? "NO TITLE"} />
+                </span>
+
+                <ToggleButtonGroup onChange={onChange} id="toggle-button" style={{marginRight: "50px"}}>
                     <ToggleButton value="en" selected={currentLang == "en"}>
                         EN
                     </ToggleButton>
