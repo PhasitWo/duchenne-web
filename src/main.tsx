@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./main.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home.tsx";
 import Test from "./pages/test.tsx";
 import Doctors from "./pages/doctors.tsx";
@@ -13,7 +13,7 @@ import { LanguageProvider } from "./hooks/LanguageContext.tsx";
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <LanguageProvider>
-            <BrowserRouter>
+            <HashRouter>
                 <Routes>
                     <Route element={<Home />}>
                         <Route index element={<Test />}/>
@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
                         <Route path="questions" element={<Questions />} />
                     </Route>
                 </Routes>
-            </BrowserRouter>
+            </HashRouter>
         </LanguageProvider>
     </StrictMode>
 );
