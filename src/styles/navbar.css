@@ -1,15 +1,54 @@
-#header {
-    position: sticky;
-    background-color: white;
-    height: var(--header-height);
-    width: 100%;
+#navbar {
     top: 0;
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-bottom-color: var(--navbar-border-color);
-    --logo-container-width: 80px;
-    z-index: 5;
-    display: flex;
+    position: sticky;
+    height: calc(100vh - var(--header-height) - 1px);
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-right-color: var(--navbar-border-color);
+    width: var(--navbar-width);
+    background-color: var(--navbar-color);
+    z-index: 10;
+}
+
+#navbar ul {
+    padding: 0;
+    font-weight: normal;
+}
+
+#navbar .main-list {
+    list-style-type: none;
+}
+
+#navbar .main-list li {
+    padding: 9px 9px 9px 9px;
+}
+
+#navbar .main-list a {
+    padding: 9px 9px 9px 18px;
+    display: grid;
+    grid-template-columns: 20px auto;
+    column-gap: 15px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#navbar  .main-list a:hover:not(.active) {
+    background-color: var(--navbar-hover);
+}
+
+#navbar .main-list a svg {
+    color: gray;
+    font-size: 20px;
+}
+
+/* when click link (feature of NavLink) */
+#navbar .main-list a.active {
+    background-color: var(--light-blue);
+}
+
+#navbar .main-list a.active div,
+#navbar .main-list a.active svg {
+    color: var(--blue);
 }
 
 #top-navbar-box {
@@ -21,6 +60,9 @@
     display: grid;
     grid-template-columns: var(--logo-container-width) calc(var(--navbar-width) - var(--logo-container-width));
     height: 60px;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--navbar-border-color);
 }
 
 #logo-container {
@@ -64,18 +106,4 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-}
-
-#header-title-container {
-    display: flex;
-    padding-left: 30px;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.5rem;
-    width: var(--content-width);
-}
-
-#toggle-button {
-    height: calc(0.7 * var(--header-height));
-    margin-right: 20px;
 }

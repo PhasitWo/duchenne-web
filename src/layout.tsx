@@ -1,11 +1,9 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../components/navbar";
-import Header from "../components/header";
+import Navbar from "./components/navbar";
 
-export default function Home() {
+export default function Layout() {
     return (
         <>
-            <Header />
             <div id="main-container">
                 <Navbar />
                 <div id="content">

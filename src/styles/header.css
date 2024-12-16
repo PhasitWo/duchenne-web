@@ -1,0 +1,27 @@
+#header {
+    position: sticky;
+    background-color: white;
+    height: var(--header-height);
+    top: 0;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--navbar-border-color);
+    z-index: 5;
+    display: flex;
+    width: var(--content-width);
+    align-items: center;
+    justify-content: space-between;
+}
+
+#header-title-container {
+    display: flex;
+    padding-left: 30px;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+#toggle-button {
+    height: calc(0.7 * var(--header-height));
+    margin-right: 20px;
+}

@@ -1,8 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./main.css";
+import "./styles/main.css";
 import { HashRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/home.tsx";
+import Layout from "./layout.tsx";
 import Test from "./pages/test.tsx";
 import Doctors from "./pages/doctors.tsx";
 import Patients from "./pages/patients.tsx";
@@ -15,8 +15,8 @@ createRoot(document.getElementById("root")!).render(
         <LanguageProvider>
             <HashRouter>
                 <Routes>
-                    <Route element={<Home />}>
-                        <Route index element={<Test />}/>
+                    <Route element={<Layout />}>
+                        <Route index element={<Test />} />
                         <Route path="doctors" element={<Doctors />} />
                         <Route path="patients" element={<Patients />} />
                         <Route path="appointments" element={<Appointments />} />

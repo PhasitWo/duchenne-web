@@ -5,6 +5,7 @@ import { useState } from "react";
 import styles from "../styles/common.module.css";
 import { Translate } from "../hooks/LanguageContext";
 import dayjs from "dayjs";
+import Header from "../components/header";
 
 type AppointmentOwner = "myappointment" | "allappointment";
 type AppointmentType = "incoming" | "history";
@@ -34,35 +35,41 @@ export default function Appointments() {
     };
     return (
         <>
-            <Select value={apmtOwner} onChange={handleApmtOwnerChange} size="small">
-                <MenuItem value="myappointment">My Appointments</MenuItem>
-                <MenuItem value="allappointment">All Appointments</MenuItem>
-            </Select>
-            <Select
-                value={apmtType}
-                onChange={handleApmtTypeChange}
-                size="small"
-                sx={{ marginLeft: "10px" }}
-            >
-                <MenuItem value="incoming">Incoming</MenuItem>
-                <MenuItem value="history">History</MenuItem>
-            </Select>
-            <div style={{ marginTop: "10px", marginBottom: "10px", width: "60vw", display: "flex", alignItems: "center" }}>
-                <label>
-                    <Translate token="Search" />
-                </label>
-                <input type="text" className={styles.input} style={{ flex: 1 }} placeholder="id / name" />
+            <Header />
+            <div id="content-body">
+                <Select value={apmtOwner} onChange={handleApmtOwnerChange} size="small">
+                    <MenuItem value="myappointment">My Appointments</MenuItem>
+                    <MenuItem value="allappointment">All Appointments</MenuItem>
+                </Select>
+                <Select value={apmtType} onChange={handleApmtTypeChange} size="small" sx={{ marginLeft: "10px" }}>
+                    <MenuItem value="incoming">Incoming</MenuItem>
+                    <MenuItem value="history">History</MenuItem>
+                </Select>
+                <div
+                    style={{
+                        marginTop: "10px",
+                        marginBottom: "10px",
+                        width: "60vw",
+                        display: "flex",
+                        alignItems: "center",
+                    }}
+                >
+                    <label>
+                        <Translate token="Search" />
+                    </label>
+                    <input type="text" className={styles.input} style={{ flex: 1 }} placeholder="id / name" />
+                </div>
+                <DataGrid
+                    rows={mockup}
+                    columns={columns}
+                    style={{ width: "60vw", height: "70vh" }}
+                    initialState={{
+                        sorting: {
+                            sortModel: [{ field: "date", sort: "desc" }],
+                        },
+                    }}
+                />
             </div>
-            <DataGrid
-                rows={mockup}
-                columns={columns}
-                style={{ width: "60vw", height: "70vh" }}
-                initialState={{
-                    sorting: {
-                        sortModel: [{ field: "date", sort: "desc" }],
-                    },
-                }}
-            />
         </>
     );
 }
