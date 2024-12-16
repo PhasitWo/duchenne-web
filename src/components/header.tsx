@@ -1,16 +1,8 @@
 import "../styles/header.css";
 import {  useLocation } from "react-router-dom";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { Translate, useLanguage } from "../hooks/LanguageContext";
+import { useLanguage } from "../hooks/LanguageContext";
 import type { PropsWithChildren } from "react";
-
-const titleMap: { [x: string]: string } = {
-    "/doctors": "Doctors",
-    "/patients": "Patients",
-    "/appointments": "Appointments",
-    "/questions": "Questions",
-    "/": "Home"
-};
 
 export default function Header({ children }: PropsWithChildren) {
     const location = useLocation();
