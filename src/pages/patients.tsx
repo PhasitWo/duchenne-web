@@ -3,6 +3,7 @@ import styles from "../styles/common.module.css";
 import Chip from "@mui/material/Chip";
 import { Translate } from "../hooks/LanguageContext";
 import Header from "../components/header";
+import { BsPersonLinesFill } from "react-icons/bs";
 
 const mockup: GridRowsProp = [
     { hn: "test1", name: "Jingjai bindai", email: "dunno@gmail.com", phone: "000000", verified: true },
@@ -30,23 +31,23 @@ const columns: GridColDef[] = [
 export default function Patients() {
     return (
         <>
-            <Header />
+            <Header>
+                <BsPersonLinesFill />
+                <Translate token="Patients" />
+            </Header>
             <div id="content-body">
-                <div style={{ marginBottom: "10px", width: "60vw", display: "flex", alignItems: "center" }}>
-                    <label>
-                        <Translate token="Search" />
-                    </label>
-                    <input type="text" className={styles.input} style={{ flex: 1 }} placeholder="id / name" />
-                    <button className={styles.button} style={{ marginLeft: "10px" }}>
-                        <Translate token="+ Add" />
-                    </button>
+                <div className={styles.datagridContainer}>
+                    <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
+                        <label>
+                            <Translate token="Search" />
+                        </label>
+                        <input type="text" className={styles.input} style={{ flex: 1 }} placeholder="id / name" />
+                        <button className={styles.button} style={{ marginLeft: "10px" }}>
+                            <Translate token="+ Add" />
+                        </button>
+                    </div>
+                    <DataGrid rows={mockup} columns={columns} className={styles.datagrid} getRowId={(r) => r.hn} />
                 </div>
-                <DataGrid
-                    rows={mockup}
-                    columns={columns}
-                    style={{ width: "60vw", height: "70vh" }}
-                    getRowId={(r) => r.hn}
-                />
             </div>
         </>
     );

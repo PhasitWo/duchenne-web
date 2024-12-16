@@ -8,7 +8,6 @@
     border-bottom-color: var(--navbar-border-color);
     z-index: 5;
     display: flex;
-    width: var(--content-width);
     align-items: center;
     justify-content: space-between;
 }
@@ -19,6 +18,15 @@
     justify-content: space-between;
     align-items: center;
     font-size: 1.5rem;
+}
+
+#header-title {
+    display: flex;
+    align-items: center;
+}
+
+#header-title svg {
+    margin-right: 10px;
 }
 
 #toggle-button {

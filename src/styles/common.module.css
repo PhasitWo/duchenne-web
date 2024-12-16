@@ -33,3 +33,18 @@
 .button:disabled {
     background-color: whitesmoke;
 }
+
+.datagridContainer {
+    width: 800px;
+    height: 60vh;
+}
+
+.datagrid {
+    height: 70vh;
+}
+
+@media screen and (max-width: 850px) {
+    .datagridContainer {
+        width: 500px;
+    }
+}

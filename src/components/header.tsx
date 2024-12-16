@@ -2,6 +2,7 @@ import "../styles/header.css";
 import {  useLocation } from "react-router-dom";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { Translate, useLanguage } from "../hooks/LanguageContext";
+import type { PropsWithChildren } from "react";
 
 const titleMap: { [x: string]: string } = {
     "/doctors": "Doctors",
@@ -11,7 +12,7 @@ const titleMap: { [x: string]: string } = {
     "/": "Home"
 };
 
-export default function Header() {
+export default function Header({ children }: PropsWithChildren) {
     const location = useLocation();
     const { currentLang, setCurrentLang } = useLanguage();
     const onChange = (_: any, target: string) => setCurrentLang(target);
@@ -19,11 +20,9 @@ export default function Header() {
     return (
         <div id="header">
             <div id="header-title-container">
-                <span id="header-title">
-                    <Translate token={titleMap[location.pathname] ?? "NO TITLE"} />
-                </span>
+                <div id="header-title">{children}</div>
             </div>
-            <ToggleButtonGroup onChange={onChange} id="toggle-button" style={{ marginRight: "50px" }}>
+            <ToggleButtonGroup onChange={onChange} id="toggle-button" style={{ marginRight: "20px" }}>
                 <ToggleButton value="en" selected={currentLang == "en"}>
                     EN
                 </ToggleButton>

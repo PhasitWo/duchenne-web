@@ -2,6 +2,7 @@ import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
 import styles from "../styles/common.module.css";
 import { Translate } from "../hooks/LanguageContext";
 import Header from "../components/header";
+import { FaUserDoctor } from "react-icons/fa6";
 
 const mockup: GridRowsProp = [
     { id: 1, name: "haha", role: "admin" },
@@ -18,18 +19,23 @@ const columns: GridColDef[] = [
 export default function Doctors() {
     return (
         <>
-            <Header />
+            <Header>
+                <FaUserDoctor/>
+                <Translate token="Doctors" />
+            </Header>
             <div id="content-body">
-                <div style={{ marginBottom: "10px", width: "60vw", display: "flex", alignItems: "center" }}>
-                    <label>
-                        <Translate token="Search" />
-                    </label>
-                    <input type="text" className={styles.input} style={{ flex: 1 }} placeholder="id / name" />
-                    <button className={styles.button} style={{ marginLeft: "10px" }}>
-                        <Translate token="+ Add" />
-                    </button>
+                <div className={styles.datagridContainer}>
+                    <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
+                        <label>
+                            <Translate token="Search" />
+                        </label>
+                        <input type="text" className={styles.input} style={{ flex: 1 }} placeholder="id / name" />
+                        <button className={styles.button} style={{ marginLeft: "10px" }}>
+                            <Translate token="+ Add" />
+                        </button>
+                    </div>
+                    <DataGrid rows={mockup} columns={columns} className={styles.datagrid} />
                 </div>
-                <DataGrid rows={mockup} columns={columns} style={{ width: "60vw", height: "70vh" }} />
             </div>
         </>
     );

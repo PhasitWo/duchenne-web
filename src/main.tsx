@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./styles/main.css";
 import { HashRouter, Routes, Route } from "react-router-dom";
 import Layout from "./layout.tsx";
-import Test from "./pages/test.tsx";
+import Home from "./pages/home.tsx";
 import Doctors from "./pages/doctors.tsx";
 import Patients from "./pages/patients.tsx";
 import Appointments from "./pages/appointments.tsx";
@@ -16,7 +16,7 @@ createRoot(document.getElementById("root")!).render(
             <HashRouter>
                 <Routes>
                     <Route element={<Layout />}>
-                        <Route index element={<Test />} />
+                        <Route index element={<Home />} />
                         <Route path="doctors" element={<Doctors />} />
                         <Route path="patients" element={<Patients />} />
                         <Route path="appointments" element={<Appointments />} />
