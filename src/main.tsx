@@ -11,6 +11,7 @@ import Questions from "./pages/questions/questions.tsx";
 import { LanguageProvider } from "./hooks/LanguageContext.tsx";
 import ViewDoctor from "./pages/doctors/viewDoctor.tsx";
 import ViewPatient from "./pages/patients/viewPatient.tsx";
+import ViewQuestion from "./pages/questions/viewQuestion.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -25,10 +26,13 @@ createRoot(document.getElementById("root")!).render(
                         </Route>
                         <Route path="patient">
                             <Route index element={<Patients />} />
-                            <Route path=":id" element={<ViewPatient/>}/>
+                            <Route path=":id" element={<ViewPatient />} />
                         </Route>
                         <Route path="appointment" element={<Appointments />} />
-                        <Route path="question" element={<Questions />} />
+                        <Route path="question">
+                            <Route index element={<Questions />} />
+                            <Route path=":id" element={<ViewQuestion/>}/>
+                        </Route>
                     </Route>
                 </Routes>
             </HashRouter>

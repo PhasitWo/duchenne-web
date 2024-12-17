@@ -75,14 +75,10 @@
 }
 
 @media screen and (max-width: 850px) {
-    .datagridContainer {
+    .datagridContainer, .infoContainer ,.topicContainer {
         width: 500px;
     }
-    .infoContainer {
-    width: 500px;
 }
-}
-
 
 .infoHeader {
     display: flex;
@@ -121,4 +117,12 @@
     align-items: center;
     justify-content: flex-end;
     gap: 20px;
+}
+
+.topicContainer {
+    width: 900px;
+    border-bottom-style: none;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-color: var(--navbar-border-color);
 }
