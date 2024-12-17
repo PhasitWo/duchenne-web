@@ -29,25 +29,25 @@ export default function Navbar() {
             </div>
             <ul className="main-list">
                 <li>
-                    <NavLink to="doctors">
+                    <NavLink to="doctor">
                         <FaUserDoctor />
                         <div>
                             <Translate token="Doctors" />
                         </div>
                     </NavLink>
-                    <NavLink to="patients">
+                    <NavLink to="patient">
                         <BsPersonLinesFill />
                         <div>
                             <Translate token="Patients" />
                         </div>
                     </NavLink>
-                    <NavLink to="appointments">
+                    <NavLink to="appointment">
                         <AiOutlineSchedule />
                         <div>
                             <Translate token="Appointments" />
                         </div>
                     </NavLink>
-                    <NavLink to="questions">
+                    <NavLink to="question">
                         <CiCircleQuestion />
                         <div>
                             <Translate token="Questions" />

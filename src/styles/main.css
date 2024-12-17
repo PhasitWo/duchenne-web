@@ -19,10 +19,6 @@
     --logo-container-width: 80px;
 }
 
-a {
-    color: black;
-    text-decoration: inherit;
-}
 html,
 body {
     width: 100%;
@@ -30,6 +26,15 @@ body {
     margin: 0px;
     padding: 0px;
     overflow: auto;
+}
+
+#content-body a {
+    color: black;
+    padding: 10px 10px 10px 5px;
+}
+
+#content-body a:hover {
+    background-color: var(--light-blue);
 }
 
 #root {
@@ -48,11 +53,11 @@ body {
     grid-template-columns: var(--navbar-width) auto;
 }
 
-@media screen and (max-width: 800px) {
+/* @media screen and (max-width: 800px) {
     #main-container {
         grid-template-columns: var(--navbar-width) 800px;
     }
-}
+} */
 
 #content-body {
     padding: 30px 0px 30px 50px;

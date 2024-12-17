@@ -1,13 +1,14 @@
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { DataGrid, GridColDef, GridRowsProp } from "@mui/x-data-grid";
+import { GridRowsProp } from "@mui/x-data-grid";
 import { useState } from "react";
-import styles from "../styles/common.module.css";
-import { Translate } from "../hooks/LanguageContext";
-import dayjs from "dayjs";
-import Header from "../components/header";
+import styles from "../../styles/common.module.css";
+import { Translate } from "../../hooks/LanguageContext";
+import Header from "../../components/header";
 import { CiCircleQuestion } from "react-icons/ci";
+import QuestionDataGrid from "../../components/questionDataGrid";
 
+type QuestionOwner = "myquestion" | "allquestion";
 type QuestionType = "unreplied" | "replied";
 
 const mockup: GridRowsProp = [
@@ -37,17 +38,18 @@ const mockup: GridRowsProp = [
     },
 ];
 
-const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 100 },
-    { field: "patientName", headerName: "Patient", flex: 2 },
-    { field: "topic", headerName: "Topic", flex: 2 },
-    { field: "createAt", headerName: "Create At", flex: 2, valueFormatter: (v) => dayjs(v * 1000).format("DD/MM/YY HH:mm") },
-    { field: "doctorName", headerName: "Doctor", flex: 2, valueFormatter: (v) => v ? v : "none" },
-    { field: "answerAt", headerName: "Answer At", flex: 2, valueFormatter: (v) => dayjs(v * 1000).format("DD/MM/YY HH:mm"), renderCell:(v) => v.row.answerAt ? v.value : "none" },
-];
-
 export default function Questions() {
+    const [questionOwner, setQuestionOwner] = useState<QuestionOwner>("allquestion");
     const [questionType, setQuestionType] = useState<QuestionType>("unreplied");
+
+    const handleQuestionOwnerChange = (e: SelectChangeEvent) => {
+        if ((e.target.value as QuestionOwner) === "myquestion") {
+            setQuestionType("replied");
+        } else {
+            setQuestionType("unreplied");
+        }
+        setQuestionOwner(e.target.value as QuestionOwner);
+    };
     const handleQuestionTypeChange = (e: SelectChangeEvent) => {
         setQuestionType(e.target.value as QuestionType);
     };
@@ -59,8 +61,14 @@ export default function Questions() {
             </Header>
             <div id="content-body">
                 <div className={styles.datagridContainer}>
-                    <Select value={questionType} onChange={handleQuestionTypeChange} size="small">
-                        <MenuItem value="unreplied">Unreplied</MenuItem>
+                    <Select value={questionOwner} onChange={handleQuestionOwnerChange} size="small">
+                        <MenuItem value="allquestion">All Questions</MenuItem>
+                        <MenuItem value="myquestion">My Questions</MenuItem>
+                    </Select>
+                    <Select value={questionType} onChange={handleQuestionTypeChange} size="small" sx={{ marginLeft: "10px" }}>
+                        <MenuItem value="unreplied" disabled={questionOwner === "myquestion"}>
+                            Unreplied
+                        </MenuItem>
                         <MenuItem value="replied">Replied</MenuItem>
                     </Select>
                     <div
@@ -74,17 +82,17 @@ export default function Questions() {
                         <label>
                             <Translate token="Search" />
                         </label>
-                        <input type="text" className={styles.input} style={{ flex: 1 }} placeholder="id / name" />
+                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="id / name" />
                     </div>
-                    <DataGrid
+                    <QuestionDataGrid
                         rows={mockup}
-                        columns={columns}
                         className={styles.datagrid}
-                        initialState={{
-                            sorting: {
-                                sortModel: [{ field: "date", sort: "desc" }],
+                        sortModel={[
+                            {
+                                field: questionType === "unreplied" ? "createAt" : "answerAt",
+                                sort: questionType === "unreplied" ? "asc" : "desc",
                             },
-                        }}
+                        ]}
                     />
                 </div>
             </div>

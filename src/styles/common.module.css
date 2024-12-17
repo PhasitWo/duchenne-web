@@ -1,4 +1,4 @@
-.input {
+.searchInput {
     border-style: none;
     border-bottom-style: solid;
     border-width: 1px;
@@ -8,9 +8,33 @@
     padding-left: 10px;
 }
 
-.input:focus {
+.searchInput:focus {
     outline: none;
     border-color: var(--blue);
+}
+
+.cancelButton {
+    color: black;
+    background-color: white;
+    height: 2rem;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-color: var(--navbar-border-color);
+    border-width: 1px;
+    border-style: solid;
+}
+
+.cancelButton:hover {
+    background-color: black;
+    color: white;
+}
+
+.cancelButton:active {
+    background-color: var(--dark-blue);
 }
 
 .button {
@@ -20,6 +44,9 @@
     padding-left: 10px;
     padding-right: 10px;
     border-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .button:hover {
@@ -35,16 +62,63 @@
 }
 
 .datagridContainer {
-    width: 800px;
+    width: 70vw;
     height: 60vh;
 }
 
-.datagrid {
-    height: 70vh;
+.infoContainer {
+    width: 900px;
+    border-color: var(--navbar-border-color);
+    border-width: 1px;
+    border-style: solid;
+    padding: 20px;
 }
 
 @media screen and (max-width: 850px) {
     .datagridContainer {
         width: 500px;
     }
+    .infoContainer {
+    width: 500px;
+}
+}
+
+
+.infoHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.infoInputContainer {
+    display: grid;
+    grid-template-columns: 30% 50%;
+    margin-bottom: 20px;
+}
+
+.infoLabel {
+    font-weight: bold;
+}
+
+.infoInput {
+    border-style: none;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--navbar-border-color);
+    width: auto;
+    height: 1.4rem;
+    padding-left: 10px;
+    margin-left: 10px;
+}
+
+.infoInput:focus {
+    outline: none;
+    border-color: var(--blue);
+}
+
+.infoFooter {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
 }

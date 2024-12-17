@@ -1,14 +1,11 @@
 import "../styles/header.css";
-import {  useLocation } from "react-router-dom";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useLanguage } from "../hooks/LanguageContext";
 import type { PropsWithChildren } from "react";
 
 export default function Header({ children }: PropsWithChildren) {
-    const location = useLocation();
     const { currentLang, setCurrentLang } = useLanguage();
     const onChange = (_: any, target: string) => setCurrentLang(target);
-    console.log(location.pathname);
     return (
         <div id="header">
             <div id="header-title-container">
