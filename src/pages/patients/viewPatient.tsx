@@ -35,7 +35,7 @@ export default function ViewPatient() {
                 <GoBack />
                 <div id="info-container" className={styles.infoContainer}>
                     <div className={styles.infoHeader}>
-                        <h3>Doctor Infomation</h3>
+                        <h3>Patient Infomation</h3>
                         {!onEdit && (
                             <button
                                 className={styles.button}
@@ -141,7 +141,7 @@ export default function ViewPatient() {
                             </button>
                         )}
                     </div>
-                    {showAppointment && <AppointmentDataGrid className={styles.datagridContainer} sx={{ height: "50vh" }}/>}
+                    {showAppointment && <AppointmentDataGrid className={styles.datagridContainer} sx={{ height: "50vh" }} />}
                 </div>
                 <div id="patient-question">
                     <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "10px" }}>

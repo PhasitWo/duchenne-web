@@ -11,7 +11,7 @@ export default function Header({ children }: PropsWithChildren) {
             <div id="header-title-container">
                 <div id="header-title">{children}</div>
             </div>
-            <ToggleButtonGroup onChange={onChange} id="toggle-button" style={{ marginRight: "20px" }}>
+            <ToggleButtonGroup onChange={onChange} id="toggle-button" style={{ marginRight: "20px" }} disabled>
                 <ToggleButton value="en" selected={currentLang == "en"}>
                     EN
                 </ToggleButton>

@@ -3,7 +3,7 @@ import styles from "../../styles/common.module.css";
 import { Translate } from "../../hooks/LanguageContext";
 import Header from "../../components/header";
 import { FaUserDoctor } from "react-icons/fa6";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const mockup: GridRowsProp = [
     { id: 1, name: "haha", role: "admin" },
@@ -13,11 +13,21 @@ const mockup: GridRowsProp = [
 
 const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 100 },
-    { field: "name", headerName: "Name", flex: 1, renderCell: (v) => <NavLink to={`/doctor/${v.row.id}`}>{v.value}</NavLink> },
+    {
+        field: "name",
+        headerName: "Name",
+        flex: 1,
+        renderCell: (v) => (
+            <NavLink to={`/doctor/${v.row.id}`} className={styles.navLink}>
+                {v.value}
+            </NavLink>
+        ),
+    },
     { field: "role", headerName: "Role", flex: 1 },
 ];
 
 export default function Doctors() {
+    const navigate = useNavigate()
     return (
         <>
             <Header>
@@ -30,8 +40,8 @@ export default function Doctors() {
                         <label>
                             <Translate token="Search" />
                         </label>
-                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="id / name" />
-                        <button className={styles.button} style={{ marginLeft: "10px" }}>
+                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="ID / Name" />
+                        <button className={styles.button} style={{ marginLeft: "10px" }} onClick={() => navigate("new")}>
                             <Translate token="+ Add" />
                         </button>
                     </div>

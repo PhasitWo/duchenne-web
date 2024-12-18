@@ -11,13 +11,16 @@ export default function Home() {
                 <br />
                 /patient/:id page (DONE)
                 <br />
-                /question/:id page
+                /question/:id page (DONE)
                 <br />
-                /doctorProfile page : view info + change password
+                /doctorProfile page : view info + change password (DONE)
                 <br />
-                /login page<br/>
-                add Doctor modal<br/>
-                add Patient modal<br/>
+                /login page (DONE)
+                <br />
+                add Doctor modal (DONE)
+                <br />
+                add Patient modal (DONE)
+                <br />
             </p>
         </>
     );

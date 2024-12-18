@@ -1,12 +1,10 @@
-import { useParams } from "react-router-dom";
-import Header from "../../components/header";
-import styles from "../../styles/common.module.css";
+import Header from "../components/header";
+import styles from "../styles/common.module.css";
 import { useRef, useState } from "react";
 import { GoPencil } from "react-icons/go";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
-import GoBack from "../../components/goback";
-import AppointmentDataGrid from "../../components/appointmentDataGrid";
+import GoBack from "../components/goback";
 
 interface Info {
     id: number | string;
@@ -16,7 +14,6 @@ interface Info {
     role: string;
     username: string;
     password: string;
-    confirmPassword: string;
 }
 
 interface PasswordCondition {
@@ -28,25 +25,23 @@ interface PasswordCondition {
 
 const engRegex = /^[A-Za-z0-9]*$/;
 
-export default function ViewDoctor() {
-    const { id } = useParams();
+export default function Profile() {
     const [info, setInfo] = useState<Info>(initialInfo);
     const infoRef = useRef<Info>(); // save prevState on editing
     const [onEdit, setOnEdit] = useState(false);
-    const [showAppointment, setShowAppointment] = useState(false);
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {
-            setPwdConditions(initialPwdCondition);
+            setPwdConditions(initialPwdCondition)
             setInfo({ ...info, password: password });
-            return;
+            return
         }
         if (!engRegex.test(password)) return; // english only
-        let newCondition: PasswordCondition = { ...initialPwdCondition };
+        let newCondition: PasswordCondition = {...initialPwdCondition};
         newCondition.length = password.length >= 8 && password.length <= 20;
         for (let i = 0; i < password.length; i++) {
-            let char = password.charAt(i);
+            const char = password.charAt(i);
             if (!isNaN((char as any) * 1)) newCondition.numeric = true;
             else if (char === char.toLowerCase()) newCondition.lowerCase = true;
             else if (char === char.toUpperCase()) newCondition.upperCase = true;
@@ -54,9 +49,10 @@ export default function ViewDoctor() {
         setPwdConditions(newCondition);
         setInfo({ ...info, password: password });
     };
+
     return (
         <>
-            <Header>This is view doctor/{id}</Header>
+            <Header>My Profile</Header>
             <div id="content-body">
                 <GoBack />
                 <div id="info-container" className={styles.infoContainer}>
@@ -111,13 +107,7 @@ export default function ViewDoctor() {
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Role</label>
-                        <input
-                            type="text"
-                            className={styles.infoInput}
-                            value={info.role}
-                            onChange={(e) => setInfo({ ...info, role: e.target.value })}
-                            disabled={!onEdit}
-                        />
+                        <input type="text" className={styles.infoInput} value={info.role} disabled />
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Username</label>
@@ -139,10 +129,11 @@ export default function ViewDoctor() {
                             disabled={!onEdit}
                         />
                     </div>
+
                     {onEdit && (
                         <>
                             <div className={styles.infoInputContainer}>
-                                <div style={{ color: "grey" }}>(Password Conditions)</div>
+                                <div style={{color:"grey"}}>(password conditions)</div>
                                 <div>
                                     <span style={{ color: pwdConditions.length ? "green" : "red" }}>
                                         {"Passwords must be between 8-20 characters in length"}
@@ -160,15 +151,6 @@ export default function ViewDoctor() {
                                         {"a minimum of 1 numeric character [0-9]"}
                                     </span>
                                 </div>
-                            </div>
-                            <div className={styles.infoInputContainer}>
-                                <label className={styles.infoLabel}>Confirm Password</label>
-                                <input
-                                    type="password"
-                                    className={styles.infoInput}
-                                    value={info.confirmPassword}
-                                    onChange={(e) => setInfo({ ...info, confirmPassword: e.target.value })}
-                                />
                             </div>
                             <div className={styles.infoFooter}>
                                 <button
@@ -189,17 +171,6 @@ export default function ViewDoctor() {
                         </>
                     )}
                 </div>
-                <div id="doctor-appointment">
-                    <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "10px" }}>
-                        <h3>Appointments</h3>
-                        {!showAppointment && (
-                            <button className={styles.button} onClick={() => setShowAppointment(true)}>
-                                Show
-                            </button>
-                        )}
-                    </div>
-                    {showAppointment && <AppointmentDataGrid className={styles.datagridContainer} sx={{ height: "50vh" }} />}
-                </div>
             </div>
         </>
     );
@@ -212,8 +183,7 @@ const initialInfo: Info = {
     lastName: "-",
     role: "-",
     username: "-",
-    password: "-",
-    confirmPassword: "",
+    password: "",
 };
 
 const initialPwdCondition: PasswordCondition = {

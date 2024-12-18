@@ -1,6 +1,6 @@
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { GridRowsProp } from "@mui/x-data-grid";
+import { GridRowsProp, GridSortModel } from "@mui/x-data-grid";
 import { useState } from "react";
 import styles from "../../styles/common.module.css";
 import { Translate } from "../../hooks/LanguageContext";
@@ -11,46 +11,30 @@ import QuestionDataGrid from "../../components/questionDataGrid";
 type QuestionOwner = "myquestion" | "allquestion";
 type QuestionType = "unreplied" | "replied";
 
-const mockup: GridRowsProp = [
-    {
-        id: 1,
-        patientName: "Jingjai bindai",
-        topic: "What is Love",
-        createAt: 1734268740,
-        doctorName: "Dr.Earth",
-        answerAt: 1734278740,
-    },
-    {
-        id: 2,
-        patientName: "Superman Batman",
-        topic: "asdqwe asdasw asd",
-        createAt: 1734268540,
-        doctorName: null,
-        answerAt: null,
-    },
-    {
-        id: 3,
-        patientName: "Kawin Bindai Mario",
-        topic: "long topic asdkas;k;qwkeqw asdk;laskd;lks",
-        createAt: 1734264740,
-        doctorName: null,
-        answerAt: null,
-    },
-];
+const sortCreateAtModel: GridSortModel = [{ field: "createAt", sort: "asc" }];
+const sortAnswerAtModel: GridSortModel = [{ field: "answerAt", sort: "desc" }];
 
 export default function Questions() {
     const [questionOwner, setQuestionOwner] = useState<QuestionOwner>("allquestion");
     const [questionType, setQuestionType] = useState<QuestionType>("unreplied");
+    const [sortModel, setSortModel] = useState<GridSortModel>(sortCreateAtModel);
 
     const handleQuestionOwnerChange = (e: SelectChangeEvent) => {
         if ((e.target.value as QuestionOwner) === "myquestion") {
             setQuestionType("replied");
+            setSortModel(sortAnswerAtModel)
         } else {
             setQuestionType("unreplied");
+            setSortModel(sortCreateAtModel);
         }
         setQuestionOwner(e.target.value as QuestionOwner);
     };
     const handleQuestionTypeChange = (e: SelectChangeEvent) => {
+        if ((e.target.value as QuestionType) === "replied") {
+            setSortModel(sortAnswerAtModel);
+        } else {
+            setSortModel(sortCreateAtModel);
+        }
         setQuestionType(e.target.value as QuestionType);
     };
     return (
@@ -87,15 +71,38 @@ export default function Questions() {
                     <QuestionDataGrid
                         rows={mockup}
                         className={styles.datagrid}
-                        sortModel={[
-                            {
-                                field: questionType === "unreplied" ? "createAt" : "answerAt",
-                                sort: questionType === "unreplied" ? "asc" : "desc",
-                            },
-                        ]}
+                        sortModel={sortModel}
+                        onSortModelChange={setSortModel}
                     />
                 </div>
             </div>
         </>
     );
 }
+
+const mockup: GridRowsProp = [
+    {
+        id: 1,
+        patientName: "Jingjai bindai",
+        topic: "What is Love",
+        createAt: 1734268740,
+        doctorName: "Dr.Earth",
+        answerAt: 1734278740,
+    },
+    {
+        id: 3,
+        patientName: "Kawin Bindai Mario",
+        topic: "long topic asdkas;k;qwkeqw asdk;laskd;lks",
+        createAt: 1734264740,
+        doctorName: null,
+        answerAt: null,
+    },
+    {
+        id: 2,
+        patientName: "Superman Batman",
+        topic: "asdqwe asdasw asd",
+        createAt: 1734268540,
+        doctorName: null,
+        answerAt: null,
+    },
+];

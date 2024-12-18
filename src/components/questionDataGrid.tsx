@@ -1,10 +1,20 @@
 import { DataGrid, GridColDef, type DataGridProps } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { NavLink } from "react-router-dom";
+import styles from "../styles/common.module.css"
 
 const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 50 },
-    { field: "topic", headerName: "Topic", flex: 3.5, renderCell: (v) => <NavLink to={`/question/${v.row.id}`}>{v.value}</NavLink> },
+    {
+        field: "topic",
+        headerName: "Topic",
+        flex: 3.5,
+        renderCell: (v) => (
+            <NavLink to={`/question/${v.row.id}`} className={styles.navLink}>
+                {v.value}
+            </NavLink>
+        ),
+    },
     { field: "patientName", headerName: "Patient", flex: 2 },
     { field: "createAt", headerName: "Create At", flex: 2, valueFormatter: (v) => dayjs(v * 1000).format("DD/MM/YY HH:mm") },
     { field: "doctorName", headerName: "Doctor", flex: 2, valueFormatter: (v) => (v ? v : "none") },

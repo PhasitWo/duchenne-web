@@ -10,9 +10,10 @@ import { Translate } from "../hooks/LanguageContext";
 import logo from "../assets/Branding_logo.png";
 import { BsPersonCircle } from "react-icons/bs";
 import { RiExpandUpDownLine } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
-
+    const navigate = useNavigate();
     return (
         <div id="navbar">
             <div id="top-navbar-box">
@@ -20,7 +21,7 @@ export default function Navbar() {
                     <img src={logo} />
                 </NavLink>
                 <div id="profile-container">
-                    <div id="profile-button">
+                    <div id="profile-button" onClick={() => navigate("/profile")}>
                         <BsPersonCircle size={20} style={{ marginLeft: "5px" }} />
                         <div id="profile-name">พสิษฐ์ โวศรี าสวาสฟหกวสาวา</div>
                         <RiExpandUpDownLine />
@@ -52,6 +53,10 @@ export default function Navbar() {
                         <div>
                             <Translate token="Questions" />
                         </div>
+                    </NavLink>
+                    <NavLink to="/login">
+                        <div></div>
+                        <div>Preview login</div>
                     </NavLink>
                 </li>
             </ul>
