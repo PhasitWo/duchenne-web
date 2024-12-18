@@ -4,6 +4,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import styles from "../../styles/common.module.css";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
+import GoBack from "../../components/goback";
 
 interface Data {
     patient: { id: number; name: string };
@@ -50,6 +51,7 @@ export default function ViewQuestion() {
         <>
             <Header>This is view question/{id}</Header>
             <div id="content-body">
+                <GoBack/>
                 <div className={styles.questionBox}>
                     <div className={styles.topicContainer}>
                         <h2 style={{ margin: 0 }}>{data.topic}</h2>
