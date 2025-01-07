@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import "../styles/navbar.css";
-import { ToastContainer, Bounce } from "react-toastify";
+import { ToastContainer, Bounce, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import { FaUserDoctor } from "react-icons/fa6";
 import { BsPersonLinesFill } from "react-icons/bs";
@@ -11,9 +11,22 @@ import logo from "../assets/Branding_logo.png";
 import { BsPersonCircle } from "react-icons/bs";
 import { RiExpandUpDownLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { useApiContext } from "../hooks/apiContext";
+import { useAuthContext } from "../hooks/authContext";
 
 export default function Navbar() {
     const navigate = useNavigate();
+    const { api } = useApiContext();
+    const { logoutDispatch } = useAuthContext();
+    const testLogout = async () => {
+        const response = await api.post("/auth/logout");
+        if (response.status !== 200) {
+            toast.error("Cannot logout");
+        } else {
+            logoutDispatch();
+            navigate("/login", { replace: true });
+        }
+    };
     return (
         <div id="navbar">
             <div id="top-navbar-box">
@@ -23,7 +36,7 @@ export default function Navbar() {
                 <div id="profile-container">
                     <div id="profile-button" onClick={() => navigate("/profile")}>
                         <BsPersonCircle size={20} style={{ marginLeft: "5px" }} />
-                        <div id="profile-name">พสิษฐ์ โวศรี าสวาสฟหกวสาวา</div>
+                        <div id="profile-name">Profile</div>
                         <RiExpandUpDownLine />
                     </div>
                 </div>
@@ -54,10 +67,10 @@ export default function Navbar() {
                             <Translate token="Questions" />
                         </div>
                     </NavLink>
-                    <NavLink to="/login">
+                    <a onClick={testLogout}>
                         <div></div>
-                        <div>Preview login</div>
-                    </NavLink>
+                        <div>Logout</div>
+                    </a>
                 </li>
             </ul>
             <ToastContainer
