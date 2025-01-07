@@ -5,6 +5,6 @@ export interface ErrResponse {
 export interface TrimDoctor {
     id: number;
     firstName: string;
-    middleName: string;
+    middleName: string | null;
     lastName: string;
 }

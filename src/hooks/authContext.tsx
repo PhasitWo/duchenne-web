@@ -42,6 +42,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
     const logoutDispatch = () => {
         setAuthState({ isLoading: false, isSignin: false });
+        navigate("/login", { replace: true });
     };
 
     // check auth state on mount
@@ -56,7 +57,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             const response = await api.get<UserData>("/api/userData");
             switch (response.status) {
                 case 200:
-                    setUserData(response.data)
+                    setUserData(response.data);
                     loginDispatch();
                     navigate("/", { replace: true });
                     break;

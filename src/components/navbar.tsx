@@ -24,7 +24,6 @@ export default function Navbar() {
             toast.error("Cannot logout");
         } else {
             logoutDispatch();
-            navigate("/login", { replace: true });
         }
     };
     return (

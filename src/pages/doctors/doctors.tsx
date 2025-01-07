@@ -1,22 +1,29 @@
-import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styles from "../../styles/common.module.css";
 import { Translate } from "../../hooks/LanguageContext";
 import Header from "../../components/header";
 import { FaUserDoctor } from "react-icons/fa6";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
+import { ErrResponse, TrimDoctor } from "../../model/model";
+import { useApiContext } from "../../hooks/apiContext";
+import { useAuthContext } from "../../hooks/authContext";
+import { AxiosError } from "axios";
 
-const mockup: GridRowsProp = [
-    { id: 1, name: "haha", role: "admin" },
-    { id: 2, name: "asd", role: "user" },
-    { id: 3, name: "123", role: "root" },
-];
+// const mockup: GridRowsProp = [
+//     { id: 1, name: "haha", role: "admin" },
+//     { id: 2, name: "asd", role: "user" },
+//     { id: 3, name: "123", role: "root" },
+// ];
 
-const columns: GridColDef[] = [
+const columns: GridColDef<TrimDoctor>[] = [
     { field: "id", headerName: "ID", width: 100 },
     {
         field: "name",
         headerName: "Name",
         flex: 1,
+        valueGetter: (_, r) => `${r.firstName} ${r.middleName ?? ""} ${r.lastName}`,
         renderCell: (v) => (
             <NavLink to={`/doctor/${v.row.id}`} className={styles.navLink}>
                 {v.value}
@@ -27,7 +34,49 @@ const columns: GridColDef[] = [
 ];
 
 export default function Doctors() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { api } = useApiContext();
+    const { logoutDispatch } = useAuthContext();
+    const [searchText, setSearchText] = useState("");
+    const [rows, setRows] = useState<TrimDoctor[]>([]);
+    const initialRows = useRef<TrimDoctor[]>([]);
+    const fetch = async () => {
+        try {
+            let res = await api.get<TrimDoctor[]>("/api/doctor");
+            switch (res.status) {
+                case 200:
+                    initialRows.current = res.data;
+                    setRows(res.data);
+                    break;
+                case 401:
+                    toast.error("Invalid access token");
+                    logoutDispatch();
+                    break;
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                let error = err as AxiosError<ErrResponse>;
+                toast.error(error.response?.data.error);
+            } else toast.error(`Fatal Error: ${err}`);
+        }
+    };
+    useEffect(() => {
+        fetch();
+    }, []);
+    useEffect(() => {
+        let result: TrimDoctor[] = [];
+        try {
+            result = initialRows.current.filter(
+                (v) =>
+                    (v.firstName + v.middleName + v.lastName).search(RegExp(searchText, "i")) !=
+                        -1 || String(v.id).search(RegExp(searchText, "i")) != -1
+            );
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setRows(result);
+        }
+    }, [searchText]);
     return (
         <>
             <Header>
@@ -40,12 +89,23 @@ export default function Doctors() {
                         <label>
                             <Translate token="Search" />
                         </label>
-                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="ID / Name" />
-                        <button className={styles.button} style={{ marginLeft: "10px" }} onClick={() => navigate("new")}>
+                        <input
+                            type="text"
+                            className={styles.searchInput}
+                            style={{ flex: 1 }}
+                            placeholder="ID / Name"
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                        />
+                        <button
+                            className={styles.button}
+                            style={{ marginLeft: "10px" }}
+                            onClick={() => navigate("new")}
+                        >
                             <Translate token="+ Add" />
                         </button>
                     </div>
-                    <DataGrid rows={mockup} columns={columns} className={styles.datagrid} />
+                    <DataGrid rows={rows} columns={columns} className={styles.datagrid} />
                 </div>
             </div>
         </>
