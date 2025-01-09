@@ -1,17 +1,15 @@
-import { Bounce, toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
-import { useApiContext } from "../hooks/apiContext";
 import styles from "../styles/common.module.css";
 import "../styles/login.css";
 import { AxiosError } from "axios";
 import { ErrResponse } from "../model/model";
 import { useState } from "react";
-import { useAuthContext } from "../hooks/authContext";
+import { useAuthApiContext } from "../hooks/authApiContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-    const { api } = useApiContext();
-    const { loginDispatch } = useAuthContext();
+    const { api, loginDispatch } = useAuthApiContext();
     const navigate = useNavigate();
     const [username, setUsername] = useState("testroot");
     const [password, setPassword] = useState("testroot");
@@ -34,9 +32,6 @@ export default function Login() {
                 case 404:
                     toast.error("No account with following credentials");
                     break;
-                default:
-                    toast.error("Something went wrong...");
-                    console.log("ERROR: ", response.data);
             }
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -98,19 +93,6 @@ export default function Login() {
                     </button>
                 </form>
             </div>
-            <ToastContainer
-                position="bottom-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-                transition={Bounce}
-            />
         </>
     );
 }

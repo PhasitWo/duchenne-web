@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import "../styles/navbar.css";
-import { ToastContainer, Bounce, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import { FaUserDoctor } from "react-icons/fa6";
 import { BsPersonLinesFill } from "react-icons/bs";
@@ -11,13 +11,11 @@ import logo from "../assets/Branding_logo.png";
 import { BsPersonCircle } from "react-icons/bs";
 import { RiExpandUpDownLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { useApiContext } from "../hooks/apiContext";
-import { useAuthContext } from "../hooks/authContext";
+import { useAuthApiContext } from "../hooks/authApiContext";
 
 export default function Navbar() {
     const navigate = useNavigate();
-    const { api } = useApiContext();
-    const { logoutDispatch } = useAuthContext();
+    const { api, logoutDispatch } = useAuthApiContext();
     const testLogout = async () => {
         const response = await api.post("/auth/logout");
         if (response.status !== 200) {
@@ -72,19 +70,6 @@ export default function Navbar() {
                     </a>
                 </li>
             </ul>
-            <ToastContainer
-                position="bottom-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-                transition={Bounce}
-            />
         </div>
     );
 }

@@ -1,23 +1,18 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GoPencil } from "react-icons/go";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import GoBack from "../../components/goback";
 import AppointmentDataGrid from "../../components/appointmentDataGrid";
-
-interface Info {
-    id: number | string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
-    role: string;
-    username: string;
-    password: string;
-    confirmPassword: string;
-}
+import { useAuthApiContext } from "../../hooks/authApiContext";
+import { Doctor, ErrResponse } from "../../model/model";
+import Loading from "../loading";
+import { toast } from "react-toastify";
+import { AxiosError } from "axios";
+import { Chip, MenuItem, Select } from "@mui/material";
 
 interface PasswordCondition {
     length: boolean;
@@ -29,12 +24,42 @@ interface PasswordCondition {
 const engRegex = /^[A-Za-z0-9]*$/;
 
 export default function ViewDoctor() {
+    // hook
     const { id } = useParams();
-    const [info, setInfo] = useState<Info>(initialInfo);
-    const infoRef = useRef<Info>(); // save prevState on editing
+    const { api } = useAuthApiContext();
+    const navigate = useNavigate();
+    // state
+    const [isLoading, setIsLoading] = useState(true);
+    const infoRef = useRef<Doctor>(); // save prevState on editing
+    const [info, setInfo] = useState<Doctor>(initialInfo);
+    const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [onEdit, setOnEdit] = useState(false);
     const [showAppointment, setShowAppointment] = useState(false);
-    const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
+
+    const fetch = useCallback(async () => {
+        try {
+            let res = await api.get<Doctor>("/api/doctor/" + id);
+            switch (res.status) {
+                case 200:
+                    infoRef.current = res.data;
+                    setInfo(res.data);
+                    break;
+                case 404:
+                    navigate("/notFound");
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                let error = err as AxiosError<ErrResponse>;
+                toast.error(error.response?.data.error);
+            } else toast.error(`Fatal Error: ${err}`);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+    useEffect(() => {
+        fetch();
+    }, []);
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {
@@ -54,6 +79,41 @@ export default function ViewDoctor() {
         setPwdConditions(newCondition);
         setInfo({ ...info, password: password });
     };
+
+    const handleSave = async () => {
+        if (!evaluate(pwdConditions)) {
+            toast.error("Bad password");
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const res = await api.put("/web/api/doctor/" + id, info);
+            switch (res.status) {
+                case 200:
+                    toast.success("Updated!");
+                    navigate("/reload");
+                    break;
+                case 403:
+                    toast.error("Insufficient permission");
+                    break;
+                case 404:
+                    toast.error("This doctor is not in the database");
+                    break;
+                case 409:
+                    toast.error("Duplicate username");
+                    break;
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                let error = err as AxiosError<ErrResponse>;
+                toast.error(error.response?.data.error);
+            } else toast.error(`Fatal Error: ${err}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isLoading) return <Loading />;
     return (
         <>
             <Header>This is view doctor/{id}</Header>
@@ -94,7 +154,7 @@ export default function ViewDoctor() {
                         <input
                             type="text"
                             className={styles.infoInput}
-                            value={info.middleName}
+                            value={info.middleName ?? ""}
                             onChange={(e) => setInfo({ ...info, middleName: e.target.value })}
                             disabled={!onEdit}
                         />
@@ -111,13 +171,27 @@ export default function ViewDoctor() {
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Role</label>
-                        <input
-                            type="text"
-                            className={styles.infoInput}
-                            value={info.role}
-                            onChange={(e) => setInfo({ ...info, role: e.target.value })}
-                            disabled={!onEdit}
-                        />
+                        {onEdit ? (
+                            <Select
+                                value={info.role}
+                                onChange={(e) => setInfo({ ...info, role: e.target.value })}
+                                size="small"
+                                sx={{ paddingLeft: 0 }}
+                                disabled={!onEdit}
+                            >
+                                <MenuItem value="root">
+                                    <Chip label="root" color="secondary" variant="outlined" />
+                                </MenuItem>
+                                <MenuItem value="admin">
+                                    <Chip label="admin" color="info" variant="outlined" />
+                                </MenuItem>
+                                <MenuItem value="user">
+                                    <Chip label="user" color="success" variant="outlined" />
+                                </MenuItem>
+                            </Select>
+                        ) : (
+                            <Chip label={info.role} color={roleColorMap[info.role]} variant="outlined" />
+                        )}
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Username</label>
@@ -125,7 +199,7 @@ export default function ViewDoctor() {
                             type="text"
                             className={styles.infoInput}
                             value={info.username}
-                            onChange={(e) => setInfo({ ...info, username: e.target.value })}
+                            onChange={(e) => setInfo({ ...info, username: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
@@ -148,15 +222,21 @@ export default function ViewDoctor() {
                                         {"Passwords must be between 8-20 characters in length"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.lowerCase ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.lowerCase ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 lower case letter [a-z]"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.upperCase ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.upperCase ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 upper case letter [A-Z]"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.numeric ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.numeric ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 numeric character [0-9]"}
                                     </span>
                                 </div>
@@ -166,8 +246,8 @@ export default function ViewDoctor() {
                                 <input
                                     type="password"
                                     className={styles.infoInput}
-                                    value={info.confirmPassword}
-                                    onChange={(e) => setInfo({ ...info, confirmPassword: e.target.value })}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
                                 />
                             </div>
                             <div className={styles.infoFooter}>
@@ -175,13 +255,13 @@ export default function ViewDoctor() {
                                     className={styles.cancelButton}
                                     onClick={() => {
                                         setOnEdit(false);
-                                        setInfo(infoRef.current as Info);
+                                        setInfo(infoRef.current as Doctor);
                                     }}
                                 >
                                     <ImCancelCircle />
                                     <span>Cancel</span>
                                 </button>
-                                <button className={styles.button} onClick={() => setOnEdit(true)}>
+                                <button className={styles.button} onClick={handleSave}>
                                     <IoSaveOutline />
                                     <span>Save</span>
                                 </button>
@@ -190,30 +270,44 @@ export default function ViewDoctor() {
                     )}
                 </div>
                 <div id="doctor-appointment">
-                    <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "10px" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                            gap: "10px",
+                        }}
+                    >
                         <h3>Appointments</h3>
                         {!showAppointment && (
-                            <button className={styles.button} onClick={() => setShowAppointment(true)}>
+                            <button
+                                className={styles.button}
+                                onClick={() => setShowAppointment(true)}
+                            >
                                 Show
                             </button>
                         )}
                     </div>
-                    {showAppointment && <AppointmentDataGrid className={styles.datagridContainer} sx={{ height: "50vh" }} />}
+                    {showAppointment && (
+                        <AppointmentDataGrid
+                            className={styles.datagridContainer}
+                            sx={{ height: "50vh" }}
+                        />
+                    )}
                 </div>
             </div>
         </>
     );
 }
 
-const initialInfo: Info = {
-    id: "-",
+const initialInfo: Doctor = {
+    id: -1,
     firstName: "-",
     middleName: "-",
     lastName: "-",
-    role: "-",
+    role: "user",
     username: "-",
     password: "-",
-    confirmPassword: "",
 };
 
 const initialPwdCondition: PasswordCondition = {
@@ -221,4 +315,26 @@ const initialPwdCondition: PasswordCondition = {
     lowerCase: false,
     upperCase: false,
     numeric: false,
+};
+
+const evaluate = (obj: any) => {
+    for (let key in obj) {
+        if (obj[key] === false) return false;
+    }
+    return true;
+};
+
+const roleColorMap: {
+    [key: string]:
+        | "default"
+        | "primary"
+        | "secondary"
+        | "error"
+        | "info"
+        | "success"
+        | "warning"
+} = {
+    root: "secondary",
+    admin: "info",
+    user: "success",
 };

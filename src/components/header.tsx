@@ -2,11 +2,11 @@ import "../styles/header.css";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useLanguage } from "../hooks/LanguageContext";
 import type { PropsWithChildren } from "react";
-import { useAuthContext } from "../hooks/authContext";
+import { useAuthApiContext } from "../hooks/authApiContext";
 
 export default function Header({ children }: PropsWithChildren) {
     const { currentLang, setCurrentLang } = useLanguage();
-    const { userData } = useAuthContext();
+    const { userData } = useAuthApiContext();
     const onChange = (_: any, target: string) => setCurrentLang(target);
     return (
         <div id="header">

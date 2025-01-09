@@ -1,22 +1,19 @@
 import "./styles/main.css";
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./app.tsx";
-import { AuthProvider } from "./hooks/authContext.tsx";
-import { ApiProvider } from "./hooks/apiContext.tsx";
+import { AuthApiProvider } from "./hooks/authApiContext.tsx";
 import { LanguageProvider } from "./hooks/LanguageContext.tsx";
 import { HashRouter } from "react-router-dom";
+// import { StrictMode } from "react";
 
 createRoot(document.getElementById("root")!).render(
-    <StrictMode>
+    // <StrictMode>
         <HashRouter>
-            <ApiProvider>
-                <AuthProvider>
-                    <LanguageProvider>
-                        <App />
-                    </LanguageProvider>
-                </AuthProvider>
-            </ApiProvider>
+            <AuthApiProvider>
+                <LanguageProvider>
+                    <App />
+                </LanguageProvider>
+            </AuthApiProvider>
         </HashRouter>
-    </StrictMode>
+    // </StrictMode>
 );

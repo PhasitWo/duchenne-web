@@ -7,9 +7,9 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { ErrResponse, TrimDoctor } from "../../model/model";
-import { useApiContext } from "../../hooks/apiContext";
-import { useAuthContext } from "../../hooks/authContext";
+import { useAuthApiContext } from "../../hooks/authApiContext";
 import { AxiosError } from "axios";
+import Loading from "../loading";
 
 // const mockup: GridRowsProp = [
 //     { id: 1, name: "haha", role: "admin" },
@@ -35,9 +35,9 @@ const columns: GridColDef<TrimDoctor>[] = [
 
 export default function Doctors() {
     const navigate = useNavigate();
-    const { api } = useApiContext();
-    const { logoutDispatch } = useAuthContext();
+    const { api } = useAuthApiContext();
     const [searchText, setSearchText] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
     const [rows, setRows] = useState<TrimDoctor[]>([]);
     const initialRows = useRef<TrimDoctor[]>([]);
     const fetch = async () => {
@@ -48,16 +48,14 @@ export default function Doctors() {
                     initialRows.current = res.data;
                     setRows(res.data);
                     break;
-                case 401:
-                    toast.error("Invalid access token");
-                    logoutDispatch();
-                    break;
             }
         } catch (err) {
             if (err instanceof AxiosError) {
                 let error = err as AxiosError<ErrResponse>;
                 toast.error(error.response?.data.error);
             } else toast.error(`Fatal Error: ${err}`);
+        } finally {
+            setIsLoading(false)
         }
     };
     useEffect(() => {
@@ -77,6 +75,7 @@ export default function Doctors() {
             setRows(result);
         }
     }, [searchText]);
+    if (isLoading) return <Loading />;
     return (
         <>
             <Header>

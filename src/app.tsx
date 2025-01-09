@@ -13,12 +13,14 @@ import ViewQuestion from "./pages/questions/viewQuestion.tsx";
 import Login from "./pages/login.tsx";
 import AddDoctor from "./pages/doctors/addDoctor.tsx";
 import AddPatient from "./pages/patients/addPatient.tsx";
-import { useAuthContext } from "./hooks/authContext.tsx";
+import { useAuthApiContext } from "./hooks/authApiContext.tsx";
 import { Navigate } from "react-router-dom";
 import Loading from "./pages/loading.tsx";
+import NotFound from "./pages/notFound.tsx";
+import Reload from "./pages/reload.tsx";
 
 export default function App() {
-    const { authState } = useAuthContext();
+    const { authState } = useAuthApiContext();
     if (authState.isLoading) {
         return <Loading/>
     }
@@ -44,6 +46,7 @@ export default function App() {
                             <Route index element={<Questions />} />
                             <Route path=":id" element={<ViewQuestion />} />
                         </Route>
+                        <Route path="notFound" element={<NotFound />} />
                     </Route>
                 </>
             ) : (
@@ -52,6 +55,8 @@ export default function App() {
                     <Route path="login" element={<Login />} />
                 </>
             )}
+            <Route path="reload" element={<Reload/>}/>
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }
