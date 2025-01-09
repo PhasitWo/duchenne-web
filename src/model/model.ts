@@ -19,3 +19,30 @@ export interface Doctor {
     password: string;
     role: string;
 }
+
+export interface Patient {
+    id: number;
+    hn: string;
+    firstName: string;
+    middleName: string | null;
+    lastName: string;
+    email: string | null;
+    phone: string | null;
+    verified: boolean;
+}
+
+export interface Appointment {
+    id: number;
+    createAt: number;
+    date: number;
+    patient: Patient;
+    doctor: Omit<TrimDoctor, "role">;
+}
+
+export interface Question {
+    id: number;
+    topic: string;
+    createAt: number;
+    answerAt: number | null;
+
+}

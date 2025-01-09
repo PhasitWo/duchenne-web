@@ -6,13 +6,13 @@ import { GoPencil } from "react-icons/go";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import GoBack from "../../components/goback";
-import AppointmentDataGrid from "../../components/appointmentDataGrid";
+import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
 import { useAuthApiContext } from "../../hooks/authApiContext";
 import { Doctor, ErrResponse } from "../../model/model";
 import Loading from "../loading";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
-import { Chip, MenuItem, Select } from "@mui/material";
+import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 
 interface PasswordCondition {
     length: boolean;
@@ -35,8 +35,9 @@ export default function ViewDoctor() {
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [confirmPassword, setConfirmPassword] = useState("");
     const [onEdit, setOnEdit] = useState(false);
-    const [showAppointment, setShowAppointment] = useState(false);
-
+    useEffect(() => {
+        fetch();
+    }, []);
     const fetch = useCallback(async () => {
         try {
             let res = await api.get<Doctor>("/api/doctor/" + id);
@@ -44,6 +45,8 @@ export default function ViewDoctor() {
                 case 200:
                     infoRef.current = res.data;
                     setInfo(res.data);
+                      console.log(res.data);
+                    setConfirmPassword(res.data.password);
                     break;
                 case 404:
                     navigate("/notFound");
@@ -57,14 +60,14 @@ export default function ViewDoctor() {
             setIsLoading(false);
         }
     }, []);
+
     useEffect(() => {
-        fetch();
-    }, []);
+        checkConditions(info.password);
+    }, [info.password]);
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {
             setPwdConditions(initialPwdCondition);
-            setInfo({ ...info, password: password });
             return;
         }
         if (!engRegex.test(password)) return; // english only
@@ -77,17 +80,31 @@ export default function ViewDoctor() {
             else if (char === char.toUpperCase()) newCondition.upperCase = true;
         }
         setPwdConditions(newCondition);
-        setInfo({ ...info, password: password });
     };
 
     const handleSave = async () => {
+        if (
+            info.firstName.trim() === "" ||
+            info.lastName.trim() === "" ||
+            info.role.trim() === "" ||
+            info.username.trim() === "" ||
+            info.password.trim() === ""
+        ) {
+            toast.error("Not enough information");
+            return;
+        }
         if (!evaluate(pwdConditions)) {
             toast.error("Bad password");
             return;
         }
+        if (confirmPassword !== info.password) {
+            toast.error("Mismatched password confirmation");
+            return;
+        }
         setIsLoading(true);
         try {
-            const res = await api.put("/web/api/doctor/" + id, info);
+            const requestBody = { ...info, middleName: info.middleName === "" ? null : info.middleName };
+            const res = await api.put("/api/doctor/" + id, requestBody);
             switch (res.status) {
                 case 200:
                     toast.success("Updated!");
@@ -113,10 +130,17 @@ export default function ViewDoctor() {
         }
     };
 
+    // appointment
+    const [showAppointment, setShowAppointment] = useState(false);
+    const [apmtType, setApmntType] = useState<AppointmentType>("incoming");
+    const handleApmtTypeChange = (e: SelectChangeEvent) => {
+        setApmntType(e.target.value as AppointmentType);
+    };
+
     if (isLoading) return <Loading />;
     return (
         <>
-            <Header>This is view doctor/{id}</Header>
+            <Header>{`${info.firstName} ${info.middleName ?? ""} ${info.lastName}`}</Header>
             <div id="content-body">
                 <GoBack />
                 <div id="info-container" className={styles.infoContainer}>
@@ -140,12 +164,12 @@ export default function ViewDoctor() {
                         <input type="text" className={styles.infoInput} value={info.id} disabled />
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>First Name</label>
+                        <label className={styles.infoLabel}>First Name*</label>
                         <input
                             type="text"
                             className={styles.infoInput}
                             value={info.firstName}
-                            onChange={(e) => setInfo({ ...info, firstName: e.target.value })}
+                            onChange={(e) => setInfo({ ...info, firstName: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
@@ -155,22 +179,22 @@ export default function ViewDoctor() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) => setInfo({ ...info, middleName: e.target.value })}
+                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Last Name</label>
+                        <label className={styles.infoLabel}>Last Name*</label>
                         <input
                             type="text"
                             className={styles.infoInput}
                             value={info.lastName}
-                            onChange={(e) => setInfo({ ...info, lastName: e.target.value })}
+                            onChange={(e) => setInfo({ ...info, lastName: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Role</label>
+                        <label className={styles.infoLabel}>Role*</label>
                         {onEdit ? (
                             <Select
                                 value={info.role}
@@ -190,11 +214,13 @@ export default function ViewDoctor() {
                                 </MenuItem>
                             </Select>
                         ) : (
-                            <Chip label={info.role} color={roleColorMap[info.role]} variant="outlined" />
+                            <div>
+                                <Chip label={info.role} color={roleColorMap[info.role]} variant="outlined" />
+                            </div>
                         )}
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Username</label>
+                        <label className={styles.infoLabel}>Username*</label>
                         <input
                             type="text"
                             className={styles.infoInput}
@@ -204,12 +230,15 @@ export default function ViewDoctor() {
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Password</label>
+                        <label className={styles.infoLabel}>Password*</label>
                         <input
                             type={onEdit ? "text" : "password"}
                             className={styles.infoInput}
                             value={info.password}
-                            onChange={(e) => checkConditions(e.target.value)}
+                            onChange={(e) => {
+                                if (!engRegex.test(e.target.value)) return; // english only
+                                setInfo({ ...info, password: e.target.value.trim() });
+                            }}
                             disabled={!onEdit}
                         />
                     </div>
@@ -222,27 +251,21 @@ export default function ViewDoctor() {
                                         {"Passwords must be between 8-20 characters in length"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.lowerCase ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.lowerCase ? "green" : "red" }}>
                                         {"a minimum of 1 lower case letter [a-z]"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.upperCase ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.upperCase ? "green" : "red" }}>
                                         {"a minimum of 1 upper case letter [A-Z]"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.numeric ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.numeric ? "green" : "red" }}>
                                         {"a minimum of 1 numeric character [0-9]"}
                                     </span>
                                 </div>
                             </div>
                             <div className={styles.infoInputContainer}>
-                                <label className={styles.infoLabel}>Confirm Password</label>
+                                <label className={styles.infoLabel}>Confirm Password*</label>
                                 <input
                                     type="password"
                                     className={styles.infoInput}
@@ -280,19 +303,24 @@ export default function ViewDoctor() {
                     >
                         <h3>Appointments</h3>
                         {!showAppointment && (
-                            <button
-                                className={styles.button}
-                                onClick={() => setShowAppointment(true)}
-                            >
+                            <button className={styles.button} onClick={() => setShowAppointment(true)}>
                                 Show
                             </button>
                         )}
                     </div>
                     {showAppointment && (
-                        <AppointmentDataGrid
-                            className={styles.datagridContainer}
-                            sx={{ height: "50vh" }}
-                        />
+                        <>
+                            <Select value={apmtType} onChange={handleApmtTypeChange} size="small" sx={{ marginBottom: "10px" }}>
+                                <MenuItem value="incoming">Incoming</MenuItem>
+                                <MenuItem value="history">History</MenuItem>
+                            </Select>
+                            <AppointmentDataGrid
+                                className={styles.datagridContainer}
+                                sx={{ height: "50vh" }}
+                                type={apmtType}
+                                doctorId={info.id}
+                            />
+                        </>
                     )}
                 </div>
             </div>
@@ -325,14 +353,7 @@ const evaluate = (obj: any) => {
 };
 
 const roleColorMap: {
-    [key: string]:
-        | "default"
-        | "primary"
-        | "secondary"
-        | "error"
-        | "info"
-        | "success"
-        | "warning"
+    [key: string]: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning";
 } = {
     root: "secondary",
     admin: "info",

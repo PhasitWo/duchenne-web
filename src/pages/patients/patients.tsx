@@ -1,25 +1,31 @@
-import { DataGrid, GridRowsProp, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styles from "../../styles/common.module.css";
 import Chip from "@mui/material/Chip";
 import { Translate } from "../../hooks/LanguageContext";
 import Header from "../../components/header";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useAuthApiContext } from "../../hooks/authApiContext";
+import { ErrResponse, Patient } from "../../model/model";
+import { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
-const mockup: GridRowsProp = [
-    { hn: "test1", name: "Jingjai bindai", email: "dunno@gmail.com", phone: "000000", verified: true },
-    { hn: "test2", name: "Superman Batman", email: "dunno@gmail.com", phone: "000000", verified: true },
-    { hn: "test3", name: "Kawin Bindai Mario", email: "dunno@gmail.com", phone: "000000", verified: false },
-];
+// const mockup: GridRowsProp = [
+//     { hn: "test1", name: "Jingjai bindai", email: "dunno@gmail.com", phone: "000000", verified: true },
+//     { hn: "test2", name: "Superman Batman", email: "dunno@gmail.com", phone: "000000", verified: true },
+//     { hn: "test3", name: "Kawin Bindai Mario", email: "dunno@gmail.com", phone: "000000", verified: false },
+// ];
 
-const columns: GridColDef[] = [
+const columns: GridColDef<Patient>[] = [
     { field: "hn", headerName: "HN", width: 100 },
     {
         field: "name",
         headerName: "Name",
         flex: 2,
+        valueGetter: (_, r) => `${r.firstName} ${r.middleName ?? ""} ${r.lastName}`,
         renderCell: (v) => (
-            <NavLink to={`/patient/${v.row.hn}`} className={styles.navLink}>
+            <NavLink to={`/patient/${v.row.id}`} className={styles.navLink}>
                 {v.value}
             </NavLink>
         ),
@@ -39,7 +45,47 @@ const columns: GridColDef[] = [
 ];
 
 export default function Patients() {
+    const { api } = useAuthApiContext();
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchText, setSearchText] = useState("");
+    const initialRows = useRef<Patient[]>([]);
+    const [rows, setRows] = useState<Patient[]>([]);
+    useEffect(() => {
+        fetch();
+    }, []);
+    const fetch = async () => {
+        try {
+            let res = await api.get<Patient[]>("/api/patient");
+            switch (res.status) {
+                case 200:
+                    initialRows.current = res.data;
+                    setRows(res.data);
+                    break;
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                let error = err as AxiosError<ErrResponse>;
+                toast.error(error.response?.data.error);
+            } else toast.error(`Fatal Error: ${err}`);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    useEffect(() => {
+        let result: Patient[] = [];
+        try {
+            result = initialRows.current.filter(
+                (v) =>
+                    (v.firstName + v.middleName + v.lastName).search(RegExp(searchText, "i")) != -1 ||
+                    v.hn.search(RegExp(searchText, "i")) != -1
+            );
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setRows(result);
+        }
+    }, [searchText]);
     return (
         <>
             <Header>
@@ -52,12 +98,25 @@ export default function Patients() {
                         <label>
                             <Translate token="Search" />
                         </label>
-                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="HN / Name" />
+                        <input
+                            type="text"
+                            className={styles.searchInput}
+                            style={{ flex: 1 }}
+                            placeholder="HN / Name"
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                        />
                         <button className={styles.button} style={{ marginLeft: "10px" }} onClick={() => navigate("new")}>
                             <Translate token="+ Add" />
                         </button>
                     </div>
-                    <DataGrid rows={mockup} columns={columns} className={styles.datagrid} getRowId={(r) => r.hn} />
+                    <DataGrid
+                        rows={rows}
+                        columns={columns}
+                        className={styles.datagrid}
+                        getRowId={(r) => r.hn}
+                        loading={isLoading}
+                    />
                 </div>
             </div>
         </>

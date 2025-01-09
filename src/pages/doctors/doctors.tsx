@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import { ErrResponse, TrimDoctor } from "../../model/model";
 import { useAuthApiContext } from "../../hooks/authApiContext";
 import { AxiosError } from "axios";
-import Loading from "../loading";
 
 // const mockup: GridRowsProp = [
 //     { id: 1, name: "haha", role: "admin" },
@@ -40,6 +39,9 @@ export default function Doctors() {
     const [isLoading, setIsLoading] = useState(true);
     const [rows, setRows] = useState<TrimDoctor[]>([]);
     const initialRows = useRef<TrimDoctor[]>([]);
+    useEffect(() => {
+        fetch();
+    }, []);
     const fetch = async () => {
         try {
             let res = await api.get<TrimDoctor[]>("/api/doctor");
@@ -55,19 +57,16 @@ export default function Doctors() {
                 toast.error(error.response?.data.error);
             } else toast.error(`Fatal Error: ${err}`);
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     };
-    useEffect(() => {
-        fetch();
-    }, []);
     useEffect(() => {
         let result: TrimDoctor[] = [];
         try {
             result = initialRows.current.filter(
                 (v) =>
-                    (v.firstName + v.middleName + v.lastName).search(RegExp(searchText, "i")) !=
-                        -1 || String(v.id).search(RegExp(searchText, "i")) != -1
+                    (v.firstName + v.middleName + v.lastName).search(RegExp(searchText, "i")) != -1 ||
+                    String(v.id).search(RegExp(searchText, "i")) != -1
             );
         } catch (e) {
             console.log(e);
@@ -75,7 +74,6 @@ export default function Doctors() {
             setRows(result);
         }
     }, [searchText]);
-    if (isLoading) return <Loading />;
     return (
         <>
             <Header>
@@ -96,15 +94,11 @@ export default function Doctors() {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
-                        <button
-                            className={styles.button}
-                            style={{ marginLeft: "10px" }}
-                            onClick={() => navigate("new")}
-                        >
+                        <button className={styles.button} style={{ marginLeft: "10px" }} onClick={() => navigate("new")}>
                             <Translate token="+ Add" />
                         </button>
                     </div>
-                    <DataGrid rows={rows} columns={columns} className={styles.datagrid} />
+                    <DataGrid rows={rows} columns={columns} className={styles.datagrid} loading={isLoading} />
                 </div>
             </div>
         </>

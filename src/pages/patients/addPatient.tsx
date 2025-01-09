@@ -4,26 +4,66 @@ import GoBack from "../../components/goback";
 import { Chip } from "@mui/material";
 import { useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-
-interface Info {
-    hn: number | string;
-    firstName: string;
-    middleName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-}
-
-type Verify = 0 | 1
+import { ErrResponse, Patient } from "../../model/model";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useAuthApiContext } from "../../hooks/authApiContext";
+import Loading from "../loading";
+import { AxiosError } from "axios";
 
 export default function AddPatient() {
-    const [info, setInfo] = useState<Info>(initialInfo);
-    const [verified, setVerified] = useState<Verify>(0);
-    const handleVerifiedChange = (e: SelectChangeEvent) => {
-        setVerified(Number(e.target.value) as Verify);
+    const { api } = useAuthApiContext();
+    const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [info, setInfo] = useState<Patient>(initialInfo);
+
+    const handleSave = async () => {
+        if (info.hn.trim() === "" || info.firstName.trim() === "" || info.lastName.trim() === "") {
+            toast.error("Not enough information");
+            return;
+        }
+        if (info.hn.length > 15) {
+            toast.error("HN cannot exceed 15 in length");
+            return;
+        }
+        if (info.phone && info.phone.length > 15) {
+            toast.error("Phone number cannot exceed 15 digits");
+            return;
+        }
+        setIsLoading(true);
+        try {
+            const requestBody = {
+                ...info,
+                middleName: info.middleName === "" ? null : info.middleName,
+                email: info.email === "" ? null : info.email,
+                phone: info.middleName === "" ? null : info.middleName,
+            };
+            const res = await api.post<{ id: number }>("/api/patient", requestBody);
+            switch (res.status) {
+                case 201:
+                    toast.success("Created new patient account!");
+                    navigate("/patient/" + res.data.id);
+                    break;
+                case 403:
+                    toast.error("Insufficient permission");
+                    break;
+                case 409:
+                    toast.error("Duplicate HN");
+                    break;
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                let error = err as AxiosError<ErrResponse>;
+                toast.error(error.response?.data.error);
+            } else toast.error(`Fatal Error: ${err}`);
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    if (isLoading) return <Loading />;
     return (
         <>
             <Header>Add New Patient</Header>
@@ -34,16 +74,17 @@ export default function AddPatient() {
                         <h3>Patient Infomation</h3>
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>HN</label>
+                        <label className={styles.infoLabel}>HN*</label>
                         <input
                             type="text"
                             className={styles.infoInput}
                             value={info.hn}
                             onChange={(e) => setInfo({ ...info, hn: e.target.value })}
+                            maxLength={15}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>First Name</label>
+                        <label className={styles.infoLabel}>First Name*</label>
                         <input
                             type="text"
                             className={styles.infoInput}
@@ -56,12 +97,12 @@ export default function AddPatient() {
                         <input
                             type="text"
                             className={styles.infoInput}
-                            value={info.middleName}
+                            value={info.middleName ?? ""}
                             onChange={(e) => setInfo({ ...info, middleName: e.target.value })}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Last Name</label>
+                        <label className={styles.infoLabel}>Last Name*</label>
                         <input
                             type="text"
                             className={styles.infoInput}
@@ -74,7 +115,7 @@ export default function AddPatient() {
                         <input
                             type="text"
                             className={styles.infoInput}
-                            value={info.email}
+                            value={info.email ?? ""}
                             onChange={(e) => setInfo({ ...info, email: e.target.value })}
                         />
                     </div>
@@ -83,31 +124,36 @@ export default function AddPatient() {
                         <input
                             type="text"
                             className={styles.infoInput}
-                            value={info.phone}
+                            value={info.phone ?? ""}
                             onChange={(e) => setInfo({ ...info, phone: e.target.value })}
+                            maxLength={15}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Status</label>
+                        <label className={styles.infoLabel}>Status*</label>
                         <div>
-                            <Select size="small" value={String(verified)} onChange={handleVerifiedChange}>
-                                <MenuItem value={0}>
-                                    <Chip label="unverified" color="error" variant="outlined" />
-                                </MenuItem>
-                                <MenuItem value={1}>
+                            <Select
+                                value={info.verified ? "verified" : "unverified"}
+                                onChange={(e) => setInfo({ ...info, verified: e.target.value === "verified" })}
+                                size="small"
+                                sx={{ paddingLeft: 0 }}
+                            >
+                                <MenuItem value="verified">
                                     <Chip label="verified" color="success" variant="outlined" />
+                                </MenuItem>
+                                <MenuItem value="unverified">
+                                    <Chip label="unverified" color="error" variant="outlined" />
                                 </MenuItem>
                             </Select>
                         </div>
                     </div>
-                    {!verified && (
+                    {!info.verified && (
                         <span style={{ color: "grey" }}>
-                            {" "}
                             *with 'unverified' status, this patient is needed to complete signup process in the mobile app
                         </span>
                     )}
                     <div className={styles.infoFooter}>
-                        <button className={styles.button}>
+                        <button className={styles.button} onClick={handleSave}>
                             <IoSaveOutline />
                             <span>Save</span>
                         </button>
@@ -118,11 +164,13 @@ export default function AddPatient() {
     );
 }
 
-const initialInfo: Info = {
+const initialInfo: Patient = {
+    id: -1,
     hn: "",
     firstName: "",
     middleName: "",
     lastName: "",
     email: "",
     phone: "",
+    verified: true,
 };

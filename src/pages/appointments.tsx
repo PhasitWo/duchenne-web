@@ -1,25 +1,20 @@
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { GridRowsProp } from "@mui/x-data-grid";
 import { useState } from "react";
 import styles from "../styles/common.module.css";
 import { Translate } from "../hooks/LanguageContext";
 import Header from "../components/header";
 import { AiOutlineSchedule } from "react-icons/ai";
 import AppointmentDataGrid from "../components/appointmentDataGrid";
+import { AppointmentType } from "../components/appointmentDataGrid";
+import { useAuthApiContext } from "../hooks/authApiContext";
 
 type AppointmentOwner = "myappointment" | "allappointment";
-type AppointmentType = "incoming" | "history";
-
-const mockup: GridRowsProp = [
-    { id: 1, patientName: "Jingjai bindai", doctorName: "Dr.Earth", createAt: 1734268740, date: 1734278740 },
-    { id: 2, patientName: "Superman Batman", doctorName: "Dr.Earth", createAt: 1734268540, date: 1734288740 },
-    { id: 3, patientName: "Kawin Bindai Mario", doctorName: "Dr.Ploy", createAt: 1734264740, date: 1734968740 },
-];
 
 export default function Appointments() {
     const [apmtOwner, setApmntOwner] = useState<AppointmentOwner>("myappointment");
     const [apmtType, setApmntType] = useState<AppointmentType>("incoming");
+    const { userData } = useAuthApiContext();
     const handleApmtOwnerChange = (e: SelectChangeEvent) => {
         setApmntOwner(e.target.value as AppointmentOwner);
     };
@@ -50,12 +45,16 @@ export default function Appointments() {
                             alignItems: "center",
                         }}
                     >
-                        <label>
+                        {/* <label>
                             <Translate token="Search" />
                         </label>
-                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="id / name" />
+                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="id / name" /> */}
                     </div>
-                    <AppointmentDataGrid rows={mockup} className={styles.datagrid} />
+                    <AppointmentDataGrid
+                        className={styles.datagrid}
+                        type={apmtType}
+                        doctorId={apmtOwner === "myappointment" ? userData.doctorId : undefined}
+                    />
                 </div>
             </div>
         </>

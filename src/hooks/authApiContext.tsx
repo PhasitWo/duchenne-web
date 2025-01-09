@@ -16,23 +16,23 @@ interface UserData {
 
 type LoginDispatch = () => void;
 type LogoutDispatch = () => void;
+type FetchUserData = () => Promise<boolean>;
 
-var apiUrl =
-    import.meta.env.MODE === "development"
-        ? import.meta.env.VITE_DEV_API_URL
-        : import.meta.env.VITE_DEV_API_URL; // FIXME CHANGE TO VITE_PROD_API_URL
+var apiUrl = import.meta.env.MODE === "development" ? import.meta.env.VITE_DEV_API_URL : import.meta.env.VITE_DEV_API_URL; // FIXME CHANGE TO VITE_PROD_API_URL
 
 const AuthApiContext = createContext<{
     authState: AuthState;
     userData: UserData;
     loginDispatch: LoginDispatch;
     logoutDispatch: LogoutDispatch;
+    fetchUserData: FetchUserData;
     api: AxiosInstance;
 }>({
     authState: { isLoading: true, isSignin: false },
     userData: { doctorId: -1, role: "none" },
     loginDispatch: () => {},
     logoutDispatch: () => {},
+    fetchUserData: async () => false,
     api: axios.create(),
 });
 
@@ -43,19 +43,26 @@ export function useAuthApiContext() {
 export function AuthApiProvider({ children }: PropsWithChildren) {
     const [authState, setAuthState] = useState(initialState);
     const [userData, setUserData] = useState<UserData>({ doctorId: -1, role: "none" });
+    const navigate = useNavigate();
+
+    // check auth state on mount
+    useEffect(() => {
+        console.log("checking auth state");
+        checkAuthState();
+    }, []);
+    const checkAuthState = async () => {
+        const succeed = await fetchUserData();
+        if (succeed) loginDispatch();
+    };
 
     const loginDispatch = () => {
         setAuthState({ isLoading: false, isSignin: true });
+        navigate("/", { replace: true });
     };
     const logoutDispatch = () => {
         setAuthState({ isLoading: false, isSignin: false });
         navigate("/login", { replace: true });
     };
-    // check auth state on mount
-    useEffect(() => {
-        console.log("checking auth state")
-        checkAuthState();
-    }, []);
     const api = useMemo<AxiosInstance>(() => {
         console.log("URL ->", apiUrl);
         const instance = axios.create({
@@ -74,15 +81,14 @@ export function AuthApiProvider({ children }: PropsWithChildren) {
         });
         return instance;
     }, []);
-    const navigate = useNavigate();
-    const checkAuthState = async () => {
+    const fetchUserData = async () => {
+        let result = false;
         try {
             const response = await api.get<UserData>("/api/userData");
             switch (response.status) {
                 case 200:
+                    result = true;
                     setUserData(response.data);
-                    loginDispatch();
-                    navigate("/", { replace: true });
                     break;
             }
         } catch (err) {
@@ -90,6 +96,8 @@ export function AuthApiProvider({ children }: PropsWithChildren) {
                 let error = err as AxiosError<ErrResponse>;
                 toast.error(error.response?.data.error);
             } else toast.error(`Fatal Error: ${err}`);
+        } finally {
+            return result;
         }
     };
     return (
@@ -99,6 +107,7 @@ export function AuthApiProvider({ children }: PropsWithChildren) {
                 userData: userData,
                 loginDispatch: loginDispatch,
                 logoutDispatch: logoutDispatch,
+                fetchUserData: fetchUserData,
                 api: api,
             }}
         >

@@ -6,11 +6,9 @@ import { AxiosError } from "axios";
 import { ErrResponse } from "../model/model";
 import { useState } from "react";
 import { useAuthApiContext } from "../hooks/authApiContext";
-import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-    const { api, loginDispatch } = useAuthApiContext();
-    const navigate = useNavigate();
+    const { api, loginDispatch, fetchUserData } = useAuthApiContext();
     const [username, setUsername] = useState("testroot");
     const [password, setPassword] = useState("testroot");
     const handleLogin = async (e: any) => {
@@ -23,7 +21,7 @@ export default function Login() {
             switch (response.status) {
                 case 200:
                     loginDispatch();
-                    navigate("/", {replace: true});
+                    fetchUserData();
                     toast.success("Login successfully");
                     break;
                 case 401:
