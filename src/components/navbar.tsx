@@ -16,7 +16,7 @@ import { useAuthApiContext } from "../hooks/authApiContext";
 export default function Navbar() {
     const navigate = useNavigate();
     const { api, logoutDispatch } = useAuthApiContext();
-    const testLogout = async () => {
+    const handleLogout = async () => {
         const response = await api.post("/auth/logout");
         if (response.status !== 200) {
             toast.error("Cannot logout");
@@ -64,7 +64,7 @@ export default function Navbar() {
                             <Translate token="Questions" />
                         </div>
                     </NavLink>
-                    <a onClick={testLogout}>
+                    <a onClick={handleLogout} style={{ cursor: "pointer" }}>
                         <div></div>
                         <div>Logout</div>
                     </a>

@@ -7,7 +7,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { ErrResponse, TrimDoctor } from "../../model/model";
-import { useAuthApiContext } from "../../hooks/authApiContext";
+import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { AxiosError } from "axios";
 
 // const mockup: GridRowsProp = [
@@ -34,7 +34,7 @@ const columns: GridColDef<TrimDoctor>[] = [
 
 export default function Doctors() {
     const navigate = useNavigate();
-    const { api } = useAuthApiContext();
+    const { api, checkPermission } = useAuthApiContext();
     const [searchText, setSearchText] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [rows, setRows] = useState<TrimDoctor[]>([]);
@@ -94,7 +94,7 @@ export default function Doctors() {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
-                        <button className={styles.button} style={{ marginLeft: "10px" }} onClick={() => navigate("new")}>
+                        <button className={styles.button} style={{ marginLeft: "10px" }} onClick={() => navigate("new")} disabled={!checkPermission(Permission.createDoctorPermission)}>
                             <Translate token="+ Add" />
                         </button>
                     </div>

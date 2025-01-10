@@ -1,18 +1,20 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GoPencil } from "react-icons/go";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
+import { CiTrash } from "react-icons/ci";
 import GoBack from "../../components/goback";
 import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
-import { useAuthApiContext } from "../../hooks/authApiContext";
+import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { Doctor, ErrResponse } from "../../model/model";
 import Loading from "../loading";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import DeleteDialog from "../../components/deleteDialog";
 
 interface PasswordCondition {
     length: boolean;
@@ -26,7 +28,7 @@ const engRegex = /^[A-Za-z0-9]*$/;
 export default function ViewDoctor() {
     // hook
     const { id } = useParams();
-    const { api } = useAuthApiContext();
+    const { api, checkPermission } = useAuthApiContext();
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(true);
@@ -35,17 +37,18 @@ export default function ViewDoctor() {
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [confirmPassword, setConfirmPassword] = useState("");
     const [onEdit, setOnEdit] = useState(false);
+    const deleteDialogRef = useRef<HTMLDialogElement>(null);
+
     useEffect(() => {
         fetch();
     }, []);
-    const fetch = useCallback(async () => {
+    const fetch = async () => {
         try {
             let res = await api.get<Doctor>("/api/doctor/" + id);
             switch (res.status) {
                 case 200:
                     infoRef.current = res.data;
                     setInfo(res.data);
-                      console.log(res.data);
                     setConfirmPassword(res.data.password);
                     break;
                 case 404:
@@ -59,7 +62,7 @@ export default function ViewDoctor() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    };
 
     useEffect(() => {
         checkConditions(info.password);
@@ -130,6 +133,26 @@ export default function ViewDoctor() {
         }
     };
 
+    const handleDelete = async () => {
+        try {
+            const res = await api.delete("/api/doctor/" + id);
+            switch (res.status) {
+                case 204:
+                    toast.success("Deleted!");
+                    navigate("/doctor");
+                    break;
+                case 403:
+                    toast.error("Insufficient permission");
+                    break;
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                let error = err as AxiosError<ErrResponse>;
+                toast.error(error.response?.data.error);
+            } else toast.error(`Fatal Error: ${err}`);
+        }
+    };
+
     // appointment
     const [showAppointment, setShowAppointment] = useState(false);
     const [apmtType, setApmntType] = useState<AppointmentType>("incoming");
@@ -140,6 +163,7 @@ export default function ViewDoctor() {
     if (isLoading) return <Loading />;
     return (
         <>
+            <DeleteDialog deleteFunc={handleDelete} ref={deleteDialogRef} />
             <Header>{`${info.firstName} ${info.middleName ?? ""} ${info.lastName}`}</Header>
             <div id="content-body">
                 <GoBack />
@@ -153,6 +177,7 @@ export default function ViewDoctor() {
                                     setOnEdit(true);
                                     infoRef.current = info;
                                 }}
+                                disabled={!checkPermission(Permission.updateDoctorPermission)}
                             >
                                 <GoPencil />
                                 <span>Edit</span>
@@ -275,19 +300,29 @@ export default function ViewDoctor() {
                             </div>
                             <div className={styles.infoFooter}>
                                 <button
-                                    className={styles.cancelButton}
-                                    onClick={() => {
-                                        setOnEdit(false);
-                                        setInfo(infoRef.current as Doctor);
-                                    }}
+                                    className={styles.deleteButton}
+                                    onClick={() => deleteDialogRef.current!.showModal()}
+                                    disabled={!checkPermission(Permission.deleteDoctorPermission)}
                                 >
-                                    <ImCancelCircle />
-                                    <span>Cancel</span>
+                                    <CiTrash />
+                                    <span>Delete</span>
                                 </button>
-                                <button className={styles.button} onClick={handleSave}>
-                                    <IoSaveOutline />
-                                    <span>Save</span>
-                                </button>
+                                <div className={styles.infoCancelSaveContainer}>
+                                    <button
+                                        className={styles.cancelButton}
+                                        onClick={() => {
+                                            setOnEdit(false);
+                                            setInfo(infoRef.current as Doctor);
+                                        }}
+                                    >
+                                        <ImCancelCircle />
+                                        <span>Cancel</span>
+                                    </button>
+                                    <button className={styles.button} onClick={handleSave}>
+                                        <IoSaveOutline />
+                                        <span>Save</span>
+                                    </button>
+                                </div>
                             </div>
                         </>
                     )}

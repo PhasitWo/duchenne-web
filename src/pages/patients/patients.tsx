@@ -6,7 +6,7 @@ import Header from "../../components/header";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { useAuthApiContext } from "../../hooks/authApiContext";
+import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { ErrResponse, Patient } from "../../model/model";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
@@ -45,7 +45,7 @@ const columns: GridColDef<Patient>[] = [
 ];
 
 export default function Patients() {
-    const { api } = useAuthApiContext();
+    const { api, checkPermission } = useAuthApiContext();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
@@ -106,7 +106,12 @@ export default function Patients() {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
-                        <button className={styles.button} style={{ marginLeft: "10px" }} onClick={() => navigate("new")}>
+                        <button
+                            className={styles.button}
+                            style={{ marginLeft: "10px" }}
+                            onClick={() => navigate("new")}
+                            disabled={!checkPermission(Permission.createPatientPermission)}
+                        >
                             <Translate token="+ Add" />
                         </button>
                     </div>

@@ -1,28 +1,27 @@
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { GridRowsProp, GridSortModel } from "@mui/x-data-grid";
+import { GridSortModel } from "@mui/x-data-grid";
 import { useState } from "react";
 import styles from "../../styles/common.module.css";
 import { Translate } from "../../hooks/LanguageContext";
 import Header from "../../components/header";
 import { CiCircleQuestion } from "react-icons/ci";
 import QuestionDataGrid from "../../components/questionDataGrid";
+import { QuestionType, sortCreateAtModel, sortAnswerAtModel } from "../../components/questionDataGrid";
+import { useAuthApiContext } from "../../hooks/authApiContext";
 
 type QuestionOwner = "myquestion" | "allquestion";
-type QuestionType = "unreplied" | "replied";
-
-const sortCreateAtModel: GridSortModel = [{ field: "createAt", sort: "asc" }];
-const sortAnswerAtModel: GridSortModel = [{ field: "answerAt", sort: "desc" }];
 
 export default function Questions() {
     const [questionOwner, setQuestionOwner] = useState<QuestionOwner>("allquestion");
     const [questionType, setQuestionType] = useState<QuestionType>("unreplied");
     const [sortModel, setSortModel] = useState<GridSortModel>(sortCreateAtModel);
+    const { userData } = useAuthApiContext();
 
     const handleQuestionOwnerChange = (e: SelectChangeEvent) => {
         if ((e.target.value as QuestionOwner) === "myquestion") {
             setQuestionType("replied");
-            setSortModel(sortAnswerAtModel)
+            setSortModel(sortAnswerAtModel);
         } else {
             setQuestionType("unreplied");
             setSortModel(sortCreateAtModel);
@@ -69,7 +68,8 @@ export default function Questions() {
                         <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="id / name" />
                     </div>
                     <QuestionDataGrid
-                        rows={mockup}
+                        type={questionType}
+                        doctorId={questionOwner === "myquestion" ? userData.doctorId : undefined}
                         className={styles.datagrid}
                         sortModel={sortModel}
                         onSortModelChange={setSortModel}
@@ -79,30 +79,3 @@ export default function Questions() {
         </>
     );
 }
-
-const mockup: GridRowsProp = [
-    {
-        id: 1,
-        patientName: "Jingjai bindai",
-        topic: "What is Love",
-        createAt: 1734268740,
-        doctorName: "Dr.Earth",
-        answerAt: 1734278740,
-    },
-    {
-        id: 3,
-        patientName: "Kawin Bindai Mario",
-        topic: "long topic asdkas;k;qwkeqw asdk;laskd;lks",
-        createAt: 1734264740,
-        doctorName: null,
-        answerAt: null,
-    },
-    {
-        id: 2,
-        patientName: "Superman Batman",
-        topic: "asdqwe asdasw asd",
-        createAt: 1734268540,
-        doctorName: null,
-        answerAt: null,
-    },
-];

@@ -5,6 +5,33 @@ import { ErrResponse } from "../model/model";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { AxiosInstance } from "axios";
 
+export enum Permission {
+    createDoctorPermission,
+    updateDoctorPermission,
+    deleteDoctorPermission,
+    createPatientPermission,
+    updatePatientPermission,
+    deletePatientPermission,
+}
+
+const adminPermissions = [
+    Permission.createPatientPermission,
+    Permission.updatePatientPermission,
+    Permission.deletePatientPermission,
+];
+const rootPermissions = [
+    ...adminPermissions,
+    Permission.createDoctorPermission,
+    Permission.updateDoctorPermission,
+    Permission.deleteDoctorPermission,
+];
+
+const rolePermissionMap: { [key: string]: Permission[] } = {
+    user: [],
+    admin: adminPermissions,
+    root: rootPermissions,
+};
+
 interface AuthState {
     isLoading: boolean;
     isSignin: boolean;
@@ -17,6 +44,7 @@ interface UserData {
 type LoginDispatch = () => void;
 type LogoutDispatch = () => void;
 type FetchUserData = () => Promise<boolean>;
+type CheckPermission = (requiredPermission: Permission) => boolean;
 
 var apiUrl = import.meta.env.MODE === "development" ? import.meta.env.VITE_DEV_API_URL : import.meta.env.VITE_DEV_API_URL; // FIXME CHANGE TO VITE_PROD_API_URL
 
@@ -26,6 +54,7 @@ const AuthApiContext = createContext<{
     loginDispatch: LoginDispatch;
     logoutDispatch: LogoutDispatch;
     fetchUserData: FetchUserData;
+    checkPermission: CheckPermission;
     api: AxiosInstance;
 }>({
     authState: { isLoading: true, isSignin: false },
@@ -34,6 +63,7 @@ const AuthApiContext = createContext<{
     logoutDispatch: () => {},
     fetchUserData: async () => false,
     api: axios.create(),
+    checkPermission: () => false,
 });
 
 export function useAuthApiContext() {
@@ -42,7 +72,7 @@ export function useAuthApiContext() {
 }
 export function AuthApiProvider({ children }: PropsWithChildren) {
     const [authState, setAuthState] = useState(initialState);
-    const [userData, setUserData] = useState<UserData>({ doctorId: -1, role: "none" });
+    const [userData, setUserData] = useState<UserData>({ doctorId: -1, role: "user" });
     const navigate = useNavigate();
 
     // check auth state on mount
@@ -100,6 +130,13 @@ export function AuthApiProvider({ children }: PropsWithChildren) {
             return result;
         }
     };
+    const checkPermission = (requiredPermission: Permission): boolean => {
+        let hasPermission = false;
+        for (let permission of rolePermissionMap[userData.role]) {
+            if (permission === requiredPermission) return true;
+        }
+        return hasPermission;
+    };
     return (
         <AuthApiContext.Provider
             value={{
@@ -108,6 +145,7 @@ export function AuthApiProvider({ children }: PropsWithChildren) {
                 loginDispatch: loginDispatch,
                 logoutDispatch: logoutDispatch,
                 fetchUserData: fetchUserData,
+                checkPermission: checkPermission,
                 api: api,
             }}
         >

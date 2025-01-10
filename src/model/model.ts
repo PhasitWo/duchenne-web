@@ -39,10 +39,22 @@ export interface Appointment {
     doctor: Omit<TrimDoctor, "role">;
 }
 
-export interface Question {
+export interface QuestionTopic {
     id: number;
     topic: string;
     createAt: number;
     answerAt: number | null;
+    patient: Patient;
+    doctor: Omit<TrimDoctor, "role"> | null;
+}
 
+export interface Question {
+    id: number;
+    topic: string;
+    question: string;
+    createAt: number;
+    answer: string;
+    answerAt: number | null;
+    patient: Patient;
+    doctor: Omit<TrimDoctor, "role"> | null;
 }

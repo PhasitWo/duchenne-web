@@ -1,33 +1,37 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GoPencil } from "react-icons/go";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import GoBack from "../../components/goback";
 import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
 import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import QuestionDataGrid from "../../components/questionDataGrid";
+import QuestionDataGrid, { QuestionType, sortCreateAtModel, sortAnswerAtModel } from "../../components/questionDataGrid";
 import { ErrResponse, Patient } from "../../model/model";
-import { useAuthApiContext } from "../../hooks/authApiContext";
+import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import Loading from "../loading";
+import { GridSortModel } from "@mui/x-data-grid";
+import { CiTrash } from "react-icons/ci";
+import DeleteDialog from "../../components/deleteDialog";
 
 export default function ViewPatient() {
     const { id } = useParams();
-    const { api } = useAuthApiContext();
+    const { api, checkPermission } = useAuthApiContext();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [info, setInfo] = useState<Patient>(initialInfo);
     const infoRef = useRef<Patient>(); // save prevState on editing
     const [onEdit, setOnEdit] = useState(false);
+    const deleteDialogRef = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
         fetch();
     }, []);
-    const fetch = useCallback(async () => {
+    const fetch = async () => {
         try {
             let res = await api.get<Patient>("/api/patient/" + id);
             switch (res.status) {
@@ -46,7 +50,7 @@ export default function ViewPatient() {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    };
 
     const handleSave = async () => {
         if (info.hn.trim() === "" || info.firstName.trim() === "" || info.lastName.trim() === "") {
@@ -85,6 +89,26 @@ export default function ViewPatient() {
         }
     };
 
+    const handleDelete = async () => {
+        try {
+            const res = await api.delete("/api/patient/" + id);
+            switch (res.status) {
+                case 204:
+                    toast.success("Deleted!");
+                    navigate("/patient");
+                    break;
+                case 403:
+                    toast.error("Insufficient permission");
+                    break;
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                let error = err as AxiosError<ErrResponse>;
+                toast.error(error.response?.data.error);
+            } else toast.error(`Fatal Error: ${err}`);
+        }
+    };
+
     // appointment
     const [showAppointment, setShowAppointment] = useState(false);
     const [apmtType, setApmntType] = useState<AppointmentType>("incoming");
@@ -93,10 +117,21 @@ export default function ViewPatient() {
     };
     // question
     const [showQuestion, setShowQuestion] = useState(false);
+    const [questionType, setQuestionType] = useState<QuestionType>("unreplied");
+    const [sortModel, setSortModel] = useState<GridSortModel>(sortCreateAtModel);
+    const handleQuestionTypeChange = (e: SelectChangeEvent) => {
+        if ((e.target.value as QuestionType) === "replied") {
+            setSortModel(sortAnswerAtModel);
+        } else {
+            setSortModel(sortCreateAtModel);
+        }
+        setQuestionType(e.target.value as QuestionType);
+    };
 
     if (isLoading) return <Loading />;
     return (
         <>
+            <DeleteDialog deleteFunc={handleDelete} ref={deleteDialogRef} />
             <Header>{`${info.firstName} ${info.middleName ?? ""} ${info.lastName}`}</Header>
             <div id="content-body">
                 <GoBack />
@@ -110,6 +145,7 @@ export default function ViewPatient() {
                                     setOnEdit(true);
                                     infoRef.current = info;
                                 }}
+                                disabled={!checkPermission(Permission.updatePatientPermission)}
                             >
                                 <GoPencil />
                                 <span>Edit</span>
@@ -201,19 +237,29 @@ export default function ViewPatient() {
                     {onEdit && (
                         <div className={styles.infoFooter}>
                             <button
-                                className={styles.cancelButton}
-                                onClick={() => {
-                                    setOnEdit(false);
-                                    setInfo(infoRef.current as Patient);
-                                }}
+                                className={styles.deleteButton}
+                                onClick={() => deleteDialogRef.current!.showModal()}
+                                disabled={!checkPermission(Permission.deletePatientPermission)}
                             >
-                                <ImCancelCircle />
-                                <span>Cancel</span>
+                                <CiTrash />
+                                <span>Delete</span>
                             </button>
-                            <button className={styles.button} onClick={handleSave}>
-                                <IoSaveOutline />
-                                <span>Save</span>
-                            </button>
+                            <div className={styles.infoCancelSaveContainer}>
+                                <button
+                                    className={styles.cancelButton}
+                                    onClick={() => {
+                                        setOnEdit(false);
+                                        setInfo(infoRef.current as Patient);
+                                    }}
+                                >
+                                    <ImCancelCircle />
+                                    <span>Cancel</span>
+                                </button>
+                                <button className={styles.button} onClick={handleSave}>
+                                    <IoSaveOutline />
+                                    <span>Save</span>
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -250,7 +296,26 @@ export default function ViewPatient() {
                             </button>
                         )}
                     </div>
-                    {showQuestion && <QuestionDataGrid className={styles.datagridContainer} sx={{ height: "50vh" }} />}
+                    {showQuestion && (
+                        <>
+                            <Select
+                                value={questionType}
+                                onChange={handleQuestionTypeChange}
+                                size="small"
+                                sx={{ marginBottom: "10px" }}
+                            >
+                                <MenuItem value="unreplied">Unreplied</MenuItem>
+                                <MenuItem value="replied">Replied</MenuItem>
+                            </Select>
+                            <QuestionDataGrid
+                                className={styles.datagridContainer}
+                                sx={{ height: "50vh" }}
+                                sortModel={sortModel}
+                                type={questionType}
+                                patientId={info.id}
+                            />
+                        </>
+                    )}
                 </div>
             </div>
         </>
