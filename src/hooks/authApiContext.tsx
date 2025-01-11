@@ -46,7 +46,7 @@ type LogoutDispatch = () => void;
 type FetchUserData = () => Promise<boolean>;
 type CheckPermission = (requiredPermission: Permission) => boolean;
 
-var apiUrl = import.meta.env.MODE === "development" ? import.meta.env.VITE_DEV_API_URL : import.meta.env.VITE_DEV_API_URL; // FIXME CHANGE TO VITE_PROD_API_URL
+var apiUrl = import.meta.env.MODE === "development" ? import.meta.env.VITE_DEV_API_URL : import.meta.env.VITE_PROD_API_URL; // FIXME CHANGE TO VITE_PROD_API_URL
 
 const AuthApiContext = createContext<{
     authState: AuthState;
