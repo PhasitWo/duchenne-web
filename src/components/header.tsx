@@ -1,6 +1,6 @@
 import "../styles/header.css";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { useLanguage } from "../hooks/LanguageContext";
+import { useLanguage } from "../hooks/languageContext";
 import type { PropsWithChildren } from "react";
 import { useAuthApiContext } from "../hooks/authApiContext";
 
@@ -14,7 +14,9 @@ export default function Header({ children }: PropsWithChildren) {
                 <div id="header-title">{children}</div>
             </div>
             <div>
-                <span style={{marginRight: "10px", fontWeight: "bold"}}>{userData.role} account</span>
+                <span style={{ marginRight: "10px", fontWeight: "bold" }}>
+                    {userData.role} account
+                </span>
                 <ToggleButtonGroup
                     onChange={onChange}
                     id="toggle-button"

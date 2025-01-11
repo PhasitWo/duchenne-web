@@ -1,7 +1,7 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styles from "../../styles/common.module.css";
 import Chip from "@mui/material/Chip";
-import { Translate } from "../../hooks/LanguageContext";
+import { Translate } from "../../hooks/languageContext";
 import Header from "../../components/header";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -40,7 +40,13 @@ const columns: GridColDef<Patient>[] = [
         valueGetter: (_, r) => {
             return r.verified ? "verified" : "unverified";
         },
-        renderCell: (v) => <Chip label={v.value} color={v.value == "verified" ? "success" : "error"} variant="outlined" />,
+        renderCell: (v) => (
+            <Chip
+                label={v.value}
+                color={v.value == "verified" ? "success" : "error"}
+                variant="outlined"
+            />
+        ),
     },
 ];
 
@@ -77,8 +83,8 @@ export default function Patients() {
         try {
             result = initialRows.current.filter(
                 (v) =>
-                    (v.firstName + v.middleName + v.lastName).search(RegExp(searchText, "i")) != -1 ||
-                    v.hn.search(RegExp(searchText, "i")) != -1
+                    (v.firstName + v.middleName + v.lastName).search(RegExp(searchText, "i")) !=
+                        -1 || v.hn.search(RegExp(searchText, "i")) != -1
             );
         } catch (e) {
             console.log(e);

@@ -2,7 +2,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useState } from "react";
 import styles from "../styles/common.module.css";
-import { Translate } from "../hooks/LanguageContext";
+import { Translate } from "../hooks/languageContext";
 import Header from "../components/header";
 import { AiOutlineSchedule } from "react-icons/ai";
 import AppointmentDataGrid from "../components/appointmentDataGrid";
@@ -33,7 +33,12 @@ export default function Appointments() {
                         <MenuItem value="myappointment">My Appointments</MenuItem>
                         <MenuItem value="allappointment">All Appointments</MenuItem>
                     </Select>
-                    <Select value={apmtType} onChange={handleApmtTypeChange} size="small" sx={{ marginLeft: "10px" }}>
+                    <Select
+                        value={apmtType}
+                        onChange={handleApmtTypeChange}
+                        size="small"
+                        sx={{ marginLeft: "10px" }}
+                    >
                         <MenuItem value="incoming">Incoming</MenuItem>
                         <MenuItem value="history">History</MenuItem>
                     </Select>

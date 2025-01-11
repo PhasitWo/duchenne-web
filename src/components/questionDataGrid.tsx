@@ -1,4 +1,10 @@
-import { DataGrid, GridColDef, GridSortModel, type DataGridProps } from "@mui/x-data-grid";
+import {
+    DataGrid,
+    GridColDef,
+    GridPaginationModel,
+    GridSortModel,
+    type DataGridProps,
+} from "@mui/x-data-grid";
 import dayjs, { Dayjs } from "dayjs";
 import { NavLink } from "react-router-dom";
 import styles from "../styles/common.module.css";
@@ -35,7 +41,13 @@ const columns: GridColDef<QuestionTopic>[] = [
         field: "patientName",
         headerName: "Patient",
         flex: 2,
-        valueGetter: (_, r) => `${r.patient.firstName} ${r.patient.middleName ?? ""} ${r.patient.lastName}`,
+        valueGetter: (_, r) =>
+            `${r.patient.firstName} ${r.patient.middleName ?? ""} ${r.patient.lastName}`,
+        renderCell: (v) => (
+            <NavLink to={`/patient/${v.row.patient.id}`} className={styles.navLink}>
+                {v.value}
+            </NavLink>
+        ),
     },
     {
         field: "createAt",
@@ -49,8 +61,15 @@ const columns: GridColDef<QuestionTopic>[] = [
         field: "doctorName",
         headerName: "Doctor",
         flex: 2,
-        valueGetter: (_, r) => (r.doctor ? `${r.doctor.firstName} ${r.doctor.middleName ?? ""} ${r.doctor.lastName}` : null),
-        valueFormatter: (v) => (v ? v : "none"),
+        valueGetter: (_, r) =>
+            r.doctor
+                ? `${r.doctor.firstName} ${r.doctor.middleName ?? ""} ${r.doctor.lastName}`
+                : null,
+        renderCell: (v) => ( v.row.doctor ? 
+            <NavLink to={`/doctor/${v.row.doctor.id}`} className={styles.navLink}>
+                {v.value}
+            </NavLink> : "none"
+        ),
     },
     {
         field: "answerAt",
@@ -70,21 +89,45 @@ export default function QuestionDataGrid({
 }: Omit<DataGridProps, "columns"> & QuestionDataGridProps) {
     const { api } = useAuthApiContext();
     const [rows, setRows] = useState<QuestionTopic[]>([]);
+    const [paginationModel, setPaginationModel] = useState({
+        pageSize: 5,
+        page: 0,
+    });
+    const [hasNextPage, setHasNextPage] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
+    const handlePaginationModelChange = async (model: GridPaginationModel) => {
+        await fetch(model.pageSize, model.page * model.pageSize);
+        setPaginationModel(model);
+    };
+
     useEffect(() => {
-        fetch();
+        setPaginationModel({ ...paginationModel, page: 0 });
+        fetch(paginationModel.pageSize, 0);
     }, [type, doctorId, patientId]);
-    const attachQueryParams = (url: string) => {
-        url += `?type=${type}` + (doctorId ? `&doctorId=${doctorId}` : "") + (patientId ? `&patientId=${patientId}` : "");
+    const attachQueryParams = (url: string, limit: number, offset: number) => {
+        url +=
+            `?type=${type}` +
+            (doctorId ? `&doctorId=${doctorId}` : "") +
+            (patientId ? `&patientId=${patientId}` : "") +
+            `&limit=${limit}` +
+            `&offset=${offset}`;
         return url;
     };
-    const fetch = async () => {
+    const fetch = async (limit: number, offset: number) => {
         setIsLoading(true);
         try {
-            let res = await api.get<QuestionTopic[]>(attachQueryParams("/api/question"));
+            let res = await api.get<QuestionTopic[]>(
+                attachQueryParams("/api/question", limit + 1, offset)
+            );
             switch (res.status) {
                 case 200:
+                    if (res.data.length == limit + 1) {
+                        res.data.pop();
+                        setHasNextPage(true);
+                    } else {
+                        setHasNextPage(false);
+                    }
                     setRows(res.data);
                     break;
             }
@@ -97,5 +140,20 @@ export default function QuestionDataGrid({
             setIsLoading(false);
         }
     };
-    return <DataGrid {...rest} rows={rows} columns={columns} loading={isLoading} />;
+    return (
+        <DataGrid
+            {...rest}
+            columns={columns}
+            rowCount={
+                hasNextPage ? -1 : paginationModel.page * paginationModel.pageSize + rows.length
+            }
+            rows={rows}
+            paginationMeta={{ hasNextPage: hasNextPage }}
+            paginationMode="server"
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePaginationModelChange}
+            pageSizeOptions={[5, 10, 20, 50]}
+            loading={isLoading}
+        />
+    );
 }

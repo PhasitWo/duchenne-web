@@ -1,6 +1,6 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styles from "../../styles/common.module.css";
-import { Translate } from "../../hooks/LanguageContext";
+import { Translate } from "../../hooks/languageContext";
 import Header from "../../components/header";
 import { FaUserDoctor } from "react-icons/fa6";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -65,8 +65,8 @@ export default function Doctors() {
         try {
             result = initialRows.current.filter(
                 (v) =>
-                    (v.firstName + v.middleName + v.lastName).search(RegExp(searchText, "i")) != -1 ||
-                    String(v.id).search(RegExp(searchText, "i")) != -1
+                    (v.firstName + v.middleName + v.lastName).search(RegExp(searchText, "i")) !=
+                        -1 || String(v.id).search(RegExp(searchText, "i")) != -1
             );
         } catch (e) {
             console.log(e);
@@ -94,11 +94,21 @@ export default function Doctors() {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
-                        <button className={styles.button} style={{ marginLeft: "10px" }} onClick={() => navigate("new")} disabled={!checkPermission(Permission.createDoctorPermission)}>
+                        <button
+                            className={styles.button}
+                            style={{ marginLeft: "10px" }}
+                            onClick={() => navigate("new")}
+                            disabled={!checkPermission(Permission.createDoctorPermission)}
+                        >
                             <Translate token="+ Add" />
                         </button>
                     </div>
-                    <DataGrid rows={rows} columns={columns} className={styles.datagrid} loading={isLoading} />
+                    <DataGrid
+                        rows={rows}
+                        columns={columns}
+                        className={styles.datagrid}
+                        loading={isLoading}
+                    />
                 </div>
             </div>
         </>

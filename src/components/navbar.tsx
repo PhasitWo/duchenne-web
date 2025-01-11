@@ -6,7 +6,7 @@ import { FaUserDoctor } from "react-icons/fa6";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { AiOutlineSchedule } from "react-icons/ai";
 import { CiCircleQuestion } from "react-icons/ci";
-import { Translate } from "../hooks/LanguageContext";
+import { Translate } from "../hooks/languageContext";
 import logo from "../assets/Branding_logo.png";
 import { BsPersonCircle } from "react-icons/bs";
 import { RiExpandUpDownLine } from "react-icons/ri";
