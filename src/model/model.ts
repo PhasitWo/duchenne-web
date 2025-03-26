@@ -20,6 +20,20 @@ export interface Doctor {
     role: string;
 }
 
+export interface VaccineHistory {
+    id: string;
+    vaccineName: string;
+    vaccineLocation: string | null;
+    vaccineAt: number;
+    description: string | null;
+}
+
+export interface Medicine {
+    id: string;
+    medicineName: string;
+    description: string | null;
+}
+
 export interface Patient {
     id: number;
     hn: string;
@@ -29,6 +43,8 @@ export interface Patient {
     email: string | null;
     phone: string | null;
     verified: boolean;
+    medicine: Medicine[] | null
+    vaccineHistory: VaccineHistory[] | null
 }
 
 export interface Appointment {

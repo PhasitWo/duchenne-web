@@ -2,9 +2,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
 import { useEffect, useRef, useState } from "react";
-import { GoPencil } from "react-icons/go";
-import { IoSaveOutline } from "react-icons/io5";
-import { ImCancelCircle } from "react-icons/im";
 import GoBack from "../../components/goback";
 import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
 import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
@@ -21,6 +18,11 @@ import Loading from "../loading";
 import { GridSortModel } from "@mui/x-data-grid";
 import { CiTrash } from "react-icons/ci";
 import DeleteDialog from "../../components/deleteDialog";
+import PatientMedicineSection from "../../components/patientMedicineSection";
+import EditButton from "../../components/editButton";
+import CancelButton from "../../components/cancelButton";
+import SaveButton from "../../components/saveButton";
+import PatientVaccineHistorySection from "../../components/patientVaccineHistorySection";
 
 export default function ViewPatient() {
     const { id } = useParams();
@@ -143,17 +145,13 @@ export default function ViewPatient() {
                     <div className={styles.infoHeader}>
                         <h3>Patient Infomation</h3>
                         {!onEdit && (
-                            <button
-                                className={styles.button}
+                            <EditButton
                                 onClick={() => {
                                     setOnEdit(true);
                                     infoRef.current = info;
                                 }}
                                 disabled={!checkPermission(Permission.updatePatientPermission)}
-                            >
-                                <GoPencil />
-                                <span>Edit</span>
-                            </button>
+                            />
                         )}
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -253,24 +251,19 @@ export default function ViewPatient() {
                                 <span>Delete</span>
                             </button>
                             <div className={styles.infoCancelSaveContainer}>
-                                <button
-                                    className={styles.outlinedButton}
+                                <CancelButton
                                     onClick={() => {
                                         setOnEdit(false);
                                         setInfo(infoRef.current as Patient);
                                     }}
-                                >
-                                    <ImCancelCircle />
-                                    <span>Cancel</span>
-                                </button>
-                                <button className={styles.button} onClick={handleSave}>
-                                    <IoSaveOutline />
-                                    <span>Save</span>
-                                </button>
+                                />
+                                <SaveButton onClick={handleSave} />
                             </div>
                         </div>
                     )}
                 </div>
+                <PatientMedicineSection patient={info} onUpdateComplete={fetch}/>
+                <PatientVaccineHistorySection patient={info} onUpdateComplete={fetch} />
                 <div id="patient-appointment">
                     <div
                         style={{
@@ -361,4 +354,6 @@ const initialInfo: Patient = {
     email: "-",
     phone: "-",
     verified: false,
+    medicine: null,
+    vaccineHistory: null
 };

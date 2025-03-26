@@ -104,6 +104,10 @@
     height: 70vh;
 }
 
+.miniDatagridContainer {
+    width: 40vw;
+}
+
 .infoContainer {
     width: 900px;
     border-color: var(--navbar-border-color);
@@ -199,6 +203,7 @@
 
 @media screen and (max-width: 850px) {
     .datagridContainer,
+    .miniDatagridContainer,
     .infoContainer,
     .questionBox,
     .answerBox {
