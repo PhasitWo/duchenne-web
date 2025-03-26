@@ -197,6 +197,7 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
                                     }}
                                     minDate={dayjs()}
                                     ampm={false}
+                                    format="DD/MM/YYYY HH:mm"
                                 />
                                 <div>
                                     <Checkbox

@@ -101,6 +101,9 @@ export default function VaccineHistoryDataGrid({
             align: "left",
             headerAlign: "left",
             editable: !disabled,
+            valueFormatter: (v) => {
+                return (v as Date).toLocaleDateString("en-GB")
+            }
         },
         {
             field: "description",
@@ -191,6 +194,7 @@ export default function VaccineHistoryDataGrid({
                 slots={{ toolbar: EditToolbar }}
                 slotProps={{
                     toolbar: { setRows, setRowModesModel, disabled },
+                    
                 }}
             />
         </Box>
