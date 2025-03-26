@@ -248,6 +248,7 @@ export default function EditAppointmentModal({
                                     }}
                                     minDate={dayjs()}
                                     ampm={false}
+                                    format="DD/MM/YYYY HH:mm"
                                 />
                                 <div>
                                     <Checkbox
