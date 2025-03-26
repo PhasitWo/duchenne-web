@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
         plugins: [react()],
         base: "./",
         build: {
-          outDir: "./assets"
+          outDir: "./dist"
         },
     };
 });

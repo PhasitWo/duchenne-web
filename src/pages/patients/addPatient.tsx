@@ -173,4 +173,6 @@ const initialInfo: Patient = {
     email: "",
     phone: "",
     verified: true,
+    medicine: null,
+    vaccineHistory: null
 };
