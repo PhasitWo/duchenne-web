@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import GoBack from "../../components/goback";
 import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
 import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
@@ -31,6 +31,7 @@ export default function ViewPatient() {
     const [isLoading, setIsLoading] = useState(true);
     const [info, setInfo] = useState<Patient>(initialInfo);
     const infoRef = useRef<Patient>(); // save prevState on editing
+    const formRef = useRef<HTMLFormElement>(null);
     const [onEdit, setOnEdit] = useState(false);
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
 
@@ -58,7 +59,9 @@ export default function ViewPatient() {
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = async (e: FormEvent) => {
+        e.preventDefault();
+        if (!formRef.current?.reportValidity()) return;
         if (info.hn.trim() === "" || info.firstName.trim() === "" || info.lastName.trim() === "") {
             toast.error("Not enough information");
             return;
@@ -68,8 +71,14 @@ export default function ViewPatient() {
             return;
         }
         setIsLoading(true);
+        const requestBody = {
+            ...info,
+            middleName: info.middleName === "" ? null : info.middleName,
+            email: info.email === "" ? null : info.email,
+            phone: info.middleName === "" ? null : info.middleName,
+        };
         try {
-            const res = await api.put("/api/patient/" + id, info);
+            const res = await api.put("/api/patient/" + id, requestBody);
             switch (res.status) {
                 case 200:
                     toast.success("Updated!");
@@ -141,7 +150,7 @@ export default function ViewPatient() {
             <Header>{`${info.firstName} ${info.middleName ?? ""} ${info.lastName}`}</Header>
             <div id="content-body">
                 <GoBack />
-                <div id="info-container" className={styles.infoContainer}>
+                <form id="info-container" ref={formRef} className={styles.infoContainer}>
                     <div className={styles.infoHeader}>
                         <h3>Patient Infomation</h3>
                         {!onEdit && (
@@ -156,7 +165,13 @@ export default function ViewPatient() {
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>HN*</label>
-                        <input type="text" className={styles.infoInput} value={info.hn} disabled />
+                        <input
+                            type="text"
+                            className={styles.infoInput}
+                            value={info.hn}
+                            disabled
+                            required
+                        />
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>First Name*</label>
@@ -166,6 +181,7 @@ export default function ViewPatient() {
                             value={info.firstName}
                             onChange={(e) => setInfo({ ...info, firstName: e.target.value.trim() })}
                             disabled={!onEdit}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -188,6 +204,7 @@ export default function ViewPatient() {
                             value={info.lastName}
                             onChange={(e) => setInfo({ ...info, lastName: e.target.value.trim() })}
                             disabled={!onEdit}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -212,6 +229,40 @@ export default function ViewPatient() {
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Weight</label>
+                        <input
+                            type="number"
+                            className={styles.infoInput}
+                            value={info.weight ?? ""}
+                            onChange={(e) =>
+                                setInfo({
+                                    ...info,
+                                    weight: isNaN(e.target.valueAsNumber)
+                                        ? null
+                                        : e.target.valueAsNumber,
+                                })
+                            }
+                            disabled={!onEdit}
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Height</label>
+                        <input
+                            type="number"
+                            className={styles.infoInput}
+                            value={info.height ?? ""}
+                            onChange={(e) =>
+                                setInfo({
+                                    ...info,
+                                    height: isNaN(e.target.valueAsNumber)
+                                        ? null
+                                        : e.target.valueAsNumber,
+                                })
+                            }
+                            disabled={!onEdit}
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Status*</label>
                         {onEdit ? (
                             <Select
@@ -222,6 +273,7 @@ export default function ViewPatient() {
                                 size="small"
                                 sx={{ paddingLeft: 0 }}
                                 disabled={!onEdit}
+                                required
                             >
                                 <MenuItem value="verified">
                                     <Chip label="verified" color="success" variant="outlined" />
@@ -261,9 +313,9 @@ export default function ViewPatient() {
                             </div>
                         </div>
                     )}
-                </div>
-                <PatientMedicineSection patient={info} onUpdateComplete={fetch}/>
-                <PatientVaccineHistorySection patient={info} onUpdateComplete={fetch} />
+                </form>
+                <PatientMedicineSection patient={infoRef.current ?? initialInfo} onUpdateComplete={fetch} />
+                <PatientVaccineHistorySection patient={infoRef.current ?? initialInfo} onUpdateComplete={fetch} />
                 <div id="patient-appointment">
                     <div
                         style={{
@@ -355,5 +407,7 @@ const initialInfo: Patient = {
     phone: "-",
     verified: false,
     medicine: null,
-    vaccineHistory: null
+    vaccineHistory: null,
+    height: null,
+    weight: null,
 };

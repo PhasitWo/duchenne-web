@@ -31,6 +31,7 @@ const columns: GridColDef<TrimDoctor>[] = [
         ),
     },
     { field: "role", headerName: "Role", flex: 1 },
+    { field: "specialist", headerName: "Specialist", flex: 1 },
 ];
 
 export default function Doctors() {

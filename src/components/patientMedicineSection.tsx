@@ -4,7 +4,7 @@ import MedicineDataGrid, { ExtendedMedicine } from "./medicineDataGrid";
 import EditButton from "./editButton";
 import CancelButton from "./cancelButton";
 import SaveButton from "./saveButton";
-import { useAuthApiContext } from "../hooks/authApiContext";
+import { Permission, useAuthApiContext } from "../hooks/authApiContext";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import commonStyles from "../styles/common.module.css";
@@ -12,7 +12,7 @@ import { GridRowModesModel } from "@mui/x-data-grid";
 
 export default function PatientMedicineSection({ patient, onUpdateComplete }: { patient: Patient, onUpdateComplete: Function }) {
     const [isLoading, setIsLoading] = useState(false);
-    const { api } = useAuthApiContext();
+    const { api, checkPermission } = useAuthApiContext();
     const medicinesRef = useRef<ExtendedMedicine[]>([]); // save prevState on editing
     const [medicines, setMedicines] = useState<ExtendedMedicine[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
@@ -83,7 +83,7 @@ export default function PatientMedicineSection({ patient, onUpdateComplete }: { 
                         <SaveButton onClick={handleSave} />
                     </>
                 ) : (
-                    <EditButton onClick={() => setOnEdit(true)} />
+                    <EditButton onClick={() => setOnEdit(true)} disabled={!checkPermission(Permission.updatePatientPermission)} />
                 )}
             </div>
             <MedicineDataGrid

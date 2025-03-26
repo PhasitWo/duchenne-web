@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { GoPencil } from "react-icons/go";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
@@ -38,6 +38,7 @@ export default function ViewDoctor() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [onEdit, setOnEdit] = useState(false);
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
         fetch();
@@ -85,7 +86,9 @@ export default function ViewDoctor() {
         setPwdConditions(newCondition);
     };
 
-    const handleSave = async () => {
+    const handleSave = async (e: FormEvent) => {
+        e.preventDefault()
+        if (!formRef.current?.reportValidity()) return;
         if (
             info.firstName.trim() === "" ||
             info.lastName.trim() === "" ||
@@ -109,6 +112,7 @@ export default function ViewDoctor() {
             const requestBody = {
                 ...info,
                 middleName: info.middleName === "" ? null : info.middleName,
+                specialist: info.specialist === "" ? null : info.specialist,
             };
             const res = await api.put("/api/doctor/" + id, requestBody);
             switch (res.status) {
@@ -170,7 +174,7 @@ export default function ViewDoctor() {
             <Header>{`${info.firstName} ${info.middleName ?? ""} ${info.lastName}`}</Header>
             <div id="content-body">
                 <GoBack />
-                <div id="info-container" className={styles.infoContainer}>
+                <form id="info-container" ref={formRef} className={styles.infoContainer}>
                     <div className={styles.infoHeader}>
                         <h3>Doctor Infomation</h3>
                         {!onEdit && (
@@ -199,6 +203,7 @@ export default function ViewDoctor() {
                             value={info.firstName}
                             onChange={(e) => setInfo({ ...info, firstName: e.target.value.trim() })}
                             disabled={!onEdit}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -221,6 +226,19 @@ export default function ViewDoctor() {
                             value={info.lastName}
                             onChange={(e) => setInfo({ ...info, lastName: e.target.value.trim() })}
                             disabled={!onEdit}
+                            required
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Specialist</label>
+                        <input
+                            type="text"
+                            className={styles.infoInput}
+                            value={info.specialist ?? ""}
+                            onChange={(e) =>
+                                setInfo({ ...info, specialist: e.target.value.trim() })
+                            }
+                            disabled={!onEdit}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -232,6 +250,7 @@ export default function ViewDoctor() {
                                 size="small"
                                 sx={{ paddingLeft: 0 }}
                                 disabled={!onEdit}
+                                required
                             >
                                 <MenuItem value="root">
                                     <Chip label="root" color="secondary" variant="outlined" />
@@ -261,6 +280,7 @@ export default function ViewDoctor() {
                             value={info.username}
                             onChange={(e) => setInfo({ ...info, username: e.target.value.trim() })}
                             disabled={!onEdit}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -274,6 +294,7 @@ export default function ViewDoctor() {
                                 setInfo({ ...info, password: e.target.value.trim() });
                             }}
                             disabled={!onEdit}
+                            required
                         />
                     </div>
                     {onEdit && (
@@ -341,7 +362,7 @@ export default function ViewDoctor() {
                             </div>
                         </>
                     )}
-                </div>
+                </form>
                 <div id="doctor-appointment">
                     <div
                         style={{
@@ -394,6 +415,7 @@ const initialInfo: Doctor = {
     role: "user",
     username: "-",
     password: "-",
+    specialist: null,
 };
 
 const initialPwdCondition: PasswordCondition = {

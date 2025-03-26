@@ -33,6 +33,8 @@ const columns: GridColDef<Patient>[] = [
     },
     { field: "email", headerName: "Email", flex: 2 },
     { field: "phone", headerName: "Phone", flex: 2 },
+    { field: "weight", headerName: "Weight(kg)", flex: 1 },
+    { field: "height", headerName: "Height(cm)", flex: 1 },
     {
         field: "verified",
         headerName: "Verified",
@@ -49,6 +51,7 @@ const columns: GridColDef<Patient>[] = [
             />
         ),
     },
+
 ];
 
 export default function Patients() {

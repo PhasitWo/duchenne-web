@@ -1,6 +1,6 @@
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
-import { useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import GoBack from "../../components/goback";
 import { Chip, MenuItem, Select } from "@mui/material";
@@ -27,6 +27,7 @@ export default function AddDoctor() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const { api } = useAuthApiContext();
     const navigate = useNavigate();
+    const formRef = useRef<HTMLFormElement>(null);
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {
@@ -47,7 +48,9 @@ export default function AddDoctor() {
         setInfo({ ...info, password: password });
     };
 
-    const handleSave = async () => {
+    const handleSave = async (e: FormEvent) => {
+        e.preventDefault()
+        if (!formRef.current?.reportValidity()) return;
         if (
             info.firstName.trim() === "" ||
             info.lastName.trim() === "" ||
@@ -69,11 +72,15 @@ export default function AddDoctor() {
         }
         setIsLoading(true);
         try {
-            const requestBody = { ...info, middleName: info.middleName === "" ? null : info.middleName };
+            const requestBody = {
+                ...info,
+                middleName: info.middleName === "" ? null : info.middleName,
+                specialist: info.specialist === "" ? null : info.specialist,
+            };
             const res = await api.post<{ id: number }>("/api/doctor", requestBody);
             switch (res.status) {
                 case 201:
-                    toast.success("Created new doctor account!");
+                    toast.success("New doctor account created!");
                     navigate("/doctor/" + res.data.id);
                     break;
                 case 403:
@@ -100,7 +107,7 @@ export default function AddDoctor() {
             <Header>Add New Doctor Account</Header>
             <div id="content-body">
                 <GoBack />
-                <div id="info-container" className={styles.infoContainer}>
+                <form id="info-container" ref={formRef} className={styles.infoContainer}>
                     <div className={styles.infoHeader}>
                         <h3>Doctor Infomation</h3>
                     </div>
@@ -111,6 +118,7 @@ export default function AddDoctor() {
                             className={styles.infoInput}
                             value={info.firstName}
                             onChange={(e) => setInfo({ ...info, firstName: e.target.value.trim() })}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -119,7 +127,9 @@ export default function AddDoctor() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
+                            onChange={(e) =>
+                                setInfo({ ...info, middleName: e.target.value.trim() })
+                            }
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -129,6 +139,18 @@ export default function AddDoctor() {
                             className={styles.infoInput}
                             value={info.lastName}
                             onChange={(e) => setInfo({ ...info, lastName: e.target.value.trim() })}
+                            required
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Specialist</label>
+                        <input
+                            type="text"
+                            className={styles.infoInput}
+                            value={info.specialist ?? ""}
+                            onChange={(e) =>
+                                setInfo({ ...info, specialist: e.target.value.trim() })
+                            }
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -138,6 +160,7 @@ export default function AddDoctor() {
                             onChange={(e) => setInfo({ ...info, role: e.target.value })}
                             size="small"
                             sx={{ paddingLeft: 0 }}
+                            required
                         >
                             <MenuItem value="root">
                                 <Chip label="root" color="secondary" variant="outlined" />
@@ -157,6 +180,7 @@ export default function AddDoctor() {
                             className={styles.infoInput}
                             value={info.username}
                             onChange={(e) => setInfo({ ...info, username: e.target.value.trim() })}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -166,6 +190,7 @@ export default function AddDoctor() {
                             className={styles.infoInput}
                             value={info.password}
                             onChange={(e) => checkConditions(e.target.value.trim())}
+                            required
                         />
                     </div>
 
@@ -196,6 +221,7 @@ export default function AddDoctor() {
                             className={styles.infoInput}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
                         />
                     </div>
                     <div className={styles.infoFooter}>
@@ -204,7 +230,7 @@ export default function AddDoctor() {
                             <span>Save</span>
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </>
     );
@@ -218,6 +244,7 @@ const initialInfo: Doctor = {
     role: "",
     username: "",
     password: "",
+    specialist: null,
 };
 
 const initialPwdCondition: PasswordCondition = {

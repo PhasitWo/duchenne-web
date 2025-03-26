@@ -3,7 +3,7 @@ import { ErrResponse, Patient } from "../model/model";
 import EditButton from "./editButton";
 import CancelButton from "./cancelButton";
 import SaveButton from "./saveButton";
-import { useAuthApiContext } from "../hooks/authApiContext";
+import { Permission, useAuthApiContext } from "../hooks/authApiContext";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import commonStyles from "../styles/common.module.css";
@@ -19,7 +19,7 @@ export default function PatientVaccineHistorySection({
     onUpdateComplete: Function;
 }) {
     const [isLoading, setIsLoading] = useState(false);
-    const { api } = useAuthApiContext();
+    const { api, checkPermission } = useAuthApiContext();
     const vaccineHistoryRef = useRef<ExtendedVaccineHistory[]>([]); // save prevState on editing
     const [vaccineHistory, setVaccineHistory] = useState<ExtendedVaccineHistory[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
@@ -104,7 +104,7 @@ export default function PatientVaccineHistorySection({
                         <SaveButton onClick={handleSave} />
                     </>
                 ) : (
-                    <EditButton onClick={() => setOnEdit(true)} />
+                    <EditButton onClick={() => setOnEdit(true)} disabled={!checkPermission(Permission.updatePatientPermission)} />
                 )}
             </div>
             <VaccineHistoryDataGrid

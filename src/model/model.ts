@@ -17,6 +17,7 @@ export interface Doctor {
     lastName: string;
     username: string;
     password: string;
+    specialist: string | null;
     role: string;
 }
 
@@ -43,8 +44,10 @@ export interface Patient {
     email: string | null;
     phone: string | null;
     verified: boolean;
-    medicine: Medicine[] | null
-    vaccineHistory: VaccineHistory[] | null
+    weight: number | null;
+    height: number | null;
+    medicine: Medicine[] | null;
+    vaccineHistory: VaccineHistory[] | null;
 }
 
 export interface Appointment {

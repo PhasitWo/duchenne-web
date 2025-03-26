@@ -2,7 +2,7 @@ import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
 import GoBack from "../../components/goback";
 import { Chip } from "@mui/material";
-import { useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -18,8 +18,11 @@ export default function AddPatient() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [info, setInfo] = useState<Patient>(initialInfo);
+    const formRef = useRef<HTMLFormElement>(null);
 
-    const handleSave = async () => {
+    const handleSave = async (e: FormEvent) => {
+        e.preventDefault()
+        if (!formRef.current?.reportValidity()) return;
         if (info.hn.trim() === "" || info.firstName.trim() === "" || info.lastName.trim() === "") {
             toast.error("Not enough information");
             return;
@@ -69,7 +72,7 @@ export default function AddPatient() {
             <Header>Add New Patient</Header>
             <div id="content-body">
                 <GoBack />
-                <div id="info-container" className={styles.infoContainer}>
+                <form id="info-container" ref={formRef} className={styles.infoContainer}>
                     <div className={styles.infoHeader}>
                         <h3>Patient Infomation</h3>
                     </div>
@@ -81,6 +84,7 @@ export default function AddPatient() {
                             value={info.hn}
                             onChange={(e) => setInfo({ ...info, hn: e.target.value })}
                             maxLength={15}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -90,6 +94,7 @@ export default function AddPatient() {
                             className={styles.infoInput}
                             value={info.firstName}
                             onChange={(e) => setInfo({ ...info, firstName: e.target.value })}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -108,6 +113,7 @@ export default function AddPatient() {
                             className={styles.infoInput}
                             value={info.lastName}
                             onChange={(e) => setInfo({ ...info, lastName: e.target.value })}
+                            required
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -130,13 +136,48 @@ export default function AddPatient() {
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Weight</label>
+                        <input
+                            type="number"
+                            className={styles.infoInput}
+                            value={info.weight ?? ""}
+                            onChange={(e) =>
+                                setInfo({
+                                    ...info,
+                                    weight: isNaN(e.target.valueAsNumber)
+                                        ? null
+                                        : e.target.valueAsNumber,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Height</label>
+                        <input
+                            type="number"
+                            className={styles.infoInput}
+                            value={info.height ?? ""}
+                            onChange={(e) =>
+                                setInfo({
+                                    ...info,
+                                    height: isNaN(e.target.valueAsNumber)
+                                        ? null
+                                        : e.target.valueAsNumber,
+                                })
+                            }
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Status*</label>
                         <div>
                             <Select
                                 value={info.verified ? "verified" : "unverified"}
-                                onChange={(e) => setInfo({ ...info, verified: e.target.value === "verified" })}
+                                onChange={(e) =>
+                                    setInfo({ ...info, verified: e.target.value === "verified" })
+                                }
                                 size="small"
                                 sx={{ paddingLeft: 0 }}
+                                required
                             >
                                 <MenuItem value="verified">
                                     <Chip label="verified" color="success" variant="outlined" />
@@ -149,7 +190,8 @@ export default function AddPatient() {
                     </div>
                     {!info.verified && (
                         <span style={{ color: "grey" }}>
-                            *with 'unverified' status, this patient is needed to complete signup process in the mobile app
+                            *with 'unverified' status, this patient is needed to complete signup
+                            process in the mobile app
                         </span>
                     )}
                     <div className={styles.infoFooter}>
@@ -158,7 +200,7 @@ export default function AddPatient() {
                             <span>Save</span>
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </>
     );
@@ -174,5 +216,7 @@ const initialInfo: Patient = {
     phone: "",
     verified: true,
     medicine: null,
-    vaccineHistory: null
+    vaccineHistory: null,
+    height: null,
+    weight: null,
 };
