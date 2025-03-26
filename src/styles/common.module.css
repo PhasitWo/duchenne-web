@@ -22,7 +22,7 @@
     border-color: var(--blue);
 }
 
-.cancelButton {
+.outlinedButton {
     color: black;
     background-color: white;
     height: 2rem;
@@ -37,13 +37,18 @@
     border-style: solid;
 }
 
-.cancelButton:hover {
+.outlinedButton:hover {
     background-color: black;
     color: white;
 }
 
-.cancelButton:active {
+.outlinedButton:active {
     background-color: var(--dark-blue);
+}
+
+.outlinedButton:disabled {
+    color: white;
+    background-color: whitesmoke;
 }
 
 .deleteButton {
@@ -215,4 +220,16 @@
     left: 50%;
     transform: translate(-50%, -50%);
     box-shadow: 2px 1px 5px 2px #00eaff0a;
+}
+
+
+.closeButton {
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.closeButton:hover {
+    color: red;
 }

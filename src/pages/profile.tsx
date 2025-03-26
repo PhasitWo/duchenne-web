@@ -167,7 +167,9 @@ export default function Profile() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
+                            onChange={(e) =>
+                                setInfo({ ...info, middleName: e.target.value.trim() })
+                            }
                             disabled={!onEdit}
                         />
                     </div>
@@ -184,7 +186,11 @@ export default function Profile() {
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Role*</label>
                         <div>
-                            <Chip label={info.role} color={roleColorMap[info.role]} variant="outlined" />
+                            <Chip
+                                label={info.role}
+                                color={roleColorMap[info.role]}
+                                variant="outlined"
+                            />
                         </div>
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -219,15 +225,21 @@ export default function Profile() {
                                         {"Passwords must be between 8-20 characters in length"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.lowerCase ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.lowerCase ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 lower case letter [a-z]"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.upperCase ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.upperCase ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 upper case letter [A-Z]"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.numeric ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.numeric ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 numeric character [0-9]"}
                                     </span>
                                 </div>
@@ -243,7 +255,7 @@ export default function Profile() {
                             </div>
                             <div className={styles.infoFooter}>
                                 <button
-                                    className={styles.cancelButton}
+                                    className={styles.outlinedButton}
                                     onClick={() => {
                                         setOnEdit(false);
                                         setInfo(infoRef.current as Doctor);

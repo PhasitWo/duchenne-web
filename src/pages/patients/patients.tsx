@@ -10,6 +10,7 @@ import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { ErrResponse, Patient } from "../../model/model";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
+import AddButton from "../../components/addButton";
 
 // const mockup: GridRowsProp = [
 //     { hn: "test1", name: "Jingjai bindai", email: "dunno@gmail.com", phone: "000000", verified: true },
@@ -112,14 +113,11 @@ export default function Patients() {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
-                        <button
-                            className={styles.button}
+                        <AddButton
                             style={{ marginLeft: "10px" }}
                             onClick={() => navigate("new")}
                             disabled={!checkPermission(Permission.createPatientPermission)}
-                        >
-                            <Translate token="+ Add" />
-                        </button>
+                        />
                     </div>
                     <DataGrid
                         rows={rows}

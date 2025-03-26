@@ -106,7 +106,10 @@ export default function ViewDoctor() {
         }
         setIsLoading(true);
         try {
-            const requestBody = { ...info, middleName: info.middleName === "" ? null : info.middleName };
+            const requestBody = {
+                ...info,
+                middleName: info.middleName === "" ? null : info.middleName,
+            };
             const res = await api.put("/api/doctor/" + id, requestBody);
             switch (res.status) {
                 case 200:
@@ -204,7 +207,9 @@ export default function ViewDoctor() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
+                            onChange={(e) =>
+                                setInfo({ ...info, middleName: e.target.value.trim() })
+                            }
                             disabled={!onEdit}
                         />
                     </div>
@@ -240,7 +245,11 @@ export default function ViewDoctor() {
                             </Select>
                         ) : (
                             <div>
-                                <Chip label={info.role} color={roleColorMap[info.role]} variant="outlined" />
+                                <Chip
+                                    label={info.role}
+                                    color={roleColorMap[info.role]}
+                                    variant="outlined"
+                                />
                             </div>
                         )}
                     </div>
@@ -276,15 +285,21 @@ export default function ViewDoctor() {
                                         {"Passwords must be between 8-20 characters in length"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.lowerCase ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.lowerCase ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 lower case letter [a-z]"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.upperCase ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.upperCase ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 upper case letter [A-Z]"}
                                     </span>
                                     <br />
-                                    <span style={{ color: pwdConditions.numeric ? "green" : "red" }}>
+                                    <span
+                                        style={{ color: pwdConditions.numeric ? "green" : "red" }}
+                                    >
                                         {"a minimum of 1 numeric character [0-9]"}
                                     </span>
                                 </div>
@@ -309,7 +324,7 @@ export default function ViewDoctor() {
                                 </button>
                                 <div className={styles.infoCancelSaveContainer}>
                                     <button
-                                        className={styles.cancelButton}
+                                        className={styles.outlinedButton}
                                         onClick={() => {
                                             setOnEdit(false);
                                             setInfo(infoRef.current as Doctor);
@@ -338,14 +353,22 @@ export default function ViewDoctor() {
                     >
                         <h3>Appointments</h3>
                         {!showAppointment && (
-                            <button className={styles.button} onClick={() => setShowAppointment(true)}>
+                            <button
+                                className={styles.button}
+                                onClick={() => setShowAppointment(true)}
+                            >
                                 Show
                             </button>
                         )}
                     </div>
                     {showAppointment && (
                         <>
-                            <Select value={apmtType} onChange={handleApmtTypeChange} size="small" sx={{ marginBottom: "10px" }}>
+                            <Select
+                                value={apmtType}
+                                onChange={handleApmtTypeChange}
+                                size="small"
+                                sx={{ marginBottom: "10px" }}
+                            >
                                 <MenuItem value="incoming">Incoming</MenuItem>
                                 <MenuItem value="history">History</MenuItem>
                             </Select>

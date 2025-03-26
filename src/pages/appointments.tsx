@@ -8,13 +8,19 @@ import { AiOutlineSchedule } from "react-icons/ai";
 import AppointmentDataGrid from "../components/appointmentDataGrid";
 import { AppointmentType } from "../components/appointmentDataGrid";
 import { useAuthApiContext } from "../hooks/authApiContext";
+import AddButton from "../components/addButton";
+import CreateAppointmentModal from "../components/modal/createAppointmentModal";
+import { useNavigate } from "react-router-dom";
 
 type AppointmentOwner = "myappointment" | "allappointment";
 
 export default function Appointments() {
-    const [apmtOwner, setApmntOwner] = useState<AppointmentOwner>("myappointment");
+    const [apmtOwner, setApmntOwner] = useState<AppointmentOwner>("allappointment");
     const [apmtType, setApmntType] = useState<AppointmentType>("incoming");
     const { userData } = useAuthApiContext();
+    const [openCreate, setOpenCreate] = useState(false);
+    const navigate = useNavigate();
+
     const handleApmtOwnerChange = (e: SelectChangeEvent) => {
         setApmntOwner(e.target.value as AppointmentOwner);
     };
@@ -29,31 +35,26 @@ export default function Appointments() {
             </Header>
             <div id="content-body">
                 <div className={styles.datagridContainer}>
-                    <Select value={apmtOwner} onChange={handleApmtOwnerChange} size="small">
-                        <MenuItem value="myappointment">My Appointments</MenuItem>
-                        <MenuItem value="allappointment">All Appointments</MenuItem>
-                    </Select>
-                    <Select
-                        value={apmtType}
-                        onChange={handleApmtTypeChange}
-                        size="small"
-                        sx={{ marginLeft: "10px" }}
-                    >
-                        <MenuItem value="incoming">Incoming</MenuItem>
-                        <MenuItem value="history">History</MenuItem>
-                    </Select>
-                    <div
-                        style={{
-                            marginTop: "10px",
-                            marginBottom: "10px",
-                            display: "flex",
-                            alignItems: "center",
-                        }}
-                    >
-                        {/* <label>
-                            <Translate token="Search" />
-                        </label>
-                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="id / name" /> */}
+                    <div style={s.actionRow}>
+                        <div>
+                            <Select value={apmtOwner} onChange={handleApmtOwnerChange} size="small">
+                                <MenuItem value="myappointment">My Appointments</MenuItem>
+                                <MenuItem value="allappointment">All Appointments</MenuItem>
+                            </Select>
+                            <Select
+                                value={apmtType}
+                                onChange={handleApmtTypeChange}
+                                size="small"
+                                sx={{ marginLeft: "10px" }}
+                            >
+                                <MenuItem value="incoming">Incoming</MenuItem>
+                                <MenuItem value="history">History</MenuItem>
+                            </Select>
+                        </div>
+                        <AddButton
+                            style={{ marginLeft: "10px" }}
+                            onClick={() => setOpenCreate(true)}
+                        />
                     </div>
                     <AppointmentDataGrid
                         className={styles.datagrid}
@@ -61,7 +62,22 @@ export default function Appointments() {
                         doctorId={apmtOwner === "myappointment" ? userData.doctorId : undefined}
                     />
                 </div>
+                <CreateAppointmentModal
+                    open={openCreate}
+                    setOpen={setOpenCreate}
+                    onComplete={() => navigate("/reload")}
+                />
             </div>
         </>
     );
 }
+
+const s: { [key: string]: React.CSSProperties } = {
+    actionRow: {
+        marginTop: "10px",
+        marginBottom: "10px",
+        display: "flex",
+        alignItems: "baseline",
+        justifyContent: "space-between",
+    },
+};

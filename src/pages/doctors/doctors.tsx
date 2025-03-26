@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { ErrResponse, TrimDoctor } from "../../model/model";
 import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { AxiosError } from "axios";
+import AddButton from "../../components/addButton";
 
 // const mockup: GridRowsProp = [
 //     { id: 1, name: "haha", role: "admin" },
@@ -94,14 +95,11 @@ export default function Doctors() {
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
-                        <button
-                            className={styles.button}
+                        <AddButton
                             style={{ marginLeft: "10px" }}
                             onClick={() => navigate("new")}
                             disabled={!checkPermission(Permission.createDoctorPermission)}
-                        >
-                            <Translate token="+ Add" />
-                        </button>
+                        />
                     </div>
                     <DataGrid
                         rows={rows}

@@ -41,20 +41,18 @@ interface UserData {
     role: string;
 }
 
-type LoginDispatch = () => void;
-type LogoutDispatch = () => void;
-type FetchUserData = () => Promise<boolean>;
-type CheckPermission = (requiredPermission: Permission) => boolean;
-
-var apiUrl = import.meta.env.MODE === "development" ? import.meta.env.VITE_DEV_API_URL : import.meta.env.VITE_PROD_API_URL; // FIXME CHANGE TO VITE_PROD_API_URL
+var apiUrl =
+    import.meta.env.MODE === "development"
+        ? import.meta.env.VITE_DEV_API_URL
+        : import.meta.env.VITE_PROD_API_URL; // FIXME CHANGE TO VITE_PROD_API_URL
 
 const AuthApiContext = createContext<{
     authState: AuthState;
     userData: UserData;
-    loginDispatch: LoginDispatch;
-    logoutDispatch: LogoutDispatch;
-    fetchUserData: FetchUserData;
-    checkPermission: CheckPermission;
+    loginDispatch: () => void;
+    logoutDispatch: () => void;
+    fetchUserData: () => Promise<boolean>;
+    checkPermission: (requiredPermission: Permission) => boolean;
     api: AxiosInstance;
 }>({
     authState: { isLoading: true, isSignin: false },
@@ -71,7 +69,10 @@ export function useAuthApiContext() {
     return val;
 }
 export function AuthApiProvider({ children }: PropsWithChildren) {
-    const [authState, setAuthState] = useState(initialState);
+    const [authState, setAuthState] = useState({
+        isLoading: true,
+        isSignin: false,
+    });
     const [userData, setUserData] = useState<UserData>({ doctorId: -1, role: "user" });
     const navigate = useNavigate();
 
@@ -166,8 +167,3 @@ export function AuthApiProvider({ children }: PropsWithChildren) {
         </AuthApiContext.Provider>
     );
 }
-
-const initialState: AuthState = {
-    isLoading: true,
-    isSignin: false,
-};

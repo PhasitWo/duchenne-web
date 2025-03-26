@@ -34,9 +34,11 @@ export interface Patient {
 export interface Appointment {
     id: number;
     createAt: number;
+    updateAt: number | null;
+    approveAt: number | null;
     date: number;
     patient: Patient;
-    doctor: Omit<TrimDoctor, "role">;
+    doctor: TrimDoctor;
 }
 
 export interface QuestionTopic {

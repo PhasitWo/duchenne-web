@@ -8,7 +8,11 @@ import { ImCancelCircle } from "react-icons/im";
 import GoBack from "../../components/goback";
 import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
 import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
-import QuestionDataGrid, { QuestionType, sortCreateAtModel, sortAnswerAtModel } from "../../components/questionDataGrid";
+import QuestionDataGrid, {
+    QuestionType,
+    sortCreateAtModel,
+    sortAnswerAtModel,
+} from "../../components/questionDataGrid";
 import { ErrResponse, Patient } from "../../model/model";
 import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { AxiosError } from "axios";
@@ -172,7 +176,9 @@ export default function ViewPatient() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
+                            onChange={(e) =>
+                                setInfo({ ...info, middleName: e.target.value.trim() })
+                            }
                             disabled={!onEdit}
                         />
                     </div>
@@ -212,7 +218,9 @@ export default function ViewPatient() {
                         {onEdit ? (
                             <Select
                                 value={info.verified ? "verified" : "unverified"}
-                                onChange={(e) => setInfo({ ...info, verified: e.target.value === "verified" })}
+                                onChange={(e) =>
+                                    setInfo({ ...info, verified: e.target.value === "verified" })
+                                }
                                 size="small"
                                 sx={{ paddingLeft: 0 }}
                                 disabled={!onEdit}
@@ -246,7 +254,7 @@ export default function ViewPatient() {
                             </button>
                             <div className={styles.infoCancelSaveContainer}>
                                 <button
-                                    className={styles.cancelButton}
+                                    className={styles.outlinedButton}
                                     onClick={() => {
                                         setOnEdit(false);
                                         setInfo(infoRef.current as Patient);
@@ -264,17 +272,32 @@ export default function ViewPatient() {
                     )}
                 </div>
                 <div id="patient-appointment">
-                    <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "10px" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                            gap: "10px",
+                        }}
+                    >
                         <h3>Appointments</h3>
                         {!showAppointment && (
-                            <button className={styles.button} onClick={() => setShowAppointment(true)}>
+                            <button
+                                className={styles.button}
+                                onClick={() => setShowAppointment(true)}
+                            >
                                 Show
                             </button>
                         )}
                     </div>
                     {showAppointment && (
                         <>
-                            <Select value={apmtType} onChange={handleApmtTypeChange} size="small" sx={{ marginBottom: "10px" }}>
+                            <Select
+                                value={apmtType}
+                                onChange={handleApmtTypeChange}
+                                size="small"
+                                sx={{ marginBottom: "10px" }}
+                            >
                                 <MenuItem value="incoming">Incoming</MenuItem>
                                 <MenuItem value="history">History</MenuItem>
                             </Select>
@@ -288,7 +311,14 @@ export default function ViewPatient() {
                     )}
                 </div>
                 <div id="patient-question">
-                    <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "10px" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "flex-start",
+                            alignItems: "center",
+                            gap: "10px",
+                        }}
+                    >
                         <h3>Questions</h3>
                         {!showQuestion && (
                             <button className={styles.button} onClick={() => setShowQuestion(true)}>

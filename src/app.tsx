@@ -29,7 +29,7 @@ export default function App() {
             {authState.isSignin ? (
                 <>
                     <Route element={<Layout />}>
-                        <Route index element={<Home />} />
+                        <Route path="" element={<Home />} />
                         <Route path="profile" element={<Profile />} />
                         <Route path="doctor">
                             <Route index element={<Doctors />} />
