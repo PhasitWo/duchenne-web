@@ -285,6 +285,7 @@ const initialInfo: Doctor = {
     role: "user",
     username: "-",
     password: "-",
+    specialist: null
 };
 
 const initialPwdCondition: PasswordCondition = {
