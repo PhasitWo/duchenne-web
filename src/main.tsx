@@ -2,7 +2,7 @@ import "./styles/main.css";
 import { createRoot } from "react-dom/client";
 import App from "./app.tsx";
 import { AuthApiProvider } from "./hooks/authApiContext.tsx";
-import { LanguageProvider } from "./hooks/languageContext.tsx";
+import { LanguageProvider } from "./hooks/LanguageContext.tsx";
 import { HashRouter } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -13,7 +13,7 @@ createRoot(document.getElementById("root")!).render(
         <AuthApiProvider>
             <LanguageProvider>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <App />
+                    <App />
                 </LocalizationProvider>
             </LanguageProvider>
         </AuthApiProvider>

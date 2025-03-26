@@ -3,7 +3,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { GridSortModel } from "@mui/x-data-grid";
 import { useState } from "react";
 import styles from "../../styles/common.module.css";
-import { Translate } from "../../hooks/languageContext";
+import { Translate } from "../../hooks/LanguageContext";
 import Header from "../../components/header";
 import { CiCircleQuestion } from "react-icons/ci";
 import QuestionDataGrid from "../../components/questionDataGrid";

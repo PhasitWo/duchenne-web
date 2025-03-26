@@ -1,6 +1,6 @@
 import "../styles/header.css";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { useLanguage } from "../hooks/languageContext";
+import { useLanguage } from "../hooks/LanguageContext";
 import type { PropsWithChildren } from "react";
 import { useAuthApiContext } from "../hooks/authApiContext";
 

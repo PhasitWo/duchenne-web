@@ -1,6 +1,6 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styles from "../../styles/common.module.css";
-import { Translate } from "../../hooks/languageContext";
+import { Translate } from "../../hooks/LanguageContext";
 import Header from "../../components/header";
 import { FaUserDoctor } from "react-icons/fa6";
 import { NavLink, useNavigate } from "react-router-dom";

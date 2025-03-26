@@ -1,6 +1,6 @@
 import { ButtonHTMLAttributes } from "react";
 import styles from "../styles/common.module.css";
-import { Translate } from "../hooks/languageContext";
+import { Translate } from "../hooks/LanguageContext";
 
 export default function AddButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
     return (

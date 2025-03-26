@@ -1,7 +1,7 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styles from "../../styles/common.module.css";
 import Chip from "@mui/material/Chip";
-import { Translate } from "../../hooks/languageContext";
+import { Translate } from "../../hooks/LanguageContext";
 import Header from "../../components/header";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { NavLink, useNavigate } from "react-router-dom";
