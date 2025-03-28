@@ -9,8 +9,8 @@ import { useAuthApiContext } from "../hooks/authApiContext";
 
 export default function Login() {
     const { api, loginDispatch, fetchUserData } = useAuthApiContext();
-    const [username, setUsername] = useState("testroot");
-    const [password, setPassword] = useState("testroot");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const handleLogin = async (e: any) => {
         e.preventDefault();
         try {

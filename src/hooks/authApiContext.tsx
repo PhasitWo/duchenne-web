@@ -126,6 +126,11 @@ export function AuthApiProvider({ children }: PropsWithChildren) {
             if (err instanceof AxiosError) {
                 let error = err as AxiosError<ErrResponse>;
                 toast.error(error.response?.data.error);
+                // retry
+                setTimeout(() => {
+                    console.log("retry fetching user data");
+                    fetchUserData();
+                }, 2000);
             } else toast.error(`Fatal Error: ${err}`);
         } finally {
             return result;
