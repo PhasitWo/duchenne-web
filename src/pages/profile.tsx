@@ -100,7 +100,12 @@ export default function Profile() {
         }
         setIsLoading(true);
         try {
-            const res = await api.put("/api/profile", info);
+            const requestBody = {
+                ...info,
+                middleName: info.middleName === "" ? null : info.middleName,
+                specialist: info.specialist === "" ? null : info.specialist,
+            };
+            const res = await api.put("/api/profile", requestBody);
             switch (res.status) {
                 case 200:
                     toast.success("Updated!");
@@ -180,6 +185,18 @@ export default function Profile() {
                             className={styles.infoInput}
                             value={info.lastName}
                             onChange={(e) => setInfo({ ...info, lastName: e.target.value.trim() })}
+                            disabled={!onEdit}
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Specialist</label>
+                        <input
+                            type="text"
+                            className={styles.infoInput}
+                            value={info.specialist ?? ""}
+                            onChange={(e) =>
+                                setInfo({ ...info, specialist: e.target.value.trim() })
+                            }
                             disabled={!onEdit}
                         />
                     </div>
@@ -285,7 +302,7 @@ const initialInfo: Doctor = {
     role: "user",
     username: "-",
     password: "-",
-    specialist: null
+    specialist: null,
 };
 
 const initialPwdCondition: PasswordCondition = {

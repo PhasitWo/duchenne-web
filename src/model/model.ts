@@ -79,3 +79,13 @@ export interface Question {
     patient: Patient;
     doctor: Omit<TrimDoctor, "role"> | null;
 }
+
+export interface Content {
+    id: number;
+    createAt: number;
+    updateAt: number;
+    title: string;
+    body: string;
+    isPublished: boolean;
+    order: number;
+}

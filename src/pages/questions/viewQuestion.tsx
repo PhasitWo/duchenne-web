@@ -102,9 +102,16 @@ export default function ViewQuestion() {
                         <h2 style={{ margin: 0 }}>{data?.answerAt ? "Reply" : "Add a Reply"}</h2>
                         {data?.answerAt && (
                             <div style={{ color: "grey" }}>
-                                <NavLink to={`/doctor/${data.doctor?.id}`}>{`${data?.doctor?.firstName} ${
-                                    data?.doctor?.middleName ?? ""
-                                } ${data?.doctor?.lastName}`}</NavLink>
+                                {data.doctor?.id !== 0 ? (
+                                    <NavLink to={`/doctor/${data.doctor?.id}`}>{`${
+                                        data?.doctor?.firstName ?? "Unknown"
+                                    } ${data?.doctor?.middleName ?? ""} ${data?.doctor?.lastName}`}</NavLink>
+                                ) : (
+                                    <span>
+                                        {"Unknown "}
+                                    </span>
+                                )}
+
                                 <span>Replied {dayjs(data.createAt * 1000).format("DD/MM/YY HH:mm")}</span>
                             </div>
                         )}
@@ -117,7 +124,12 @@ export default function ViewQuestion() {
                         ) : (
                             <>
                                 <TextareaAutosize
-                                    style={{ width: "100%", resize: "vertical", fontFamily: "Noto Sans Thai", fontSize: "1rem" }}
+                                    style={{
+                                        width: "100%",
+                                        resize: "vertical",
+                                        fontFamily: "Noto Sans Thai",
+                                        fontSize: "1rem",
+                                    }}
                                     minRows={6}
                                     value={reply}
                                     onChange={(e) => setReply(e.target.value)}
