@@ -1,0 +1,240 @@
+.navLink {
+    text-decoration: underline;
+}
+
+.navLink:hover {
+    background-color: var(--light-blue);
+    cursor: pointer;
+}
+
+.searchInput {
+    border-style: none;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: var(--navbar-border-color);
+    width: auto;
+    height: 1.4rem;
+    padding-left: 10px;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--blue);
+}
+
+.outlinedButton {
+    color: black;
+    background-color: white;
+    height: 2rem;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-color: var(--navbar-border-color);
+    border-width: 1px;
+    border-style: solid;
+}
+
+.outlinedButton:hover {
+    background-color: black;
+    color: white;
+}
+
+.outlinedButton:active {
+    background-color: var(--dark-blue);
+}
+
+.outlinedButton:disabled {
+    color: white;
+    background-color: whitesmoke;
+}
+
+.deleteButton {
+    color: rgb(206, 13, 13);
+    background-color: white;
+    height: 2rem;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-color: var(--navbar-border-color);
+    border-width: 1px;
+    border-style: solid;
+}
+
+.deleteButton:hover {
+    background-color: rgb(206, 13, 13);
+    color: white;
+}
+
+.deleteButton:active {
+    background-color: rgb(119, 9, 9);
+}
+
+.button {
+    color: white;
+    background-color: black;
+    height: 2rem;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.button:hover {
+    background-color: var(--blue);
+}
+
+.button:active {
+    background-color: var(--dark-blue);
+}
+
+.button:disabled {
+    background-color: whitesmoke;
+}
+
+.datagridContainer {
+    width: 70vw;
+    height: 70vh;
+}
+
+.miniDatagridContainer {
+    width: 40vw;
+}
+
+.infoContainer {
+    width: 900px;
+    border-color: var(--navbar-border-color);
+    border-width: 1px;
+    border-style: solid;
+    padding: 20px;
+}
+
+.infoHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.infoInputContainer {
+    display: grid;
+    grid-template-columns: 30% 50%;
+    margin-bottom: 20px;
+}
+
+.infoLabel {
+    font-weight: bold;
+}
+
+.infoInput {
+    border-style: none;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--navbar-border-color);
+    width: auto;
+    height: 1.4rem;
+    padding-left: 10px;
+}
+
+.infoInput:focus {
+    outline: none;
+    border-color: var(--blue);
+}
+
+.infoFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.infoCancelSaveContainer {
+    display: flex;
+    gap: 20px;
+}
+
+.questionBox {
+    padding: 10px;
+    width: 900px;
+    border-style: none;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--navbar-border-color);
+}
+
+.topicContainer {
+    border-bottom-style: none;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-color: var(--navbar-border-color);
+}
+
+.answerBox {
+    margin-top: 20px;
+    padding: 10px;
+    width: 900px;
+    border-style: none;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--navbar-border-color);
+}
+
+.answerHeaderContainer {
+    border-bottom-style: none;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-color: var(--navbar-border-color);
+}
+
+.answerContainer {
+    padding: 5px;
+    min-height: 100px;
+}
+
+/* .questionContainer {
+   
+} */
+
+@media screen and (max-width: 850px) {
+    .datagridContainer,
+    .miniDatagridContainer,
+    .infoContainer,
+    .questionBox,
+    .answerBox {
+        width: 500px;
+    }
+}
+
+.loginBox {
+    width: 300px;
+    border-style: none;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--navbar-border-color);
+    z-index: 10;
+    padding: 50px 150px 150px 150px;
+    background-color: white;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 2px 1px 5px 2px #00eaff0a;
+}
+
+
+.closeButton {
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+}
+
+.closeButton:hover {
+    color: red;
+}

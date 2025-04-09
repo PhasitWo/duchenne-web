@@ -1,0 +1,114 @@
+#navbar {
+    top: 0;
+    position: sticky;
+    height: 100vh;
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-right-color: var(--navbar-border-color);
+    width: var(--navbar-width);
+    background-color: var(--navbar-color);
+    z-index: 10;
+}
+
+#navbar a {
+    color: black;
+    text-decoration: inherit;
+}
+
+#navbar ul {
+    padding: 0;
+    font-weight: normal;
+}
+
+#navbar .main-list {
+    list-style-type: none;
+}
+
+#navbar .main-list li {
+    padding: 9px 9px 9px 9px;
+}
+
+#navbar .main-list a {
+    padding: 9px 9px 9px 18px;
+    display: grid;
+    grid-template-columns: 20px auto;
+    column-gap: 15px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#navbar  .main-list a:hover:not(.active) {
+    background-color: var(--navbar-hover);
+}
+
+#navbar .main-list a svg {
+    color: gray;
+    font-size: 20px;
+}
+
+/* when click link (feature of NavLink) */
+#navbar .main-list a.active {
+    background-color: var(--light-blue);
+}
+
+#navbar .main-list a.active div,
+#navbar .main-list a.active svg {
+    color: var(--blue);
+}
+
+#top-navbar-box {
+    background-color: var(--navbar-color);
+    width: var(--navbar-width);
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-right-color: var(--navbar-border-color);
+    display: grid;
+    grid-template-columns: var(--logo-container-width) calc(var(--navbar-width) - var(--logo-container-width));
+    height: 60px;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--navbar-border-color);
+}
+
+#logo-container {
+    border-right-style: solid;
+    border-right-width: 1px;
+    border-right-color: var(--navbar-border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#logo-container img {
+    width: 50px;
+}
+
+#profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#profile-button {
+    height: 60%;
+    width: 90%;
+    height: 60%;
+    padding: 2px;
+    display: grid;
+    grid-template-columns: 25px auto 18px;
+    column-gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+#profile-button:hover {
+    background-color: var(--navbar-hover);
+}
+
+#profile-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
