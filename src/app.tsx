@@ -18,6 +18,9 @@ import { Navigate } from "react-router-dom";
 import Loading from "./pages/loading.tsx";
 import NotFound from "./pages/notFound.tsx";
 import Reload from "./pages/reload.tsx";
+import Contents from "./pages/contents/contents.tsx";
+import ViewContent from "./pages/contents/viewContent.tsx";
+import AddContent from "./pages/contents/addContent.tsx";
 
 export default function App() {
     const { authState, checkPermission } = useAuthApiContext();
@@ -31,12 +34,19 @@ export default function App() {
                     <Route element={<Layout />}>
                         <Route path="" element={<Home />} />
                         <Route path="profile" element={<Profile />} />
+                        <Route path="content">
+                            <Route index element={<Contents />} />
+                            <Route path=":id" element={<ViewContent />} />
+                            <Route path="new" element={<AddContent/>}/>
+                        </Route>
                         <Route path="doctor">
                             <Route index element={<Doctors />} />
                             <Route path=":id" element={<ViewDoctor />} />
                             <Route
                                 path="new"
-                                element={checkPermission(Permission.createDoctorPermission) ? <AddDoctor /> : <NotFound />}
+                                element={
+                                    checkPermission(Permission.createDoctorPermission) ? <AddDoctor /> : <NotFound />
+                                }
                             />
                         </Route>
                         <Route path="patient">
@@ -44,7 +54,9 @@ export default function App() {
                             <Route path=":id" element={<ViewPatient />} />
                             <Route
                                 path="new"
-                                element={checkPermission(Permission.createPatientPermission) ? <AddPatient /> : <NotFound />}
+                                element={
+                                    checkPermission(Permission.createPatientPermission) ? <AddPatient /> : <NotFound />
+                                }
                             />
                         </Route>
                         <Route path="appointment" element={<Appointments />} />
