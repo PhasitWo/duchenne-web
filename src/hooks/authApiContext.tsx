@@ -83,7 +83,7 @@ export function AuthApiProvider({ children }: PropsWithChildren) {
     }, []);
     const checkAuthState = async () => {
         const succeed = await fetchUserData();
-        if (succeed) loginDispatch();
+        if (succeed) setAuthState({ isLoading: false, isSignin: true });
     };
 
     const loginDispatch = () => {
