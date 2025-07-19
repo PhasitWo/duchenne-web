@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useCallback, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import GoBack from "../../components/goback";
 import { useAuthApiContext } from "../../hooks/authApiContext";
@@ -19,6 +19,7 @@ export default function AddContent() {
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [info, setInfo] = useState<Content>(initialInfo);
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -47,6 +48,33 @@ export default function AddContent() {
             setIsLoading(false);
         }
     };
+
+    const uploadImage = useCallback(async (file: File) => {
+        const form = new FormData();
+        form.append("image", file);
+
+        let ret = null;
+        setIsUploading(true);
+        let toastId = toast.loading("Uploading image...")
+        try {
+            const res = await api.post<{ publicURL: string }>("/api/image/upload", form);
+            switch (res.status) {
+                case 201:
+                    toast.success("Image uploaded!");
+                    ret = res.data.publicURL;
+                    break;
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                let error = err as AxiosError<ErrResponse>;
+                toast.error(error.response?.data.error);
+            } else toast.error(`Fatal Error: ${err}`);
+        } finally {
+            toast.done(toastId)
+            setIsUploading(false);
+            return ret;
+        }
+    }, []);
 
     if (isLoading) return <Loading />;
     return (
@@ -88,7 +116,12 @@ export default function AddContent() {
                         />
                     </div>
                     <div style={{ padding: "20px 0 20px 0" }}>
-                        <Editor value={info.body} onChange={(v) => setInfo({ ...info, body: v })} />
+                        <Editor
+                            value={info.body}
+                            onChange={(v) => setInfo({ ...info, body: v })}
+                            uploadImageFunc={uploadImage}
+                            readonly={isUploading}
+                        />
                     </div>
 
                     <div className={styles.infoFooter}>

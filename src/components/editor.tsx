@@ -1,25 +1,39 @@
-import { useCallback, useMemo, useRef } from "react";
-import ReactQuill, { ReactQuillProps } from "react-quill";
+import { ChangeEventHandler, useCallback, useMemo, useRef } from "react";
+import ReactQuill, { ReactQuillProps, type Range } from "react-quill";
 
 interface EditorProps {
     value: ReactQuillProps["value"];
     onChange: ReactQuillProps["onChange"];
+    uploadImageFunc: (file: File) => Promise<any>;
     readonly?: ReactQuillProps["readOnly"];
 }
 
-export default function Editor({ value, onChange, readonly = false }: EditorProps) {
+export default function Editor({ value, onChange, uploadImageFunc, readonly = false }: EditorProps) {
     const ref = useRef<ReactQuill>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const currentRange = useRef<Range | null>(null);
+
     const imageHandler = useCallback(() => {
         if (!ref.current) return;
-
-        const editor = ref.current!.getEditor();
+        const editor = ref.current.getEditor();
         const range = editor.getSelection();
-        const value = prompt("Please enter the image URL");
-
-        if (value && range) {
-            editor.insertEmbed(range.index, "image", value, "user");
-        }
+        currentRange.current = range;
+        fileInputRef.current!.click();
     }, []);
+
+    const handleImageChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
+        let files = e.target.files;
+        if (files) {
+            let url = await uploadImageFunc(files[0]);
+            if (!ref.current) return;
+            const editor = ref.current.getEditor();
+            if (url && currentRange.current) {
+                console.log(currentRange.current.index, url)
+                editor.insertEmbed(currentRange.current.index, "image", url);
+            }
+            currentRange.current = null;
+        }
+    };
 
     const modules = useMemo<ReactQuillProps["modules"]>(
         () => ({
@@ -40,13 +54,22 @@ export default function Editor({ value, onChange, readonly = false }: EditorProp
     );
 
     return (
-        <ReactQuill
-            ref={ref}
-            modules={modules}
-            value={value}
-            onChange={onChange}
-            readOnly={readonly}
-            placeholder="Write your content..."
-        />
+        <>
+            <ReactQuill
+                ref={ref}
+                modules={modules}
+                value={value}
+                onChange={onChange}
+                readOnly={readonly}
+                placeholder="Write your content..."
+            />
+            <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                style={{ display: "none" }}
+            />
+        </>
     );
 }
