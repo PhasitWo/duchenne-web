@@ -1,16 +1,18 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styles from "../../styles/common.module.css";
 import Chip from "@mui/material/Chip";
-import { Translate } from "../../hooks/LanguageContext";
+import { Translate } from "../../hooks/languageContext";
 import Header from "../../components/header";
 import { BsPersonLinesFill } from "react-icons/bs";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { ErrResponse, Patient } from "../../model/model";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import AddButton from "../../components/addButton";
+import api from "../../services/api";
+import { Permission } from "../../constants/permission";
+import { useAuthStore } from "../../stores/auth";
 
 // const mockup: GridRowsProp = [
 //     { hn: "test1", name: "Jingjai bindai", email: "dunno@gmail.com", phone: "000000", verified: true },
@@ -55,8 +57,8 @@ const columns: GridColDef<Patient>[] = [
 ];
 
 export default function Patients() {
-    const { api, checkPermission } = useAuthApiContext();
     const navigate = useNavigate();
+    const {checkPermission} = useAuthStore()
     const [isLoading, setIsLoading] = useState(true);
     const [searchText, setSearchText] = useState("");
     const initialRows = useRef<Patient[]>([]);

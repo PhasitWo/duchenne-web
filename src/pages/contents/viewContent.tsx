@@ -7,7 +7,6 @@ import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import { CiTrash } from "react-icons/ci";
 import GoBack from "../../components/goback";
-import { useAuthApiContext } from "../../hooks/authApiContext";
 import { Content, ErrResponse } from "../../model/model";
 import Loading from "../loading";
 import { toast } from "react-toastify";
@@ -16,11 +15,11 @@ import { Checkbox } from "@mui/material";
 import DeleteDialog from "../../components/deleteDialog";
 import "react-quill/dist/quill.snow.css";
 import Editor from "../../components/editor";
+import api from "../../services/api";
 
 export default function ViewContent() {
     // hook
     const { id } = useParams();
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(true);

@@ -1,15 +1,17 @@
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import styles from "../../styles/common.module.css";
-import { Translate } from "../../hooks/LanguageContext";
+import { Translate } from "../../hooks/languageContext";
 import Header from "../../components/header";
 import { FaUserDoctor } from "react-icons/fa6";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { ErrResponse, TrimDoctor } from "../../model/model";
-import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { AxiosError } from "axios";
 import AddButton from "../../components/addButton";
+import { useAuthStore } from "../../stores/auth";
+import api from "../../services/api";
+import { Permission } from "../../constants/permission";
 
 // const mockup: GridRowsProp = [
 //     { id: 1, name: "haha", role: "admin" },
@@ -36,7 +38,7 @@ const columns: GridColDef<TrimDoctor>[] = [
 
 export default function Doctors() {
     const navigate = useNavigate();
-    const { api, checkPermission } = useAuthApiContext();
+    const {  checkPermission } = useAuthStore();
     const [searchText, setSearchText] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [rows, setRows] = useState<TrimDoctor[]>([]);

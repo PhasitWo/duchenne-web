@@ -4,7 +4,6 @@ import styles from "../../styles/common.module.css";
 import { FormEvent, useCallback, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import GoBack from "../../components/goback";
-import { useAuthApiContext } from "../../hooks/authApiContext";
 import { Content, ErrResponse } from "../../model/model";
 import Loading from "../loading";
 import { toast } from "react-toastify";
@@ -12,10 +11,10 @@ import { AxiosError } from "axios";
 import { Checkbox } from "@mui/material";
 import "react-quill/dist/quill.snow.css";
 import Editor from "../../components/editor";
+import api from "../../services/api";
 
 export default function AddContent() {
     // hook
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(false);

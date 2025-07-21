@@ -8,13 +8,15 @@ import { ImCancelCircle } from "react-icons/im";
 import { CiTrash } from "react-icons/ci";
 import GoBack from "../../components/goback";
 import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
-import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { Doctor, ErrResponse } from "../../model/model";
 import Loading from "../loading";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import DeleteDialog from "../../components/deleteDialog";
+import { useAuthStore } from "../../stores/auth";
+import api from "../../services/api";
+import { Permission } from "../../constants/permission";
 
 interface PasswordCondition {
     length: boolean;
@@ -28,7 +30,7 @@ const engRegex = /^[A-Za-z0-9]*$/;
 export default function ViewDoctor() {
     // hook
     const { id } = useParams();
-    const { api, checkPermission } = useAuthApiContext();
+    const { checkPermission } = useAuthStore();
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(true);

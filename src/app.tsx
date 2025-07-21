@@ -1,5 +1,5 @@
 import "./styles/main.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Layout from "./layout.tsx";
 import Home from "./pages/home.tsx";
 import Profile from "./pages/profile.tsx";
@@ -13,7 +13,6 @@ import ViewQuestion from "./pages/questions/viewQuestion.tsx";
 import Login from "./pages/login.tsx";
 import AddDoctor from "./pages/doctors/addDoctor.tsx";
 import AddPatient from "./pages/patients/addPatient.tsx";
-import { Permission, useAuthApiContext } from "./hooks/authApiContext.tsx";
 import { Navigate } from "react-router-dom";
 import Loading from "./pages/loading.tsx";
 import NotFound from "./pages/notFound.tsx";
@@ -21,9 +20,37 @@ import Reload from "./pages/reload.tsx";
 import Contents from "./pages/contents/contents.tsx";
 import ViewContent from "./pages/contents/viewContent.tsx";
 import AddContent from "./pages/contents/addContent.tsx";
+import { useAuthStore } from "./stores/auth.ts";
+import { Permission } from "./constants/permission.ts";
+import { useCallback, useEffect } from "react";
 
 export default function App() {
-    const { authState, checkPermission } = useAuthApiContext();
+    const { authState, checkPermission, fetchUserData, loginDispatch, logoutDispatch } = useAuthStore();
+    const navigate = useNavigate();
+
+    const checkAuthState = useCallback(async () => {
+        console.log("checking auth state");
+        const succeed = await fetchUserData();
+        switch (succeed) {
+            case undefined:
+                // retry
+                console.log("retry fetching user data...");
+                setTimeout(() => checkAuthState(), 2000);
+                break;
+            case true:
+                loginDispatch(navigate, true);
+                break;
+            case false:
+                logoutDispatch(navigate);
+                break;
+        }
+    }, []);
+
+    // check auth state on mount
+    useEffect(() => {
+        checkAuthState();
+    }, []);
+
     if (authState.isLoading) {
         return <Loading />;
     }
@@ -37,7 +64,7 @@ export default function App() {
                         <Route path="content">
                             <Route index element={<Contents />} />
                             <Route path=":id" element={<ViewContent />} />
-                            <Route path="new" element={<AddContent/>}/>
+                            <Route path="new" element={<AddContent />} />
                         </Route>
                         <Route path="doctor">
                             <Route index element={<Doctors />} />
@@ -66,15 +93,15 @@ export default function App() {
                         </Route>
                         <Route path="notFound" element={<NotFound />} />
                     </Route>
+                    <Route path="*" element={<NotFound />} />
                 </>
             ) : (
                 <>
-                    <Route path="" index element={<Navigate to="/login" />} />
+                    <Route path="*" index element={<Navigate to="/login" />} />
                     <Route path="login" element={<Login />} />
                 </>
             )}
             <Route path="reload" element={<Reload />} />
-            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }

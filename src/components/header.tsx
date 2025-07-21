@@ -1,19 +1,15 @@
 import "../styles/header.css";
 import type { PropsWithChildren } from "react";
-import { useAuthApiContext } from "../hooks/authApiContext";
 import OutlineButton from "./outlineButton";
-import { toast } from "react-toastify";
+import { useAuthStore } from "../stores/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function Header({ children }: PropsWithChildren) {
-    const { userData } = useAuthApiContext();
-    const { api, logoutDispatch } = useAuthApiContext();
+    const navigate = useNavigate();
+    const { userData, logout } = useAuthStore();
+
     const handleLogout = async () => {
-        const response = await api.post("/auth/logout");
-        if (response.status !== 200) {
-            toast.error("Cannot logout");
-        } else {
-            logoutDispatch();
-        }
+        await logout(navigate);
     };
     return (
         <div id="header">

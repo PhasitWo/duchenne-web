@@ -1,14 +1,14 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import commonStyles from "../../styles/common.module.css";
 import { Modal, Box, Autocomplete, TextField, Checkbox } from "@mui/material";
-import { useAuthApiContext } from "../../hooks/authApiContext";
-import { ErrResponse, TrimDoctor, Patient } from "../../model/model";
-import { AxiosError } from "axios";
-import { toast } from "react-toastify";
+import { TrimDoctor, Patient } from "../../model/model";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import { ImCross } from "react-icons/im";
 import Loading from "../../pages/loading";
+import { useAppointmentStore } from "../../stores/appointment";
+import { useDoctorStore } from "../../stores/doctor";
+import { usePatientStore } from "../../stores/patient";
 
 interface CreateAppointmentModalProps {
     open: boolean;
@@ -18,11 +18,13 @@ interface CreateAppointmentModalProps {
 
 export default function CreateAppointmentModal(props: CreateAppointmentModalProps) {
     const { open, setOpen, onComplete } = props;
-    const { api } = useAuthApiContext();
     const formRef = useRef<HTMLFormElement>(null);
     const [appointmentDate, setAppointmentDate] = useState(dayjs());
     const [approve, setApprove] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const { createAppointment } = useAppointmentStore();
+    const { listDoctors } = useDoctorStore();
+    const { listPatients } = usePatientStore();
 
     // onmount
     useEffect(() => {
@@ -45,32 +47,17 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
         e.preventDefault();
         if (!formRef.current?.reportValidity()) return;
         setIsLoading(true);
-        try {
-            let res = await api.post<{ id: number }>("/api/appointment", {
-                doctorId: selectedDoctor!.id,
-                patientId: selectedPatient!.id,
-                date: appointmentDate.unix(),
-                approve: approve,
-            });
-            switch (res.status) {
-                case 201:
-                    onComplete();
-                    setOpen(false);
-                    toast.success("New Appointment Created!");
-                    break;
-                case 422:
-                    toast.error("Invalid Date");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-                console.log(err);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
+        const res = await createAppointment({
+            doctorId: selectedDoctor!.id,
+            patientId: selectedPatient!.id,
+            dateUnix: appointmentDate.unix(),
+            approve: approve,
+        });
+        if (res !== undefined) {
+            onComplete();
+            setOpen(false);
         }
+        setIsLoading(false);
     };
 
     // doctor
@@ -80,21 +67,9 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
 
     const fetchDoctors = async () => {
         setDoctorLoading(true);
-        try {
-            let res = await api.get<TrimDoctor[]>("/api/doctor");
-            switch (res.status) {
-                case 200:
-                    setDoctorList(res.data);
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setDoctorLoading(false);
-        }
+        const res = await listDoctors();
+        setDoctorList(res);
+        setDoctorLoading(false);
     };
 
     // patient
@@ -104,21 +79,9 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
 
     const fetchPatients = async () => {
         setPatientLoading(true);
-        try {
-            let res = await api.get<Patient[]>("/api/patient");
-            switch (res.status) {
-                case 200:
-                    setPatientList(res.data);
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setPatientLoading(false);
-        }
+        const res = await listPatients();
+        setPatientList(res);
+        setPatientLoading(false);
     };
 
     return (
@@ -143,9 +106,9 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
                                     }}
                                     options={patientList}
                                     getOptionLabel={(option) =>
-                                        `${option.firstName} ${option.middleName ?? ""} ${
-                                            option.lastName
-                                        } (id:${option.id})`
+                                        `${option.firstName} ${option.middleName ?? ""} ${option.lastName} (id:${
+                                            option.id
+                                        })`
                                     }
                                     loading={patientLoading}
                                     renderInput={(params) => (
@@ -170,9 +133,9 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
                                     }}
                                     options={doctorList}
                                     getOptionLabel={(option) =>
-                                        `${option.firstName} ${option.middleName ?? ""} ${
-                                            option.lastName
-                                        } (id:${option.id})`
+                                        `${option.firstName} ${option.middleName ?? ""} ${option.lastName} (id:${
+                                            option.id
+                                        })`
                                     }
                                     loading={doctorLoading}
                                     renderInput={(params) => (
@@ -200,10 +163,7 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
                                     format="DD/MM/YYYY HH:mm"
                                 />
                                 <div>
-                                    <Checkbox
-                                        checked={approve}
-                                        onChange={(_, value) => setApprove(value)}
-                                    />
+                                    <Checkbox checked={approve} onChange={(_, value) => setApprove(value)} />
                                     <label>Approve</label>
                                 </div>
                                 <button

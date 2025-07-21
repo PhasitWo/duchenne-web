@@ -1,16 +1,14 @@
 import { DataGrid, GridColDef, GridPaginationModel, type DataGridProps } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Appointment, ErrResponse } from "../model/model";
-import { useAuthApiContext } from "../hooks/authApiContext";
-import { AxiosError } from "axios";
-import { toast } from "react-toastify";
+import { Appointment } from "../model/model";
 import { NavLink } from "react-router-dom";
 import styles from "../styles/common.module.css";
 import Chip from "@mui/material/Chip";
 import { MdOutlineModeEditOutline } from "react-icons/md";
 import EditAppointmentModal from "./modal/editAppointmentModal";
 import ConfirmModal from "./modal/confirmModal";
+import { useAppointmentStore } from "../stores/appointment";
 
 export type AppointmentType = "incoming" | "history";
 
@@ -35,7 +33,7 @@ export default function AppointmentDataGrid({
     const [isLoading, setIsLoading] = useState(true);
     const [toEditAppointment, setToEditAppointment] = useState<Appointment | null>(null);
     const [openEdit, setOpenEdit] = useState(false);
-    const { api } = useAuthApiContext();
+    const { listAppointments, updateAppointment } = useAppointmentStore();
 
     const handlePaginationModelChange = async (model: GridPaginationModel) => {
         await fetch(model.pageSize, model.page * model.pageSize);
@@ -47,71 +45,29 @@ export default function AppointmentDataGrid({
         fetch(paginationModel.pageSize, 0);
     }, [type, doctorId, patientId]);
 
-    const attachQueryParams = (url: string, limit: number, offset: number) => {
-        url +=
-            `?type=${type}` +
-            (doctorId ? `&doctorId=${doctorId}` : "") +
-            (patientId ? `&patientId=${patientId}` : "") +
-            `&limit=${limit}` +
-            `&offset=${offset}`;
-        return url;
-    };
     const fetch = async (limit: number, offset: number) => {
         setIsLoading(true);
-        try {
-            let res = await api.get<Appointment[]>(
-                attachQueryParams("/api/appointment", limit + 1, offset)
-            );
-            switch (res.status) {
-                case 200:
-                    if (res.data.length == limit + 1) {
-                        res.data.pop();
-                        setHasNextPage(true);
-                    } else {
-                        setHasNextPage(false);
-                    }
-                    setRows(res.data);
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const { data, hasNextPage } = await listAppointments({ limit, offset, type, doctorId, patientId });
+        setRows(data);
+        setHasNextPage(hasNextPage);
+        setIsLoading(false);
     };
 
     // confirm modal
     const [openConfirm, setOpenConfirm] = useState(false);
     const handleApprove = async () => {
-        if (!toEditAppointment) return console.log("no appointment to approve");
+        if (!toEditAppointment) return console.warn("no appointment to approve");
         setIsLoading(true);
-        try {
-            let res = await api.put<{ id: number }>(`/api/appointment/${toEditAppointment.id}`, {
-                doctorId: toEditAppointment!.doctor.id,
-                patientId: toEditAppointment!.patient.id,
-                date: toEditAppointment.date,
-                approve: true,
-            });
-            switch (res.status) {
-                case 200:
-                    await fetch(
-                        paginationModel.pageSize,
-                        paginationModel.page * paginationModel.pageSize
-                    );
-                    toast.success("Appointment is approved!");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-                console.log(err);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
+        const succeed = await updateAppointment({
+            appointmentId: toEditAppointment.id,
+            doctorId: toEditAppointment!.doctor.id,
+            patientId: toEditAppointment!.patient.id,
+            dateUnix: toEditAppointment.date,
+            approve: true,
+        });
+        setIsLoading(false);
+        if (succeed) {
+            fetch(paginationModel.pageSize, paginationModel.page * paginationModel.pageSize);
         }
     };
 
@@ -121,8 +77,7 @@ export default function AppointmentDataGrid({
             field: "patientName",
             headerName: "Patient",
             flex: 2,
-            valueGetter: (_, r) =>
-                `${r.patient.firstName} ${r.patient.middleName ?? ""} ${r.patient.lastName}`,
+            valueGetter: (_, r) => `${r.patient.firstName} ${r.patient.middleName ?? ""} ${r.patient.lastName}`,
             renderCell: (v) => (
                 <NavLink to={`/patient/${v.row.patient.id}`} className={styles.navLink}>
                     {v.value}
@@ -133,8 +88,7 @@ export default function AppointmentDataGrid({
             field: "doctorName",
             headerName: "Doctor",
             flex: 2,
-            valueGetter: (_, r) =>
-                `${r.doctor.firstName} ${r.doctor.middleName ?? ""} ${r.doctor.lastName}`,
+            valueGetter: (_, r) => `${r.doctor.firstName} ${r.doctor.middleName ?? ""} ${r.doctor.lastName}`,
             renderCell: (v) => (
                 <NavLink to={`/doctor/${v.row.doctor.id}`} className={styles.navLink}>
                     {v.value}
@@ -164,11 +118,7 @@ export default function AppointmentDataGrid({
                 return r.approveAt ? "Approved" : "Pending";
             },
             renderCell: (v) => (
-                <Chip
-                    label={v.value}
-                    color={v.value == "Approved" ? "success" : "warning"}
-                    variant="outlined"
-                />
+                <Chip label={v.value} color={v.value == "Approved" ? "success" : "warning"} variant="outlined" />
             ),
         },
         {
@@ -199,9 +149,7 @@ export default function AppointmentDataGrid({
                 initialData={toEditAppointment}
                 open={openEdit}
                 setOpen={setOpenEdit}
-                onComplete={() =>
-                    fetch(paginationModel.pageSize, paginationModel.page * paginationModel.pageSize)
-                }
+                onComplete={() => fetch(paginationModel.pageSize, paginationModel.page * paginationModel.pageSize)}
             />
             <ConfirmModal
                 open={openConfirm}
@@ -219,9 +167,7 @@ export default function AppointmentDataGrid({
                 }}
                 rows={rows}
                 columns={columns}
-                rowCount={
-                    hasNextPage ? -1 : paginationModel.page * paginationModel.pageSize + rows.length
-                }
+                rowCount={hasNextPage ? -1 : paginationModel.page * paginationModel.pageSize + rows.length}
                 paginationMeta={{ hasNextPage: hasNextPage }}
                 paginationMode="server"
                 paginationModel={paginationModel}

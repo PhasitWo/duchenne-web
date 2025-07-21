@@ -9,12 +9,11 @@ import MenuItem from "@mui/material/MenuItem";
 import { ErrResponse, Patient } from "../../model/model";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuthApiContext } from "../../hooks/authApiContext";
 import Loading from "../loading";
 import { AxiosError } from "axios";
+import api from "../../services/api";
 
 export default function AddPatient() {
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [info, setInfo] = useState<Patient>(initialInfo);

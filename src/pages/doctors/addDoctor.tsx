@@ -6,10 +6,10 @@ import GoBack from "../../components/goback";
 import { Chip, MenuItem, Select } from "@mui/material";
 import { Doctor, ErrResponse } from "../../model/model";
 import { toast } from "react-toastify";
-import { useAuthApiContext } from "../../hooks/authApiContext";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
 import Loading from "../loading";
+import api from "../../services/api";
 
 interface PasswordCondition {
     length: boolean;
@@ -25,7 +25,6 @@ export default function AddDoctor() {
     const [info, setInfo] = useState<Doctor>(initialInfo);
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [confirmPassword, setConfirmPassword] = useState("");
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     const formRef = useRef<HTMLFormElement>(null);
 

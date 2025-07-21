@@ -11,7 +11,6 @@ import QuestionDataGrid, {
     sortAnswerAtModel,
 } from "../../components/questionDataGrid";
 import { ErrResponse, Patient } from "../../model/model";
-import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import Loading from "../loading";
@@ -23,10 +22,13 @@ import EditButton from "../../components/editButton";
 import CancelButton from "../../components/cancelButton";
 import SaveButton from "../../components/saveButton";
 import PatientVaccineHistorySection from "../../components/patientVaccineHistorySection";
+import { useAuthStore } from "../../stores/auth";
+import api from "../../services/api";
+import { Permission } from "../../constants/permission";
 
 export default function ViewPatient() {
     const { id } = useParams();
-    const { api, checkPermission } = useAuthApiContext();
+    const { checkPermission } = useAuthStore();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [info, setInfo] = useState<Patient>(initialInfo);
