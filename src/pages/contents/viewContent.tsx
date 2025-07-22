@@ -7,15 +7,13 @@ import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import { CiTrash } from "react-icons/ci";
 import GoBack from "../../components/goback";
-import { Content, ErrResponse } from "../../model/model";
+import { Content } from "../../model/model";
 import Loading from "../loading";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
 import { Checkbox } from "@mui/material";
 import DeleteDialog from "../../components/deleteDialog";
 import "react-quill/dist/quill.snow.css";
 import Editor from "../../components/editor";
-import api from "../../services/api";
+import { useContentStore } from "../../stores/content";
 
 export default function ViewContent() {
     // hook
@@ -29,108 +27,47 @@ export default function ViewContent() {
     const [onEdit, setOnEdit] = useState(false);
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
+    const { uploadImage, getContent, updateContent, deleteContent } = useContentStore();
 
     useEffect(() => {
         fetch();
-    }, []);
+    }, [id]);
+
     const fetch = async () => {
-        try {
-            let res = await api.get<Content>("/api/content/" + id);
-            switch (res.status) {
-                case 200:
-                    infoRef.current = res.data;
-                    setInfo(res.data);
-                    break;
-                case 404:
-                    navigate("/notFound");
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        if (!id) return;
+        setIsLoading(true);
+        const data = await getContent(id);
+        setIsLoading(false);
+        if (data) {
+            infoRef.current = data;
+            setInfo(data);
+        } else if (data === null) navigate("/notFound");
     };
 
     const handleSave = async (e: FormEvent) => {
         e.preventDefault();
+        if (!id) return;
         if (!formRef.current?.reportValidity()) return;
 
         setIsLoading(true);
-        try {
-            const res = await api.put("/api/content/" + id, info);
-            switch (res.status) {
-                case 200:
-                    toast.success("Updated!");
-                    navigate("/reload");
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-                case 404:
-                    toast.error("This content is not in the database");
-                    break;
-                case 409:
-                    toast.error("Duplicate username");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const succeed = await updateContent(id, info);
+        setIsLoading(false);
+        if (succeed) navigate("/reload");
     };
 
     const handleDelete = async () => {
-        try {
-            const res = await api.delete("/api/content/" + id);
-            switch (res.status) {
-                case 204:
-                    toast.success("Deleted!");
-                    navigate("/content");
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        }
+        if (!id) return;
+        setIsLoading(true);
+        const succeed = await deleteContent(id);
+        setIsLoading(false);
+        if (succeed) navigate("/content");
     };
 
-    const uploadImage = useCallback(async (file: File) => {
-        const form = new FormData();
-        form.append("image", file);
-
-        let ret = null;
+    const handleUploadImage = useCallback(async (file: File) => {
         setIsUploading(true);
-        let toastId = toast.loading("Uploading image...");
-        try {
-            const res = await api.post<{ publicURL: string }>("/api/image/upload", form);
-            switch (res.status) {
-                case 201:
-                    toast.success("Image uploaded!");
-                    ret = res.data.publicURL;
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            toast.done(toastId);
-            setIsUploading(false);
-            return ret;
-        }
+        const url = await uploadImage(file);
+        setIsUploading(false);
+        return url;
     }, []);
 
     if (isLoading) return <Loading />;
@@ -193,13 +130,21 @@ export default function ViewContent() {
                         />
                     </div>
                     <div style={{ padding: "20px 0 20px 0" }}>
-                        <Editor value={info.body} onChange={(v) => setInfo({ ...info, body: v })} readonly={!onEdit} uploadImageFunc={uploadImage} />
+                        <Editor
+                            value={info.body}
+                            onChange={(v) => setInfo({ ...info, body: v })}
+                            readonly={!onEdit || isUploading}
+                            uploadImageFunc={handleUploadImage}
+                        />
                     </div>
                     {onEdit && (
                         <div className={styles.infoFooter}>
                             <button
                                 className={styles.deleteButton}
-                                onClick={() => deleteDialogRef.current!.showModal()}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    deleteDialogRef.current!.showModal();
+                                }}
                             >
                                 <CiTrash />
                                 <span>Delete</span>
@@ -236,4 +181,5 @@ const initialInfo: Content = {
     body: "",
     isPublished: false,
     order: -1,
+    coverImageURL: null,
 };

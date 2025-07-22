@@ -2,7 +2,6 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useState } from "react";
 import styles from "../styles/common.module.css";
-import { Translate } from "../hooks/languageContext";
 import Header from "../components/header";
 import { AiOutlineSchedule } from "react-icons/ai";
 import AppointmentDataGrid from "../components/appointmentDataGrid";
@@ -31,7 +30,7 @@ export default function Appointments() {
         <>
             <Header>
                 <AiOutlineSchedule />
-                <Translate token="Appointments" />
+                Appointments
             </Header>
             <div id="content-body">
                 <div className={styles.datagridContainer}>

@@ -3,7 +3,6 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { GridSortModel } from "@mui/x-data-grid";
 import { useState } from "react";
 import styles from "../../styles/common.module.css";
-import { Translate } from "../../hooks/languageContext";
 import Header from "../../components/header";
 import { CiCircleQuestion } from "react-icons/ci";
 import QuestionDataGrid from "../../components/questionDataGrid";
@@ -44,7 +43,7 @@ export default function Questions() {
         <>
             <Header>
                 <CiCircleQuestion />
-                <Translate token="Questions" />
+                Questions
             </Header>
             <div id="content-body">
                 <div className={styles.datagridContainer}>
@@ -72,7 +71,7 @@ export default function Questions() {
                         }}
                     >
                         <label>
-                            <Translate token="Search" />
+                            Search
                         </label>
                         <input
                             type="text"

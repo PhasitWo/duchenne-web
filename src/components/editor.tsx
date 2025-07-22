@@ -4,7 +4,7 @@ import ReactQuill, { ReactQuillProps, type Range } from "react-quill";
 interface EditorProps {
     value: ReactQuillProps["value"];
     onChange: ReactQuillProps["onChange"];
-    uploadImageFunc: (file: File) => Promise<any>;
+    uploadImageFunc: (file: File) => Promise<string | undefined>;
     readonly?: ReactQuillProps["readOnly"];
 }
 
@@ -25,10 +25,10 @@ export default function Editor({ value, onChange, uploadImageFunc, readonly = fa
         let files = e.target.files;
         if (files) {
             let url = await uploadImageFunc(files[0]);
+            if (!url) return;
             if (!ref.current) return;
             const editor = ref.current.getEditor();
             if (url && currentRange.current) {
-                console.log(currentRange.current.index, url)
                 editor.insertEmbed(currentRange.current.index, "image", url);
             }
             currentRange.current = null;

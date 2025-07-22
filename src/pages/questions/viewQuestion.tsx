@@ -20,15 +20,15 @@ export default function ViewQuestion() {
 
     useEffect(() => {
         fetch();
-    }, []);
+    }, [id]);
 
     const fetch = async () => {
         if (!id) return;
         setIsLoading(true);
         const res = await getQuestion(id);
+        setIsLoading(false);
         if (res) setData(res);
         else if (res === null) navigate("/notFound");
-        setIsLoading(false);
     };
 
     const handleReply = async () => {
@@ -45,8 +45,8 @@ export default function ViewQuestion() {
 
         setIsLoading(true);
         const succeed = await answerQuestion(id, reply);
-        if (succeed) navigate("/reload");
         setIsLoading(false);
+        if (succeed) navigate("/reload");
     };
 
     if (isLoading) return <Loading />;

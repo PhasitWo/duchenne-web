@@ -4,14 +4,12 @@ import styles from "../../styles/common.module.css";
 import { FormEvent, useCallback, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import GoBack from "../../components/goback";
-import { Content, ErrResponse } from "../../model/model";
+import { Content } from "../../model/model";
 import Loading from "../loading";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
 import { Checkbox } from "@mui/material";
 import "react-quill/dist/quill.snow.css";
 import Editor from "../../components/editor";
-import api from "../../services/api";
+import { useContentStore } from "../../stores/content";
 
 export default function AddContent() {
     // hook
@@ -21,58 +19,22 @@ export default function AddContent() {
     const [isUploading, setIsUploading] = useState(false);
     const [info, setInfo] = useState<Content>(initialInfo);
     const formRef = useRef<HTMLFormElement>(null);
+    const { uploadImage, createContent } = useContentStore();
 
     const handleSave = async (e: FormEvent) => {
         e.preventDefault();
         if (!formRef.current?.reportValidity()) return;
 
         setIsLoading(true);
-        try {
-            const res = await api.post("/api/content", info);
-            switch (res.status) {
-                case 201:
-                    toast.success("New content created!");
-                    navigate("/content/" + res.data.id);
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const newId = await createContent(info);
+        if (newId) navigate("/content/" + newId);
     };
 
-    const uploadImage = useCallback(async (file: File) => {
-        const form = new FormData();
-        form.append("image", file);
-
-        let ret = null;
+    const handleUploadImage = useCallback(async (file: File) => {
         setIsUploading(true);
-        let toastId = toast.loading("Uploading image...")
-        try {
-            const res = await api.post<{ publicURL: string }>("/api/image/upload", form);
-            switch (res.status) {
-                case 201:
-                    toast.success("Image uploaded!");
-                    ret = res.data.publicURL;
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            toast.done(toastId)
-            setIsUploading(false);
-            return ret;
-        }
+        const url = await uploadImage(file);
+        setIsUploading(false);
+        return url;
     }, []);
 
     if (isLoading) return <Loading />;
@@ -118,7 +80,7 @@ export default function AddContent() {
                         <Editor
                             value={info.body}
                             onChange={(v) => setInfo({ ...info, body: v })}
-                            uploadImageFunc={uploadImage}
+                            uploadImageFunc={handleUploadImage}
                             readonly={isUploading}
                         />
                     </div>
@@ -143,4 +105,5 @@ const initialInfo: Content = {
     body: "",
     isPublished: false,
     order: 1,
+    coverImageURL: null,
 };
