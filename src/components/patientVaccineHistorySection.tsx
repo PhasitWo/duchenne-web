@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { ErrResponse, Patient } from "../model/model";
+import { Patient } from "../model/model";
 import EditButton from "./editButton";
 import CancelButton from "./cancelButton";
 import SaveButton from "./saveButton";
-import { Permission, useAuthApiContext } from "../hooks/authApiContext";
 import { toast } from "react-toastify";
-import { AxiosError } from "axios";
 import commonStyles from "../styles/common.module.css";
 import { GridRowModesModel } from "@mui/x-data-grid";
 import VaccineHistoryDataGrid, { ExtendedVaccineHistory } from "./vaccineHistoryDataGrid";
 import type { VaccineHistory } from "../model/model";
+import { useAuthStore } from "../stores/auth";
+import { Permission } from "../constants/permission";
+import { usePatientStore } from "../stores/patient";
 
 export default function PatientVaccineHistorySection({
     patient,
@@ -19,11 +20,12 @@ export default function PatientVaccineHistorySection({
     onUpdateComplete: Function;
 }) {
     const [isLoading, setIsLoading] = useState(false);
-    const { api, checkPermission } = useAuthApiContext();
+    const { checkPermission } = useAuthStore();
     const vaccineHistoryRef = useRef<ExtendedVaccineHistory[]>([]); // save prevState on editing
     const [vaccineHistory, setVaccineHistory] = useState<ExtendedVaccineHistory[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const [onEdit, setOnEdit] = useState(false);
+    const { updatePateintVaccineHistory } = usePatientStore();
 
     useEffect(() => {
         console.log("UPDATED", patient.vaccineHistory);
@@ -63,30 +65,11 @@ export default function PatientVaccineHistorySection({
             }
         }
         setIsLoading(true);
-        try {
-            const res = await api.put(`/api/patient/${patient.id}/vaccineHistory`, {
-                data: converted,
-            });
-            switch (res.status) {
-                case 200:
-                    toast.success("Patient's vaccine history is updated!");
-                    onUpdateComplete();
-                    break;
-                case 404:
-                    toast.error("This patient is not in the database");
-                    setVaccineHistory(vaccineHistoryRef.current); // reset
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                setVaccineHistory(vaccineHistoryRef.current); // reset
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setOnEdit(false);
-            setIsLoading(false);
-        }
+        const succeed = await updatePateintVaccineHistory(patient.id, converted);
+        if (succeed) onUpdateComplete();
+        else setVaccineHistory(vaccineHistoryRef.current); // reset
+        setOnEdit(false);
+        setIsLoading(false);
     };
 
     return (
@@ -104,7 +87,10 @@ export default function PatientVaccineHistorySection({
                         <SaveButton onClick={handleSave} />
                     </>
                 ) : (
-                    <EditButton onClick={() => setOnEdit(true)} disabled={!checkPermission(Permission.updatePatientPermission)} />
+                    <EditButton
+                        onClick={() => setOnEdit(true)}
+                        disabled={!checkPermission(Permission.updatePatientPermission)}
+                    />
                 )}
             </div>
             <VaccineHistoryDataGrid

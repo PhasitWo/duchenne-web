@@ -6,12 +6,11 @@ import { GoPencil } from "react-icons/go";
 import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import GoBack from "../components/goback";
-import { useAuthApiContext } from "../hooks/authApiContext";
-import { Doctor, ErrResponse } from "../model/model";
+import { Doctor } from "../model/model";
 import Loading from "./loading";
 import { toast } from "react-toastify";
-import { AxiosError } from "axios";
 import { Chip } from "@mui/material";
+import { useDoctorStore } from "../stores/doctor";
 
 interface PasswordCondition {
     length: boolean;
@@ -24,7 +23,6 @@ const engRegex = /^[A-Za-z0-9]*$/;
 
 export default function Profile() {
     // hook
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(true);
@@ -33,27 +31,19 @@ export default function Profile() {
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [confirmPassword, setConfirmPassword] = useState("");
     const [onEdit, setOnEdit] = useState(false);
+    const { getProfile, updateProfile } = useDoctorStore();
+
     const fetch = useCallback(async () => {
-        try {
-            let res = await api.get<Doctor>("/api/profile");
-            switch (res.status) {
-                case 200:
-                    infoRef.current = res.data;
-                    setInfo(res.data);
-                    setConfirmPassword(res.data.password);
-                    break;
-                case 404:
-                    navigate("/notFound");
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
+        setIsLoading(true);
+        const profile = await getProfile();
+        setIsLoading(false);
+        if (profile) {
+            infoRef.current = profile;
+            setInfo(profile);
+            setConfirmPassword(profile.password);
         }
     }, []);
+
     useEffect(() => {
         fetch();
     }, []);
@@ -98,37 +88,15 @@ export default function Profile() {
             toast.error("Mismatched password confirmation");
             return;
         }
+        const requestBody = {
+            ...info,
+            middleName: info.middleName === "" ? null : info.middleName,
+            specialist: info.specialist === "" ? null : info.specialist,
+        };
         setIsLoading(true);
-        try {
-            const requestBody = {
-                ...info,
-                middleName: info.middleName === "" ? null : info.middleName,
-                specialist: info.specialist === "" ? null : info.specialist,
-            };
-            const res = await api.put("/api/profile", requestBody);
-            switch (res.status) {
-                case 200:
-                    toast.success("Updated!");
-                    navigate("/reload");
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-                case 404:
-                    toast.error("This doctor is not in the database");
-                    break;
-                case 409:
-                    toast.error("Duplicate username");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const succeed = await updateProfile(requestBody);
+        setIsLoading(false)
+        if (succeed) navigate("/reload");
     };
     if (isLoading) return <Loading />;
     return (
@@ -172,9 +140,7 @@ export default function Profile() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) =>
-                                setInfo({ ...info, middleName: e.target.value.trim() })
-                            }
+                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
@@ -194,20 +160,14 @@ export default function Profile() {
                             type="text"
                             className={styles.infoInput}
                             value={info.specialist ?? ""}
-                            onChange={(e) =>
-                                setInfo({ ...info, specialist: e.target.value.trim() })
-                            }
+                            onChange={(e) => setInfo({ ...info, specialist: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Role*</label>
                         <div>
-                            <Chip
-                                label={info.role}
-                                color={roleColorMap[info.role]}
-                                variant="outlined"
-                            />
+                            <Chip label={info.role} color={roleColorMap[info.role]} variant="outlined" />
                         </div>
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -242,21 +202,15 @@ export default function Profile() {
                                         {"Passwords must be between 8-20 characters in length"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.lowerCase ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.lowerCase ? "green" : "red" }}>
                                         {"a minimum of 1 lower case letter [a-z]"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.upperCase ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.upperCase ? "green" : "red" }}>
                                         {"a minimum of 1 upper case letter [A-Z]"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.numeric ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.numeric ? "green" : "red" }}>
                                         {"a minimum of 1 numeric character [0-9]"}
                                     </span>
                                 </div>

@@ -8,13 +8,14 @@ import { ImCancelCircle } from "react-icons/im";
 import { CiTrash } from "react-icons/ci";
 import GoBack from "../../components/goback";
 import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
-import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
-import { Doctor, ErrResponse } from "../../model/model";
+import { Doctor } from "../../model/model";
 import Loading from "../loading";
 import { toast } from "react-toastify";
-import { AxiosError } from "axios";
 import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import DeleteDialog from "../../components/deleteDialog";
+import { useAuthStore } from "../../stores/auth";
+import { Permission } from "../../constants/permission";
+import { useDoctorStore } from "../../stores/doctor";
 
 interface PasswordCondition {
     length: boolean;
@@ -28,7 +29,7 @@ const engRegex = /^[A-Za-z0-9]*$/;
 export default function ViewDoctor() {
     // hook
     const { id } = useParams();
-    const { api, checkPermission } = useAuthApiContext();
+    const { checkPermission } = useAuthStore();
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(true);
@@ -39,30 +40,22 @@ export default function ViewDoctor() {
     const [onEdit, setOnEdit] = useState(false);
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
+    const { getDoctor, updateDoctor, deleteDoctor } = useDoctorStore();
 
     useEffect(() => {
         fetch();
-    }, []);
+    }, [id]);
+
     const fetch = async () => {
-        try {
-            let res = await api.get<Doctor>("/api/doctor/" + id);
-            switch (res.status) {
-                case 200:
-                    infoRef.current = res.data;
-                    setInfo(res.data);
-                    setConfirmPassword(res.data.password);
-                    break;
-                case 404:
-                    navigate("/notFound");
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        if (!id) return;
+        setIsLoading(true);
+        const data = await getDoctor(id);
+        setIsLoading(false);
+        if (data) {
+            infoRef.current = data;
+            setInfo(data);
+            setConfirmPassword(data.password);
+        } else if (data === null) navigate("/notFound");
     };
 
     useEffect(() => {
@@ -87,7 +80,8 @@ export default function ViewDoctor() {
     };
 
     const handleSave = async (e: FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
+        if (!id) return;
         if (!formRef.current?.reportValidity()) return;
         if (
             info.firstName.trim() === "" ||
@@ -107,57 +101,23 @@ export default function ViewDoctor() {
             toast.error("Mismatched password confirmation");
             return;
         }
+        const requestBody = {
+            ...info,
+            middleName: info.middleName === "" ? null : info.middleName,
+            specialist: info.specialist === "" ? null : info.specialist,
+        };
         setIsLoading(true);
-        try {
-            const requestBody = {
-                ...info,
-                middleName: info.middleName === "" ? null : info.middleName,
-                specialist: info.specialist === "" ? null : info.specialist,
-            };
-            const res = await api.put("/api/doctor/" + id, requestBody);
-            switch (res.status) {
-                case 200:
-                    toast.success("Updated!");
-                    navigate("/reload");
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-                case 404:
-                    toast.error("This doctor is not in the database");
-                    break;
-                case 409:
-                    toast.error("Duplicate username");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const succeed = await updateDoctor(id, requestBody);
+        setIsLoading(false);
+        if (succeed) navigate("/reload");
     };
 
     const handleDelete = async () => {
-        try {
-            const res = await api.delete("/api/doctor/" + id);
-            switch (res.status) {
-                case 204:
-                    toast.success("Deleted!");
-                    navigate("/doctor");
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        }
+        if (!id) return;
+        setIsLoading(true);
+        const succeed = await deleteDoctor(id);
+        setIsLoading(false);
+        if (succeed) navigate("/doctor");
     };
 
     // appointment
@@ -212,9 +172,7 @@ export default function ViewDoctor() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) =>
-                                setInfo({ ...info, middleName: e.target.value.trim() })
-                            }
+                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
@@ -235,9 +193,7 @@ export default function ViewDoctor() {
                             type="text"
                             className={styles.infoInput}
                             value={info.specialist ?? ""}
-                            onChange={(e) =>
-                                setInfo({ ...info, specialist: e.target.value.trim() })
-                            }
+                            onChange={(e) => setInfo({ ...info, specialist: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
@@ -264,11 +220,7 @@ export default function ViewDoctor() {
                             </Select>
                         ) : (
                             <div>
-                                <Chip
-                                    label={info.role}
-                                    color={roleColorMap[info.role]}
-                                    variant="outlined"
-                                />
+                                <Chip label={info.role} color={roleColorMap[info.role]} variant="outlined" />
                             </div>
                         )}
                     </div>
@@ -306,21 +258,15 @@ export default function ViewDoctor() {
                                         {"Passwords must be between 8-20 characters in length"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.lowerCase ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.lowerCase ? "green" : "red" }}>
                                         {"a minimum of 1 lower case letter [a-z]"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.upperCase ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.upperCase ? "green" : "red" }}>
                                         {"a minimum of 1 upper case letter [A-Z]"}
                                     </span>
                                     <br />
-                                    <span
-                                        style={{ color: pwdConditions.numeric ? "green" : "red" }}
-                                    >
+                                    <span style={{ color: pwdConditions.numeric ? "green" : "red" }}>
                                         {"a minimum of 1 numeric character [0-9]"}
                                     </span>
                                 </div>
@@ -337,7 +283,10 @@ export default function ViewDoctor() {
                             <div className={styles.infoFooter}>
                                 <button
                                     className={styles.deleteButton}
-                                    onClick={() => deleteDialogRef.current!.showModal()}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        deleteDialogRef.current!.showModal();
+                                    }}
                                     disabled={!checkPermission(Permission.deleteDoctorPermission)}
                                 >
                                     <CiTrash />
@@ -374,10 +323,7 @@ export default function ViewDoctor() {
                     >
                         <h3>Appointments</h3>
                         {!showAppointment && (
-                            <button
-                                className={styles.button}
-                                onClick={() => setShowAppointment(true)}
-                            >
+                            <button className={styles.button} onClick={() => setShowAppointment(true)}>
                                 Show
                             </button>
                         )}
