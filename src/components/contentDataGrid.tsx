@@ -1,14 +1,12 @@
 import { DataGrid, GridColDef, GridPaginationModel, type DataGridProps } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Content, ErrResponse } from "../model/model";
-import { useAuthApiContext } from "../hooks/authApiContext";
-import { AxiosError } from "axios";
-import { toast } from "react-toastify";
+import { Content } from "../model/model";
 import { CiCircleCheck } from "react-icons/ci";
 import { CiCircleRemove } from "react-icons/ci";
 import { NavLink } from "react-router-dom";
 import styles from "../styles/common.module.css";
+import { useContentStore } from "../stores/content";
 
 const columns: GridColDef<Content>[] = [
     { field: "id", headerName: "ID", width: 60 },
@@ -68,7 +66,7 @@ export default function ContentDataGrid({ ...rest }: Omit<DataGridProps, "column
     });
     const [hasNextPage, setHasNextPage] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const { api } = useAuthApiContext();
+    const { listContents } = useContentStore();
 
     useEffect(() => {
         fetch(paginationModel.pageSize, 0);
@@ -79,33 +77,12 @@ export default function ContentDataGrid({ ...rest }: Omit<DataGridProps, "column
         setPaginationModel(model);
     };
 
-    const attachQueryParams = (url: string, limit: number, offset: number) => {
-        url += `?limit=${limit}` + `&offset=${offset}`;
-        return url;
-    };
     const fetch = async (limit: number, offset: number) => {
         setIsLoading(true);
-        try {
-            let res = await api.get<Content[]>(attachQueryParams("/api/content", limit + 1, offset));
-            switch (res.status) {
-                case 200:
-                    if (res.data.length == limit + 1) {
-                        res.data.pop();
-                        setHasNextPage(true);
-                    } else {
-                        setHasNextPage(false);
-                    }
-                    setRows(res.data);
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const result = await listContents(limit, offset);
+        setIsLoading(false);
+        setRows(result.data);
+        setHasNextPage(result.hasNextPage);
     };
 
     return (

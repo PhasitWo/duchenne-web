@@ -4,12 +4,11 @@ import { FormEvent, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import GoBack from "../../components/goback";
 import { Chip, MenuItem, Select } from "@mui/material";
-import { Doctor, ErrResponse } from "../../model/model";
+import { Doctor } from "../../model/model";
 import { toast } from "react-toastify";
-import { useAuthApiContext } from "../../hooks/authApiContext";
 import { useNavigate } from "react-router-dom";
-import { AxiosError } from "axios";
 import Loading from "../loading";
+import { useDoctorStore } from "../../stores/doctor";
 
 interface PasswordCondition {
     length: boolean;
@@ -25,9 +24,9 @@ export default function AddDoctor() {
     const [info, setInfo] = useState<Doctor>(initialInfo);
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [confirmPassword, setConfirmPassword] = useState("");
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     const formRef = useRef<HTMLFormElement>(null);
+    const { createDoctor } = useDoctorStore();
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {
@@ -49,7 +48,7 @@ export default function AddDoctor() {
     };
 
     const handleSave = async (e: FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
         if (!formRef.current?.reportValidity()) return;
         if (
             info.firstName.trim() === "" ||
@@ -70,34 +69,15 @@ export default function AddDoctor() {
             toast.error("Mismatched password confirmation");
             return;
         }
+        const requestBody = {
+            ...info,
+            middleName: info.middleName === "" ? null : info.middleName,
+            specialist: info.specialist === "" ? null : info.specialist,
+        };
         setIsLoading(true);
-        try {
-            const requestBody = {
-                ...info,
-                middleName: info.middleName === "" ? null : info.middleName,
-                specialist: info.specialist === "" ? null : info.specialist,
-            };
-            const res = await api.post<{ id: number }>("/api/doctor", requestBody);
-            switch (res.status) {
-                case 201:
-                    toast.success("New doctor account created!");
-                    navigate("/doctor/" + res.data.id);
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-                case 409:
-                    toast.error("Duplicate username");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const newId = await createDoctor(requestBody);
+        setIsLoading(false);
+        if (newId) navigate("/doctor/" + newId);
     };
 
     if (isLoading) return <Loading />;
@@ -127,9 +107,7 @@ export default function AddDoctor() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) =>
-                                setInfo({ ...info, middleName: e.target.value.trim() })
-                            }
+                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
@@ -148,9 +126,7 @@ export default function AddDoctor() {
                             type="text"
                             className={styles.infoInput}
                             value={info.specialist ?? ""}
-                            onChange={(e) =>
-                                setInfo({ ...info, specialist: e.target.value.trim() })
-                            }
+                            onChange={(e) => setInfo({ ...info, specialist: e.target.value.trim() })}
                         />
                     </div>
                     <div className={styles.infoInputContainer}>

@@ -1,52 +1,47 @@
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useCallback, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import GoBack from "../../components/goback";
-import { useAuthApiContext } from "../../hooks/authApiContext";
-import { Content, ErrResponse } from "../../model/model";
+import { Content } from "../../model/model";
 import Loading from "../loading";
-import { toast } from "react-toastify";
-import { AxiosError } from "axios";
 import { Checkbox } from "@mui/material";
 import "react-quill/dist/quill.snow.css";
 import Editor from "../../components/editor";
+import { useContentStore } from "../../stores/content";
+import { toast } from "react-toastify";
 
 export default function AddContent() {
     // hook
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [info, setInfo] = useState<Content>(initialInfo);
     const formRef = useRef<HTMLFormElement>(null);
+    const { uploadImage, createContent } = useContentStore();
 
     const handleSave = async (e: FormEvent) => {
         e.preventDefault();
         if (!formRef.current?.reportValidity()) return;
+        if (info.body.trim() === "") {
+            toast.error("Content body cannot be empty");
+            return;
+        }
 
         setIsLoading(true);
-        try {
-            const res = await api.post("/api/content", info);
-            switch (res.status) {
-                case 201:
-                    toast.success("New content created!");
-                    navigate("/content/" + res.data.id);
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const newId = await createContent(info);
+        setIsLoading(false)
+        if (newId) navigate("/content/" + newId);
     };
+
+    const handleUploadImage = useCallback(async (file: File) => {
+        setIsUploading(true);
+        const url = await uploadImage(file);
+        setIsUploading(false);
+        return url;
+    }, []);
 
     if (isLoading) return <Loading />;
     return (
@@ -88,7 +83,12 @@ export default function AddContent() {
                         />
                     </div>
                     <div style={{ padding: "20px 0 20px 0" }}>
-                        <Editor value={info.body} onChange={(v) => setInfo({ ...info, body: v })} />
+                        <Editor
+                            value={info.body}
+                            onChange={(v) => setInfo({ ...info, body: v })}
+                            uploadImageFunc={handleUploadImage}
+                            readonly={isUploading}
+                        />
                     </div>
 
                     <div className={styles.infoFooter}>
@@ -111,4 +111,5 @@ const initialInfo: Content = {
     body: "",
     isPublished: false,
     order: 1,
+    coverImageURL: null,
 };

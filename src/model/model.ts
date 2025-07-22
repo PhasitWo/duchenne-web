@@ -88,4 +88,5 @@ export interface Content {
     body: string;
     isPublished: boolean;
     order: number;
+    coverImageURL: string | null;
 }
