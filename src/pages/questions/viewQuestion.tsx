@@ -5,44 +5,34 @@ import dayjs from "dayjs";
 import styles from "../../styles/common.module.css";
 import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import GoBack from "../../components/goback";
-import { ErrResponse, Question } from "../../model/model";
-import { useAuthApiContext } from "../../hooks/authApiContext";
-import { AxiosError } from "axios";
+import { Question } from "../../model/model";
 import { toast } from "react-toastify";
 import Loading from "../loading";
+import { useQuestionStore } from "../../stores/question";
 
 export default function ViewQuestion() {
     const { id } = useParams();
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState<Question | null>(null);
     const [reply, setReply] = useState("");
+    const { getQuestion, answerQuestion } = useQuestionStore();
 
     useEffect(() => {
         fetch();
-    }, []);
+    }, [id]);
+
     const fetch = async () => {
-        try {
-            let res = await api.get<Question>("/api/question/" + id);
-            switch (res.status) {
-                case 200:
-                    setData(res.data);
-                    break;
-                case 404:
-                    navigate("/notFound");
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        if (!id) return;
+        setIsLoading(true);
+        const res = await getQuestion(id);
+        setIsLoading(false);
+        if (res) setData(res);
+        else if (res === null) navigate("/notFound");
     };
 
     const handleReply = async () => {
+        if (!id) return;
         const trimmedReply = reply.trim();
         if (trimmedReply === "") {
             toast.error("Your reply cannot be empty");
@@ -52,29 +42,11 @@ export default function ViewQuestion() {
             toast.error("Your answer cannot exceed 500 characters");
             return;
         }
+
         setIsLoading(true);
-        try {
-            const res = await api.put("/api/question/" + id + "/answer", { answer: reply });
-            switch (res.status) {
-                case 200:
-                    toast.success("Submitted!");
-                    navigate("/reload");
-                    break;
-                case 404:
-                    toast.error("This question is not in the database");
-                    break;
-                case 409:
-                    toast.error("This question has been replied");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const succeed = await answerQuestion(id, reply);
+        setIsLoading(false);
+        if (succeed) navigate("/reload");
     };
 
     if (isLoading) return <Loading />;
@@ -107,9 +79,7 @@ export default function ViewQuestion() {
                                         data?.doctor?.firstName ?? "Unknown"
                                     } ${data?.doctor?.middleName ?? ""} ${data?.doctor?.lastName}`}</NavLink>
                                 ) : (
-                                    <span>
-                                        {"Unknown "}
-                                    </span>
+                                    <span>{"Unknown "}</span>
                                 )}
 
                                 <span>Replied {dayjs(data.createAt * 1000).format("DD/MM/YY HH:mm")}</span>

@@ -10,9 +10,7 @@ import QuestionDataGrid, {
     sortCreateAtModel,
     sortAnswerAtModel,
 } from "../../components/questionDataGrid";
-import { ErrResponse, Patient } from "../../model/model";
-import { Permission, useAuthApiContext } from "../../hooks/authApiContext";
-import { AxiosError } from "axios";
+import { Patient } from "../../model/model";
 import { toast } from "react-toastify";
 import Loading from "../loading";
 import { GridSortModel } from "@mui/x-data-grid";
@@ -23,10 +21,13 @@ import EditButton from "../../components/editButton";
 import CancelButton from "../../components/cancelButton";
 import SaveButton from "../../components/saveButton";
 import PatientVaccineHistorySection from "../../components/patientVaccineHistorySection";
+import { useAuthStore } from "../../stores/auth";
+import { Permission } from "../../constants/permission";
+import { usePatientStore } from "../../stores/patient";
 
 export default function ViewPatient() {
     const { id } = useParams();
-    const { api, checkPermission } = useAuthApiContext();
+    const { checkPermission } = useAuthStore();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [info, setInfo] = useState<Patient>(initialInfo);
@@ -34,33 +35,28 @@ export default function ViewPatient() {
     const formRef = useRef<HTMLFormElement>(null);
     const [onEdit, setOnEdit] = useState(false);
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
+    const { getPatient, updatePatientGeneralInfo, deletePatient } = usePatientStore();
 
     useEffect(() => {
         fetch();
-    }, []);
+    }, [id]);
+
     const fetch = async () => {
-        try {
-            let res = await api.get<Patient>("/api/patient/" + id);
-            switch (res.status) {
-                case 200:
-                    infoRef.current = res.data;
-                    setInfo(res.data);
-                    break;
-                case 404:
-                    navigate("/notFound");
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
+        if (!id) return;
+        setIsLoading(true);
+        const data = await getPatient(id);
+        setIsLoading(false);
+        if (data) {
+            infoRef.current = data;
+            setInfo(data);
+        } else if (data === null) {
+            navigate("/notFound");
         }
     };
 
     const handleSave = async (e: FormEvent) => {
         e.preventDefault();
+        if (!id) return;
         if (!formRef.current?.reportValidity()) return;
         if (info.hn.trim() === "" || info.firstName.trim() === "" || info.lastName.trim() === "") {
             toast.error("Not enough information");
@@ -70,58 +66,24 @@ export default function ViewPatient() {
             toast.error("Phone number cannot exceed 15 digits");
             return;
         }
-        setIsLoading(true);
         const requestBody = {
             ...info,
             middleName: info.middleName === "" ? null : info.middleName,
             email: info.email === "" ? null : info.email,
             phone: info.middleName === "" ? null : info.middleName,
         };
-        try {
-            const res = await api.put("/api/patient/" + id, requestBody);
-            switch (res.status) {
-                case 200:
-                    toast.success("Updated!");
-                    navigate("/reload");
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-                case 404:
-                    toast.error("This patient is not in the database");
-                    break;
-                case 409:
-                    toast.error("Duplicate HN");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        setIsLoading(true);
+        const succeed = await updatePatientGeneralInfo(id, requestBody);
+        setIsLoading(false);
+        if (succeed) navigate("/reload");
     };
 
     const handleDelete = async () => {
-        try {
-            const res = await api.delete("/api/patient/" + id);
-            switch (res.status) {
-                case 204:
-                    toast.success("Deleted!");
-                    navigate("/patient");
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        }
+        if (!id) return;
+        setIsLoading(true);
+        const succeed = await deletePatient(id);
+        setIsLoading(false);
+        if (succeed) navigate("/patient");
     };
 
     // appointment
@@ -165,13 +127,7 @@ export default function ViewPatient() {
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>HN*</label>
-                        <input
-                            type="text"
-                            className={styles.infoInput}
-                            value={info.hn}
-                            disabled
-                            required
-                        />
+                        <input type="text" className={styles.infoInput} value={info.hn} disabled required />
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>First Name*</label>
@@ -190,9 +146,7 @@ export default function ViewPatient() {
                             type="text"
                             className={styles.infoInput}
                             value={info.middleName ?? ""}
-                            onChange={(e) =>
-                                setInfo({ ...info, middleName: e.target.value.trim() })
-                            }
+                            onChange={(e) => setInfo({ ...info, middleName: e.target.value.trim() })}
                             disabled={!onEdit}
                         />
                     </div>
@@ -237,9 +191,7 @@ export default function ViewPatient() {
                             onChange={(e) =>
                                 setInfo({
                                     ...info,
-                                    weight: isNaN(e.target.valueAsNumber)
-                                        ? null
-                                        : e.target.valueAsNumber,
+                                    weight: isNaN(e.target.valueAsNumber) ? null : e.target.valueAsNumber,
                                 })
                             }
                             disabled={!onEdit}
@@ -254,9 +206,7 @@ export default function ViewPatient() {
                             onChange={(e) =>
                                 setInfo({
                                     ...info,
-                                    height: isNaN(e.target.valueAsNumber)
-                                        ? null
-                                        : e.target.valueAsNumber,
+                                    height: isNaN(e.target.valueAsNumber) ? null : e.target.valueAsNumber,
                                 })
                             }
                             disabled={!onEdit}
@@ -267,9 +217,7 @@ export default function ViewPatient() {
                         {onEdit ? (
                             <Select
                                 value={info.verified ? "verified" : "unverified"}
-                                onChange={(e) =>
-                                    setInfo({ ...info, verified: e.target.value === "verified" })
-                                }
+                                onChange={(e) => setInfo({ ...info, verified: e.target.value === "verified" })}
                                 size="small"
                                 sx={{ paddingLeft: 0 }}
                                 disabled={!onEdit}
@@ -296,7 +244,10 @@ export default function ViewPatient() {
                         <div className={styles.infoFooter}>
                             <button
                                 className={styles.deleteButton}
-                                onClick={() => deleteDialogRef.current!.showModal()}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    deleteDialogRef.current!.showModal();
+                                }}
                                 disabled={!checkPermission(Permission.deletePatientPermission)}
                             >
                                 <CiTrash />
@@ -327,10 +278,7 @@ export default function ViewPatient() {
                     >
                         <h3>Appointments</h3>
                         {!showAppointment && (
-                            <button
-                                className={styles.button}
-                                onClick={() => setShowAppointment(true)}
-                            >
+                            <button className={styles.button} onClick={() => setShowAppointment(true)}>
                                 Show
                             </button>
                         )}

@@ -3,7 +3,6 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { GridSortModel } from "@mui/x-data-grid";
 import { useState } from "react";
 import styles from "../../styles/common.module.css";
-import { Translate } from "../../hooks/LanguageContext";
 import Header from "../../components/header";
 import { CiCircleQuestion } from "react-icons/ci";
 import QuestionDataGrid from "../../components/questionDataGrid";
@@ -12,7 +11,7 @@ import {
     sortCreateAtModel,
     sortAnswerAtModel,
 } from "../../components/questionDataGrid";
-import { useAuthApiContext } from "../../hooks/authApiContext";
+import { useAuthStore } from "../../stores/auth";
 
 type QuestionOwner = "myquestion" | "allquestion";
 
@@ -20,7 +19,7 @@ export default function Questions() {
     const [questionOwner, setQuestionOwner] = useState<QuestionOwner>("allquestion");
     const [questionType, setQuestionType] = useState<QuestionType>("unreplied");
     const [sortModel, setSortModel] = useState<GridSortModel>(sortCreateAtModel);
-    const { userData } = useAuthApiContext();
+    const { userData } = useAuthStore();
 
     const handleQuestionOwnerChange = (e: SelectChangeEvent) => {
         if ((e.target.value as QuestionOwner) === "myquestion") {
@@ -44,7 +43,7 @@ export default function Questions() {
         <>
             <Header>
                 <CiCircleQuestion />
-                <Translate token="Questions" />
+                Questions
             </Header>
             <div id="content-body">
                 <div className={styles.datagridContainer}>
@@ -72,7 +71,7 @@ export default function Questions() {
                         }}
                     >
                         <label>
-                            <Translate token="Search" />
+                            Search
                         </label>
                         <input
                             type="text"

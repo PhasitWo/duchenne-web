@@ -227,7 +227,6 @@
     box-shadow: 2px 1px 5px 2px #00eaff0a;
 }
 
-
 .closeButton {
     cursor: pointer;
     position: absolute;
@@ -237,4 +236,19 @@
 
 .closeButton:hover {
     color: red;
+}
+
+.coverPreview {
+    font-size: 12px;
+    border-radius: 30px;
+    width: 181px;
+    height: 42px;
+    padding: 25px;
+    padding-right: 70px;
+    margin: auto;
+    background-size: cover;
+    background-position: center;
+    cursor: default;
+    position: relative;
+    outline: solid 1px gray;
 }

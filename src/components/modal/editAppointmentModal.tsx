@@ -1,15 +1,15 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import commonStyles from "../../styles/common.module.css";
 import { Modal, Box, Autocomplete, TextField, Checkbox } from "@mui/material";
-import { useAuthApiContext } from "../../hooks/authApiContext";
-import { ErrResponse, TrimDoctor, Patient, Appointment } from "../../model/model";
-import { AxiosError } from "axios";
-import { toast } from "react-toastify";
+import {  TrimDoctor, Patient, Appointment } from "../../model/model";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs from "dayjs";
 import { ImCross } from "react-icons/im";
 import Loading from "../../pages/loading";
 import ConfirmModal from "./confirmModal";
+import { useAppointmentStore } from "../../stores/appointment";
+import { useDoctorStore } from "../../stores/doctor";
+import { usePatientStore } from "../../stores/patient";
 
 interface EditAppointmentModalProps {
     open: boolean;
@@ -18,17 +18,14 @@ interface EditAppointmentModalProps {
     onComplete: Function;
 }
 
-export default function EditAppointmentModal({
-    open,
-    setOpen,
-    onComplete,
-    initialData,
-}: EditAppointmentModalProps) {
-    const { api } = useAuthApiContext();
+export default function EditAppointmentModal({ open, setOpen, onComplete, initialData }: EditAppointmentModalProps) {
     const formRef = useRef<HTMLFormElement>(null);
     const [appointmentDate, setAppointmentDate] = useState(dayjs());
     const [approve, setApprove] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const { listDoctors } = useDoctorStore();
+    const { listPatients } = usePatientStore();
+    const { updateAppointment, deleteAppointment } = useAppointmentStore();
 
     useEffect(() => {
         if (initialData) {
@@ -47,7 +44,6 @@ export default function EditAppointmentModal({
         }
     }, [open]);
 
-
     // doctor
     const [selectedDoctor, setSelectedDoctor] = useState<TrimDoctor | null>(null);
     const [doctorList, setDoctorList] = useState<TrimDoctor[]>([]);
@@ -55,21 +51,9 @@ export default function EditAppointmentModal({
 
     const fetchDoctors = async () => {
         setDoctorLoading(true);
-        try {
-            let res = await api.get<TrimDoctor[]>("/api/doctor");
-            switch (res.status) {
-                case 200:
-                    setDoctorList(res.data);
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setDoctorLoading(false);
-        }
+        const res = await listDoctors();
+        setDoctorList(res);
+        setDoctorLoading(false);
     };
 
     // patient
@@ -79,21 +63,9 @@ export default function EditAppointmentModal({
 
     const fetchPatients = async () => {
         setPatientLoading(true);
-        try {
-            let res = await api.get<Patient[]>("/api/patient");
-            switch (res.status) {
-                case 200:
-                    setPatientList(res.data);
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setPatientLoading(false);
-        }
+        const res = await listPatients();
+        setPatientList(res);
+        setPatientLoading(false);
     };
 
     const handleClose = () => {
@@ -109,57 +81,39 @@ export default function EditAppointmentModal({
         e.preventDefault();
         if (!formRef.current?.reportValidity()) return;
         if (!initialData) return console.log("no initialData");
+
         setIsLoading(true);
-        try {
-            let res = await api.put<{ id: number }>(`/api/appointment/${initialData.id}`, {
-                doctorId: selectedDoctor!.id,
-                patientId: selectedPatient!.id,
-                date: appointmentDate.unix(),
-                approve: approve,
-            });
-            switch (res.status) {
-                case 200:
-                    onComplete();
-                    setOpen(false);
-                    toast.success("Appointment is updated!");
-                    break;
-                case 422:
-                    toast.error("Invalid Date");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-                console.log(err);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
+        const succeed = await updateAppointment({
+            appointmentId: initialData.id,
+            doctorId: selectedDoctor!.id,
+            patientId: selectedPatient!.id,
+            dateUnix: appointmentDate.unix(),
+            approve,
+        });
+        setIsLoading(false);
+        if (succeed) {
+            onComplete();
+            setOpen(false);
         }
     };
 
     // confirm modal
     const [openConfirm, setOpenConfirm] = useState(false);
+
+    const handleOpenDeleteDialog = (e: FormEvent) => {
+        e.preventDefault();
+        setOpenConfirm(true);
+    };
+
     const handleDelete = async () => {
-        setIsLoading(true);
         if (!initialData) return console.log("no initialData");
-        try {
-            let res = await api.delete<{ id: number }>(`/api/appointment/${initialData.id}`);
-            switch (res.status) {
-                case 204:
-                    onComplete();
-                    setOpen(false);
-                    toast.success("Appointment is deleted!");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-                console.log(err);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
+
+        setIsLoading(true);
+        const succeed = await deleteAppointment(initialData.id);
+        setIsLoading(false);
+        if (succeed) {
+            onComplete();
+            setOpen(false);
         }
     };
 
@@ -194,9 +148,9 @@ export default function EditAppointmentModal({
                                     }}
                                     options={patientList}
                                     getOptionLabel={(option) =>
-                                        `${option.firstName} ${option.middleName ?? ""} ${
-                                            option.lastName
-                                        } (id:${option.id})`
+                                        `${option.firstName} ${option.middleName ?? ""} ${option.lastName} (id:${
+                                            option.id
+                                        })`
                                     }
                                     loading={patientLoading}
                                     renderInput={(params) => (
@@ -221,9 +175,9 @@ export default function EditAppointmentModal({
                                     }}
                                     options={doctorList}
                                     getOptionLabel={(option) =>
-                                        `${option.firstName} ${option.middleName ?? ""} ${
-                                            option.lastName
-                                        } (id:${option.id})`
+                                        `${option.firstName} ${option.middleName ?? ""} ${option.lastName} (id:${
+                                            option.id
+                                        })`
                                     }
                                     loading={doctorLoading}
                                     renderInput={(params) => (
@@ -251,10 +205,7 @@ export default function EditAppointmentModal({
                                     format="DD/MM/YYYY HH:mm"
                                 />
                                 <div>
-                                    <Checkbox
-                                        checked={approve}
-                                        onChange={(_, value) => setApprove(value)}
-                                    />
+                                    <Checkbox checked={approve} onChange={(_, value) => setApprove(value)} />
                                     <label>Approve</label>
                                 </div>
                                 <button
@@ -267,7 +218,7 @@ export default function EditAppointmentModal({
                                 <button
                                     className={commonStyles.deleteButton}
                                     style={{ justifyContent: "center" }}
-                                    onClick={() => setOpenConfirm(true)}
+                                    onClick={handleOpenDeleteDialog}
                                 >
                                     Delete
                                 </button>

@@ -5,8 +5,7 @@ export default function Home() {
         <>
             <Header>Home</Header>
             <div id="content-body">
-                <h2>Duchenne Web</h2>
-                
+                <h2>DMD We Care CMS</h2>
             </div>
         </>
     );

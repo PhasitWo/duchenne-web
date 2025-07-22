@@ -6,22 +6,21 @@ import { FormEvent, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import { ErrResponse, Patient } from "../../model/model";
+import { Patient } from "../../model/model";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuthApiContext } from "../../hooks/authApiContext";
 import Loading from "../loading";
-import { AxiosError } from "axios";
+import { usePatientStore } from "../../stores/patient";
 
 export default function AddPatient() {
-    const { api } = useAuthApiContext();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [info, setInfo] = useState<Patient>(initialInfo);
     const formRef = useRef<HTMLFormElement>(null);
+    const { createPatient } = usePatientStore();
 
     const handleSave = async (e: FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
         if (!formRef.current?.reportValidity()) return;
         if (info.hn.trim() === "" || info.firstName.trim() === "" || info.lastName.trim() === "") {
             toast.error("Not enough information");
@@ -35,35 +34,16 @@ export default function AddPatient() {
             toast.error("Phone number cannot exceed 15 digits");
             return;
         }
+        const requestBody = {
+            ...info,
+            middleName: info.middleName === "" ? null : info.middleName,
+            email: info.email === "" ? null : info.email,
+            phone: info.middleName === "" ? null : info.middleName,
+        };
         setIsLoading(true);
-        try {
-            const requestBody = {
-                ...info,
-                middleName: info.middleName === "" ? null : info.middleName,
-                email: info.email === "" ? null : info.email,
-                phone: info.middleName === "" ? null : info.middleName,
-            };
-            const res = await api.post<{ id: number }>("/api/patient", requestBody);
-            switch (res.status) {
-                case 201:
-                    toast.success("Created new patient account!");
-                    navigate("/patient/" + res.data.id);
-                    break;
-                case 403:
-                    toast.error("Insufficient permission");
-                    break;
-                case 409:
-                    toast.error("Duplicate HN");
-                    break;
-            }
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                let error = err as AxiosError<ErrResponse>;
-                toast.error(error.response?.data.error);
-            } else toast.error(`Fatal Error: ${err}`);
-        } finally {
-            setIsLoading(false);
-        }
+        const newId = await createPatient(requestBody);
+        setIsLoading(false);
+        if (newId) navigate("/patient/" + newId);
     };
 
     if (isLoading) return <Loading />;
@@ -144,9 +124,7 @@ export default function AddPatient() {
                             onChange={(e) =>
                                 setInfo({
                                     ...info,
-                                    weight: isNaN(e.target.valueAsNumber)
-                                        ? null
-                                        : e.target.valueAsNumber,
+                                    weight: isNaN(e.target.valueAsNumber) ? null : e.target.valueAsNumber,
                                 })
                             }
                         />
@@ -160,9 +138,7 @@ export default function AddPatient() {
                             onChange={(e) =>
                                 setInfo({
                                     ...info,
-                                    height: isNaN(e.target.valueAsNumber)
-                                        ? null
-                                        : e.target.valueAsNumber,
+                                    height: isNaN(e.target.valueAsNumber) ? null : e.target.valueAsNumber,
                                 })
                             }
                         />
@@ -172,9 +148,7 @@ export default function AddPatient() {
                         <div>
                             <Select
                                 value={info.verified ? "verified" : "unverified"}
-                                onChange={(e) =>
-                                    setInfo({ ...info, verified: e.target.value === "verified" })
-                                }
+                                onChange={(e) => setInfo({ ...info, verified: e.target.value === "verified" })}
                                 size="small"
                                 sx={{ paddingLeft: 0 }}
                                 required
@@ -190,8 +164,8 @@ export default function AddPatient() {
                     </div>
                     {!info.verified && (
                         <span style={{ color: "grey" }}>
-                            *with 'unverified' status, this patient is needed to complete signup
-                            process in the mobile app
+                            *with 'unverified' status, this patient is needed to complete signup process in the mobile
+                            app
                         </span>
                     )}
                     <div className={styles.infoFooter}>

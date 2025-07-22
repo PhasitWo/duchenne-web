@@ -2,22 +2,21 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useState } from "react";
 import styles from "../styles/common.module.css";
-import { Translate } from "../hooks/LanguageContext";
 import Header from "../components/header";
 import { AiOutlineSchedule } from "react-icons/ai";
 import AppointmentDataGrid from "../components/appointmentDataGrid";
 import { AppointmentType } from "../components/appointmentDataGrid";
-import { useAuthApiContext } from "../hooks/authApiContext";
 import AddButton from "../components/addButton";
 import CreateAppointmentModal from "../components/modal/createAppointmentModal";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../stores/auth";
 
 type AppointmentOwner = "myappointment" | "allappointment";
 
 export default function Appointments() {
     const [apmtOwner, setApmntOwner] = useState<AppointmentOwner>("allappointment");
     const [apmtType, setApmntType] = useState<AppointmentType>("incoming");
-    const { userData } = useAuthApiContext();
+    const { userData } = useAuthStore();
     const [openCreate, setOpenCreate] = useState(false);
     const navigate = useNavigate();
 
@@ -31,7 +30,7 @@ export default function Appointments() {
         <>
             <Header>
                 <AiOutlineSchedule />
-                <Translate token="Appointments" />
+                Appointments
             </Header>
             <div id="content-body">
                 <div className={styles.datagridContainer}>
