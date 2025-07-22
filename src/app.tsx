@@ -19,7 +19,6 @@ import NotFound from "./pages/notFound.tsx";
 import Reload from "./pages/reload.tsx";
 import Contents from "./pages/contents/contents.tsx";
 import ViewContent from "./pages/contents/viewContent.tsx";
-import AddContent from "./pages/contents/addContent.tsx";
 import { useAuthStore } from "./stores/auth.ts";
 import { Permission } from "./constants/permission.ts";
 import { useCallback, useEffect } from "react";
@@ -64,7 +63,7 @@ export default function App() {
                         <Route path="content">
                             <Route index element={<Contents />} />
                             <Route path=":id" element={<ViewContent />} />
-                            <Route path="new" element={<AddContent />} />
+                            <Route path="new" element={<ViewContent createMode />} />
                         </Route>
                         <Route path="doctor">
                             <Route index element={<Doctors />} />

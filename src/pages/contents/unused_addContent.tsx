@@ -10,6 +10,7 @@ import { Checkbox } from "@mui/material";
 import "react-quill/dist/quill.snow.css";
 import Editor from "../../components/editor";
 import { useContentStore } from "../../stores/content";
+import { toast } from "react-toastify";
 
 export default function AddContent() {
     // hook
@@ -24,9 +25,14 @@ export default function AddContent() {
     const handleSave = async (e: FormEvent) => {
         e.preventDefault();
         if (!formRef.current?.reportValidity()) return;
+        if (info.body.trim() === "") {
+            toast.error("Content body cannot be empty");
+            return;
+        }
 
         setIsLoading(true);
         const newId = await createContent(info);
+        setIsLoading(false)
         if (newId) navigate("/content/" + newId);
     };
 
