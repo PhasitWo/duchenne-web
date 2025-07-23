@@ -37,7 +37,7 @@
     margin-bottom: 10px;
 }
 
-#navbar  .main-list a:hover:not(.active) {
+#navbar .main-list a:hover:not(.active) {
     background-color: var(--navbar-hover);
 }
 
@@ -48,12 +48,12 @@
 
 /* when click link (feature of NavLink) */
 #navbar .main-list a.active {
-    background-color: var(--light-blue);
+    background-color: var(--brand-primary-light);
 }
 
 #navbar .main-list a.active div,
 #navbar .main-list a.active svg {
-    color: var(--blue);
+    color: var(--brand-primary);
 }
 
 #top-navbar-box {

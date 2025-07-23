@@ -83,10 +83,37 @@ export default function MedicineDataGrid({
     };
 
     const columns: GridColDef[] = [
-        { field: "medicineName", headerName: "Name", type: "string", flex: 1, editable: !disabled },
+        { field: "medicineName", headerName: "Medicine Name", type: "string", flex: 2, editable: !disabled },
         {
-            field: "description",
-            headerName: "Description",
+            field: "dose",
+            headerName: "Dose",
+            type: "string",
+            flex: 2,
+            align: "left",
+            headerAlign: "left",
+            editable: !disabled,
+        },
+        {
+            field: "frequencyPerDay",
+            headerName: "Frequency Per Day",
+            type: "string",
+            flex: 2,
+            align: "left",
+            headerAlign: "left",
+            editable: !disabled,
+        },
+        {
+            field: "instruction",
+            headerName: "Instruction",
+            type: "string",
+            flex: 2,
+            align: "left",
+            headerAlign: "left",
+            editable: !disabled,
+        },
+        {
+            field: "quantity",
+            headerName: "Quantity",
             type: "string",
             flex: 2,
             align: "left",
@@ -187,10 +214,7 @@ function EditToolbar(props: GridSlotProps["toolbar"]) {
 
     const handleClick = () => {
         const id = randomId();
-        setRows((oldRows: any) => [
-            ...oldRows,
-            { id, medicineName: "", description: "", isNew: true },
-        ]);
+        setRows((oldRows: any) => [...oldRows, { id, medicineName: "", description: "", isNew: true }]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
             [id]: { mode: GridRowModes.Edit, fieldToFocus: "medicineName" },
@@ -199,12 +223,7 @@ function EditToolbar(props: GridSlotProps["toolbar"]) {
 
     return (
         <GridToolbarContainer>
-            <Button
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={handleClick}
-                disabled={disabled}
-            >
+            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick} disabled={disabled}>
                 Add record
             </Button>
         </GridToolbarContainer>

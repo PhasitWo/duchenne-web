@@ -3,7 +3,7 @@
 }
 
 .navLink:hover {
-    background-color: var(--light-blue);
+    background-color: var(--brand-primary-light);
     cursor: pointer;
 }
 
@@ -19,7 +19,7 @@
 
 .searchInput:focus {
     outline: none;
-    border-color: var(--blue);
+    border-color: var(--brand-primary);
 }
 
 .outlinedButton {
@@ -43,7 +43,7 @@
 }
 
 .outlinedButton:active {
-    background-color: var(--dark-blue);
+    background-color: var(--brand-primary-dark);
 }
 
 .outlinedButton:disabled {
@@ -88,11 +88,11 @@
 }
 
 .button:hover {
-    background-color: var(--blue);
+    background-color: var(--brand-primary);
 }
 
 .button:active {
-    background-color: var(--dark-blue);
+    background-color: var(--brand-primary-dark);
 }
 
 .button:disabled {
@@ -105,7 +105,7 @@
 }
 
 .miniDatagridContainer {
-    width: 40vw;
+    width: 940px;
 }
 
 .infoContainer {
@@ -144,7 +144,7 @@
 
 .infoInput:focus {
     outline: none;
-    border-color: var(--blue);
+    border-color: var(--brand-primary);
 }
 
 .infoFooter {

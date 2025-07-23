@@ -27,7 +27,6 @@ export default function PatientMedicineSection({
     const { updatePatientMedicine } = usePatientStore();
 
     useEffect(() => {
-        console.log("UPDATED", patient.medicine);
         if (patient.medicine) {
             medicinesRef.current = patient.medicine;
             setMedicines([...patient.medicine]);
@@ -41,7 +40,10 @@ export default function PatientMedicineSection({
             return;
         }
         for (let m of medicines) {
-            if (m.description?.trim() === "") m.description = null;
+            if (m.dose?.trim() === "") m.dose = null;
+            if (m.frequencyPerDay?.trim() === "") m.frequencyPerDay = null;
+            if (m.instruction?.trim() === "") m.instruction = null;
+            if (m.quantity?.trim() === "") m.quantity = null;
             if (m.isNew == true) {
                 toast.error("please save the 'unsaved' rows");
                 return;
