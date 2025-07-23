@@ -106,8 +106,8 @@ export default function VaccineHistoryDataGrid({
             }
         },
         {
-            field: "description",
-            headerName: "Description",
+            field: "complication",
+            headerName: "Complication",
             type: "string",
             flex: 2,
             align: "left",

@@ -28,7 +28,6 @@ export default function PatientVaccineHistorySection({
     const { updatePateintVaccineHistory } = usePatientStore();
 
     useEffect(() => {
-        console.log("UPDATED", patient.vaccineHistory);
         if (patient.vaccineHistory) {
             // convert date
             let converted = patient.vaccineHistory.map((v) => ({
@@ -54,7 +53,7 @@ export default function PatientVaccineHistorySection({
 
         for (let v of converted) {
             if (v.vaccineLocation?.trim() === "") v.vaccineLocation = null;
-            if (v.description?.trim() === "") v.description = null;
+            if (v.complication?.trim() === "") v.complication = null;
             if (v.isNew == true) {
                 toast.error("please save the 'unsaved' rows");
                 return;

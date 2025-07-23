@@ -26,13 +26,16 @@ export interface VaccineHistory {
     vaccineName: string;
     vaccineLocation: string | null;
     vaccineAt: number;
-    description: string | null;
+    complication: string | null;
 }
 
 export interface Medicine {
     id: string;
     medicineName: string;
-    description: string | null;
+    dose: string | null;
+    frequencyPerDay: string | null;
+    instruction: string | null;
+    quantity: string | null;
 }
 
 export interface Patient {

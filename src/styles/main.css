@@ -1,16 +1,16 @@
 @import url(https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@100..900&display=swap);
 
 :root {
-    font-family: "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol,
-        "Noto Color Emoji";
+    font-family: "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        Segoe UI Symbol, "Noto Color Emoji";
     font-size: 17px;
     color-scheme: light;
     color: black;
     height: 100%;
     background-color: white;
-    --light-blue: rgb(231, 249, 253);
-    --blue: rgb(0, 203, 238);
-    --dark-blue: rgb(1, 114, 134);
+    --brand-primary-light: rgb(253, 244, 231);
+    --brand-primary: rgb(238, 79, 0);
+    --brand-primary-dark: rgb(134, 8, 1);
     --navbar-border-color: #e3e3e3;
     --navbar-color: #fafafa;
     --navbar-hover: #ebebeb;
@@ -59,6 +59,6 @@ body {
     padding: 30px 0px 30px 50px;
 }
 
-.ql-editor{
-    min-height:20vh;
+.ql-editor {
+    min-height: 20vh;
 }
