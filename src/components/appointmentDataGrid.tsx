@@ -126,7 +126,7 @@ export default function AppointmentDataGrid({
             headerName: "Action",
             headerAlign: "center",
             align: "center",
-            flex: 2,
+            width: 140,
             renderCell: (v) => (
                 <AppointmentAction
                     appointment={v.row}
@@ -209,7 +209,7 @@ function AppointmentAction({
                 Approve
             </button>
             <MdOutlineModeEditOutline
-                size={17}
+                size={"20px"}
                 style={isActive ? style.iconActive : style.iconDisabled}
                 onClick={() => isActive && onClickEdit()}
             />
