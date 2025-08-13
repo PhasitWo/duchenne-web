@@ -49,6 +49,7 @@ export interface Patient {
     verified: boolean;
     weight: number | null;
     height: number | null;
+    birthDate: number;
     medicine: Medicine[] | null;
     vaccineHistory: VaccineHistory[] | null;
 }

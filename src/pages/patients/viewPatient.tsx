@@ -24,6 +24,9 @@ import PatientVaccineHistorySection from "../../components/patientVaccineHistory
 import { useAuthStore } from "../../stores/auth";
 import { Permission } from "../../constants/permission";
 import { usePatientStore } from "../../stores/patient";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
+import { unixToYears } from "../../utils";
 
 export default function ViewPatient() {
     const { id } = useParams();
@@ -104,7 +107,7 @@ export default function ViewPatient() {
         }
         setQuestionType(e.target.value as QuestionType);
     };
-
+    console.log(info.birthDate)
     if (isLoading) return <Loading />;
     return (
         <>
@@ -209,6 +212,21 @@ export default function ViewPatient() {
                                     height: isNaN(e.target.valueAsNumber) ? null : e.target.valueAsNumber,
                                 })
                             }
+                            disabled={!onEdit}
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Birth Date (age: {unixToYears(info.birthDate)})</label>
+                        <DatePicker
+                            value={dayjs(info.birthDate*1000)}
+                            onChange={(v) => {
+                                if (v) setInfo({ ...info, birthDate: v.unix() });
+                            }}
+                            slotProps={{ textField: { size: "small", fullWidth: true } }}
+                            sx={{
+                                "& .MuiInputBase-root": { fontSize: "0.8rem" },
+                            }}
+                            format="DD/MM/YYYY"
                             disabled={!onEdit}
                         />
                     </div>
@@ -358,4 +376,5 @@ const initialInfo: Patient = {
     vaccineHistory: null,
     height: null,
     weight: null,
+    birthDate: 0,
 };
