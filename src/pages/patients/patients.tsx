@@ -10,6 +10,7 @@ import AddButton from "../../components/addButton";
 import { Permission } from "../../constants/permission";
 import { useAuthStore } from "../../stores/auth";
 import { usePatientStore } from "../../stores/patient";
+import { unixToYears } from "../../utils";
 
 const columns: GridColDef<Patient>[] = [
     { field: "hn", headerName: "HN", width: 100 },
@@ -28,6 +29,12 @@ const columns: GridColDef<Patient>[] = [
     { field: "phone", headerName: "Phone", flex: 2 },
     { field: "weight", headerName: "Weight(kg)", flex: 1 },
     { field: "height", headerName: "Height(cm)", flex: 1 },
+    {
+        field: "birthDate",
+        headerName: "Age",
+        flex: 1,
+        valueFormatter: (_, r) => unixToYears(r.birthDate),
+    },
     {
         field: "verified",
         headerName: "Verified",
@@ -84,9 +91,7 @@ export default function Patients() {
             <div id="content-body">
                 <div className={styles.datagridContainer}>
                     <div style={{ marginBottom: "10px", display: "flex", alignItems: "center" }}>
-                        <label>
-                            Search
-                        </label>
+                        <label>Search</label>
                         <input
                             type="text"
                             className={styles.searchInput}

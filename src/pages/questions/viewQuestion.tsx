@@ -52,7 +52,7 @@ export default function ViewQuestion() {
     if (isLoading) return <Loading />;
     return (
         <>
-            <Header>This is view question/{id}</Header>
+            <Header>Question/{id}</Header>
             <div id="content-body">
                 <GoBack />
                 <div className={styles.questionBox}>

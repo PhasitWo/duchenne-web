@@ -5,6 +5,9 @@ import { HashRouter } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { Bounce, ToastContainer } from "react-toastify";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+dayjs.extend(duration);
 // import { StrictMode } from "react";
 createRoot(document.getElementById("root")!).render(
     // <StrictMode>

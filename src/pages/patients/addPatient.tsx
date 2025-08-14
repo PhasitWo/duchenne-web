@@ -11,6 +11,9 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../loading";
 import { usePatientStore } from "../../stores/patient";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
+import { unixToYears } from "../../utils";
 
 export default function AddPatient() {
     const navigate = useNavigate();
@@ -144,6 +147,20 @@ export default function AddPatient() {
                         />
                     </div>
                     <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Birth Date (age: {unixToYears(info.birthDate)})</label>
+                        <DatePicker
+                            value={dayjs(info.birthDate * 1000)}
+                            onChange={(v) => {
+                                if (v) setInfo({ ...info, birthDate: v.unix() });
+                            }}
+                            slotProps={{ textField: { size: "small", fullWidth: true } }}
+                            sx={{
+                                "& .MuiInputBase-root": { fontSize: "0.8rem" },
+                            }}
+                            format="DD/MM/YYYY"
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Status*</label>
                         <div>
                             <Select
@@ -193,4 +210,5 @@ const initialInfo: Patient = {
     vaccineHistory: null,
     height: null,
     weight: null,
+    birthDate: 0,
 };
