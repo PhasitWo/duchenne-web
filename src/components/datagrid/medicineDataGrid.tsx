@@ -22,26 +22,26 @@ import {
 } from "@mui/x-data-grid";
 import { randomId } from "@mui/x-data-grid-generator";
 import { Dispatch, SetStateAction } from "react";
-import { VaccineHistory } from "../model/model";
+import { Medicine } from "../../model/model";
 
-export type ExtendedVaccineHistory = Omit<VaccineHistory, "vaccineAt"> & GridValidRowModel & {vaccineAt: Date};
+export type ExtendedMedicine = Medicine & GridValidRowModel;
 
-interface VaccineHistoryDataGridProps {
-    rows: ExtendedVaccineHistory[];
-    setRows: Dispatch<SetStateAction<ExtendedVaccineHistory[]>>;
+interface MedicineDataGridProps {
+    rows: ExtendedMedicine[];
+    setRows: Dispatch<SetStateAction<ExtendedMedicine[]>>;
     rowModesModel: GridRowModesModel;
     setRowModesModel: Dispatch<SetStateAction<GridRowModesModel>>;
     disabled?: boolean;
 }
 
-export default function VaccineHistoryDataGrid({
+export default function MedicineDataGrid({
     rows,
     setRows,
     rowModesModel,
     setRowModesModel,
     disabled,
     ...rest
-}: Omit<DataGridProps, "columns"> & VaccineHistoryDataGridProps) {
+}: Omit<DataGridProps, "columns"> & MedicineDataGridProps) {
     const handleRowEditStop: GridEventListener<"rowEditStop"> = (params, event) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
             event.defaultMuiPrevented = true;
@@ -83,31 +83,37 @@ export default function VaccineHistoryDataGrid({
     };
 
     const columns: GridColDef[] = [
-        { field: "vaccineName", headerName: "Name", type: "string", flex: 1, editable: !disabled },
+        { field: "medicineName", headerName: "Medicine Name", type: "string", flex: 2, editable: !disabled },
         {
-            field: "vaccineLocation",
-            headerName: "Location",
+            field: "dose",
+            headerName: "Dose",
             type: "string",
-            flex: 1,
+            flex: 2,
             align: "left",
             headerAlign: "left",
             editable: !disabled,
         },
         {
-            field: "vaccineAt",
-            headerName: "Date",
-            type: "date",
-            flex: 1,
+            field: "frequencyPerDay",
+            headerName: "Frequency Per Day",
+            type: "string",
+            flex: 2,
             align: "left",
             headerAlign: "left",
             editable: !disabled,
-            valueFormatter: (v) => {
-                return (v as Date).toLocaleDateString("en-GB")
-            }
         },
         {
-            field: "complication",
-            headerName: "Complication",
+            field: "instruction",
+            headerName: "Instruction",
+            type: "string",
+            flex: 2,
+            align: "left",
+            headerAlign: "left",
+            editable: !disabled,
+        },
+        {
+            field: "quantity",
+            headerName: "Quantity",
             type: "string",
             flex: 2,
             align: "left",
@@ -179,11 +185,6 @@ export default function VaccineHistoryDataGrid({
         >
             <DataGrid
                 {...rest}
-                initialState={{
-                    sorting: {
-                        sortModel: [{ field: "vaccineAt", sort: "asc" }],
-                    },
-                }}
                 rows={rows}
                 columns={columns}
                 editMode="row"
@@ -194,7 +195,6 @@ export default function VaccineHistoryDataGrid({
                 slots={{ toolbar: EditToolbar }}
                 slotProps={{
                     toolbar: { setRows, setRowModesModel, disabled },
-                    
                 }}
             />
         </Box>
@@ -214,17 +214,7 @@ function EditToolbar(props: GridSlotProps["toolbar"]) {
 
     const handleClick = () => {
         const id = randomId();
-        setRows((oldRows: any) => [
-            ...oldRows,
-            {
-                id,
-                vaccineName: "",
-                vaccineLocation: "",
-                vaccineAt: new Date(),
-                description: "",
-                isNew: true,
-            },
-        ]);
+        setRows((oldRows: any) => [...oldRows, { id, medicineName: "", description: "", isNew: true }]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
             [id]: { mode: GridRowModes.Edit, fieldToFocus: "medicineName" },
@@ -233,12 +223,7 @@ function EditToolbar(props: GridSlotProps["toolbar"]) {
 
     return (
         <GridToolbarContainer>
-            <Button
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={handleClick}
-                disabled={disabled}
-            >
+            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick} disabled={disabled}>
                 Add record
             </Button>
         </GridToolbarContainer>

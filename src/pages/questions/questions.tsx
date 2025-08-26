@@ -5,12 +5,8 @@ import { useState } from "react";
 import styles from "../../styles/common.module.css";
 import Header from "../../components/header";
 import { CiCircleQuestion } from "react-icons/ci";
-import QuestionDataGrid from "../../components/questionDataGrid";
-import {
-    QuestionType,
-    sortCreateAtModel,
-    sortAnswerAtModel,
-} from "../../components/questionDataGrid";
+import QuestionDataGrid from "../../components/datagrid/questionDataGrid";
+import { QuestionType, sortCreateAtModel, sortAnswerAtModel } from "../../components/datagrid/questionDataGrid";
 import { useAuthStore } from "../../stores/auth";
 
 type QuestionOwner = "myquestion" | "allquestion";
@@ -70,15 +66,8 @@ export default function Questions() {
                             alignItems: "center",
                         }}
                     >
-                        <label>
-                            Search
-                        </label>
-                        <input
-                            type="text"
-                            className={styles.searchInput}
-                            style={{ flex: 1 }}
-                            placeholder="id / name"
-                        />
+                        <label>Search</label>
+                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="id / name" />
                     </div>
                     <QuestionDataGrid
                         type={questionType}

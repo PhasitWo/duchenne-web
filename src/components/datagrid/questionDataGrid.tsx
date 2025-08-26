@@ -1,10 +1,10 @@
 import { DataGrid, GridColDef, GridPaginationModel, GridSortModel, type DataGridProps } from "@mui/x-data-grid";
 import dayjs, { Dayjs } from "dayjs";
 import { NavLink } from "react-router-dom";
-import styles from "../styles/common.module.css";
-import { QuestionTopic } from "../model/model";
+import styles from "../../styles/common.module.css";
+import { QuestionTopic } from "../../model/model";
 import { useEffect, useState } from "react";
-import { useQuestionStore } from "../stores/question";
+import { useQuestionStore } from "../../stores/question";
 
 export type QuestionType = "replied" | "unreplied";
 
@@ -81,7 +81,7 @@ export default function QuestionDataGrid({
 }: Omit<DataGridProps, "columns"> & QuestionDataGridProps) {
     const [rows, setRows] = useState<QuestionTopic[]>([]);
     const [paginationModel, setPaginationModel] = useState({
-        pageSize: 5,
+        pageSize: 10,
         page: 0,
     });
     const [hasNextPage, setHasNextPage] = useState(false);

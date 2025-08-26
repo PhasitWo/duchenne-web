@@ -7,11 +7,11 @@ import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import { CiTrash } from "react-icons/ci";
 import GoBack from "../../components/goback";
-import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
+import AppointmentDataGrid, { AppointmentType } from "../../components/datagrid/appointmentDataGrid";
 import { Doctor } from "../../model/model";
 import Loading from "../loading";
 import { toast } from "react-toastify";
-import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Checkbox, Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import DeleteDialog from "../../components/deleteDialog";
 import { useAuthStore } from "../../stores/auth";
 import { Permission } from "../../constants/permission";
@@ -225,6 +225,15 @@ export default function ViewDoctor() {
                         )}
                     </div>
                     <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Can be appointed</label>
+                        <Checkbox
+                            sx={{ width: "fit-content", padding: 0 }}
+                            checked={info.canBeAppointed}
+                            onChange={(_, v) => setInfo({ ...info, canBeAppointed: v })}
+                            disabled={!onEdit}
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Username*</label>
                         <input
                             type="text"
@@ -362,6 +371,7 @@ const initialInfo: Doctor = {
     username: "-",
     password: "-",
     specialist: null,
+    canBeAppointed: true,
 };
 
 const initialPwdCondition: PasswordCondition = {

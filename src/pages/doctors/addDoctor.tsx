@@ -3,7 +3,7 @@ import styles from "../../styles/common.module.css";
 import { FormEvent, useRef, useState } from "react";
 import { IoSaveOutline } from "react-icons/io5";
 import GoBack from "../../components/goback";
-import { Chip, MenuItem, Select } from "@mui/material";
+import { Checkbox, Chip, MenuItem, Select } from "@mui/material";
 import { Doctor } from "../../model/model";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -150,6 +150,14 @@ export default function AddDoctor() {
                         </Select>
                     </div>
                     <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Can be appointed</label>
+                        <Checkbox
+                            sx={{ width: "fit-content", padding: 0 }}
+                            checked={info.canBeAppointed}
+                            onChange={(_, v) => setInfo({ ...info, canBeAppointed: v })}
+                        />
+                    </div>
+                    <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Username*</label>
                         <input
                             type="text"
@@ -169,7 +177,6 @@ export default function AddDoctor() {
                             required
                         />
                     </div>
-
                     <div className={styles.infoInputContainer}>
                         <div style={{ color: "grey" }}>(Password Conditions)</div>
                         <div>
@@ -200,6 +207,7 @@ export default function AddDoctor() {
                             required
                         />
                     </div>
+
                     <div className={styles.infoFooter}>
                         <button className={styles.button} onClick={handleSave}>
                             <IoSaveOutline />
@@ -221,6 +229,7 @@ const initialInfo: Doctor = {
     username: "",
     password: "",
     specialist: null,
+    canBeAppointed: true,
 };
 
 const initialPwdCondition: PasswordCondition = {

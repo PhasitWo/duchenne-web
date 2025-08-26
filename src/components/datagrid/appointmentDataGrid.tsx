@@ -1,14 +1,14 @@
 import { DataGrid, GridColDef, GridPaginationModel, type DataGridProps } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Appointment } from "../model/model";
+import { Appointment } from "../../model/model";
 import { NavLink } from "react-router-dom";
-import styles from "../styles/common.module.css";
+import styles from "../../styles/common.module.css";
 import Chip from "@mui/material/Chip";
 import { MdOutlineModeEditOutline } from "react-icons/md";
-import EditAppointmentModal from "./modal/editAppointmentModal";
-import ConfirmModal from "./modal/confirmModal";
-import { useAppointmentStore } from "../stores/appointment";
+import EditAppointmentModal from "../modal/editAppointmentModal";
+import ConfirmModal from "../modal/confirmModal";
+import { useAppointmentStore } from "../../stores/appointment";
 
 export type AppointmentType = "incoming" | "history";
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Patient } from "../model/model";
-import MedicineDataGrid, { ExtendedMedicine } from "./medicineDataGrid";
+import MedicineDataGrid, { ExtendedMedicine } from "./datagrid/medicineDataGrid";
 import EditButton from "./editButton";
 import CancelButton from "./cancelButton";
 import SaveButton from "./saveButton";

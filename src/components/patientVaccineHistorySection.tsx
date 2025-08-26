@@ -6,7 +6,7 @@ import SaveButton from "./saveButton";
 import { toast } from "react-toastify";
 import commonStyles from "../styles/common.module.css";
 import { GridRowModesModel } from "@mui/x-data-grid";
-import VaccineHistoryDataGrid, { ExtendedVaccineHistory } from "./vaccineHistoryDataGrid";
+import VaccineHistoryDataGrid, { ExtendedVaccineHistory } from "./datagrid/vaccineHistoryDataGrid";
 import type { VaccineHistory } from "../model/model";
 import { useAuthStore } from "../stores/auth";
 import { Permission } from "../constants/permission";
