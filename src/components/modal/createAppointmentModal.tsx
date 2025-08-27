@@ -67,8 +67,8 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
 
     const fetchDoctors = async () => {
         setDoctorLoading(true);
-        const res = await listDoctors();
-        setDoctorList(res);
+        const res = await listDoctors(100, 0);
+        setDoctorList(res.data);
         setDoctorLoading(false);
     };
 
@@ -79,8 +79,8 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
 
     const fetchPatients = async () => {
         setPatientLoading(true);
-        const res = await listPatients();
-        setPatientList(res);
+        const res = await listPatients(100, 0);
+        setPatientList(res.data);
         setPatientLoading(false);
     };
 
