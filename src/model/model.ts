@@ -8,6 +8,7 @@ export interface TrimDoctor {
     middleName: string | null;
     lastName: string;
     role: string;
+    canBeAppointed: boolean;
 }
 
 export interface Doctor {
@@ -19,6 +20,7 @@ export interface Doctor {
     password: string;
     specialist: string | null;
     role: string;
+    canBeAppointed: boolean;
 }
 
 export interface VaccineHistory {

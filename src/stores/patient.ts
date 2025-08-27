@@ -1,17 +1,22 @@
 import { create } from "zustand";
 import { Patient, VaccineHistory } from "../model/model";
 import api, { handleError } from "../services/api";
-import { ExtendedMedicine } from "../components/medicineDataGrid";
+import { ExtendedMedicine } from "../components/datagrid/medicineDataGrid";
 import { toast } from "react-toastify";
 
 type Action = {
     createPatient: (data: Patient) => Promise<number | undefined>;
-    listPatients: () => Promise<Patient[]>;
+    listPatients: (limit: number, offset: number) => Promise<ListPatientsResponse>;
     getPatient: (id: string | number) => Promise<Patient | null | undefined>;
     updatePatientGeneralInfo: (id: string | number, data: Patient) => Promise<boolean>;
     updatePatientMedicine: (patientId: string | number, data: ExtendedMedicine[]) => Promise<boolean>;
     updatePateintVaccineHistory: (patientId: string | number, data: VaccineHistory[]) => Promise<boolean>;
     deletePatient: (id: string | number) => Promise<boolean>;
+};
+
+type ListPatientsResponse = {
+    data: Patient[];
+    hasNextPage: boolean;
 };
 
 export const usePatientStore = create<Action>(() => ({
@@ -33,13 +38,19 @@ export const usePatientStore = create<Action>(() => ({
             handleError(err);
         }
     },
-    listPatients: async () => {
-        let result: Patient[] = [];
+    listPatients: async (limit, offset) => {
+        let result: ListPatientsResponse = { data: [], hasNextPage: false };
         try {
-            let res = await api.get<Patient[]>("/api/patient");
+            let res = await api.get<Patient[]>(attachQueryParams("/api/patient", limit + 1, offset));
             switch (res.status) {
                 case 200:
-                    result = res.data;
+                    if (res.data.length == limit + 1) {
+                        res.data.pop();
+                        result.hasNextPage = true;
+                    } else {
+                        result.hasNextPage = false;
+                    }
+                    result.data = res.data;
                     break;
             }
         } catch (err) {
@@ -146,3 +157,9 @@ export const usePatientStore = create<Action>(() => ({
         }
     },
 }));
+
+// helper
+const attachQueryParams = (url: string, limit: number, offset: number) => {
+    url += `?limit=${limit}` + `&offset=${offset}`;
+    return url;
+};

@@ -9,7 +9,7 @@ import GoBack from "../components/goback";
 import { Doctor } from "../model/model";
 import Loading from "./loading";
 import { toast } from "react-toastify";
-import { Chip } from "@mui/material";
+import { Checkbox, Chip } from "@mui/material";
 import { useDoctorStore } from "../stores/doctor";
 
 interface PasswordCondition {
@@ -95,7 +95,7 @@ export default function Profile() {
         };
         setIsLoading(true);
         const succeed = await updateProfile(requestBody);
-        setIsLoading(false)
+        setIsLoading(false);
         if (succeed) navigate("/reload");
     };
     if (isLoading) return <Loading />;
@@ -169,6 +169,15 @@ export default function Profile() {
                         <div>
                             <Chip label={info.role} color={roleColorMap[info.role]} variant="outlined" />
                         </div>
+                    </div>
+                    <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Can be appointed</label>
+                        <Checkbox
+                            sx={{ width: "fit-content", padding: 0 }}
+                            checked={info.canBeAppointed}
+                            onChange={(_, v) => setInfo({ ...info, canBeAppointed: v })}
+                            disabled={!onEdit}
+                        />
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Username*</label>
@@ -257,6 +266,7 @@ const initialInfo: Doctor = {
     username: "-",
     password: "-",
     specialist: null,
+    canBeAppointed: true,
 };
 
 const initialPwdCondition: PasswordCondition = {

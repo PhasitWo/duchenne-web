@@ -3,13 +3,13 @@ import Header from "../../components/header";
 import styles from "../../styles/common.module.css";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import GoBack from "../../components/goback";
-import AppointmentDataGrid, { AppointmentType } from "../../components/appointmentDataGrid";
+import AppointmentDataGrid, { AppointmentType } from "../../components/datagrid/appointmentDataGrid";
 import { Chip, MenuItem, Select, SelectChangeEvent } from "@mui/material";
 import QuestionDataGrid, {
     QuestionType,
     sortCreateAtModel,
     sortAnswerAtModel,
-} from "../../components/questionDataGrid";
+} from "../../components/datagrid/questionDataGrid";
 import { Patient } from "../../model/model";
 import { toast } from "react-toastify";
 import Loading from "../loading";
@@ -107,7 +107,7 @@ export default function ViewPatient() {
         }
         setQuestionType(e.target.value as QuestionType);
     };
-    console.log(info.birthDate)
+    console.log(info.birthDate);
     if (isLoading) return <Loading />;
     return (
         <>
@@ -218,7 +218,7 @@ export default function ViewPatient() {
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Birth Date (age: {unixToYears(info.birthDate)})</label>
                         <DatePicker
-                            value={dayjs(info.birthDate*1000)}
+                            value={dayjs(info.birthDate * 1000)}
                             onChange={(v) => {
                                 if (v) setInfo({ ...info, birthDate: v.unix() });
                             }}
