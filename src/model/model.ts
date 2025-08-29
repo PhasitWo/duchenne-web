@@ -42,6 +42,7 @@ export interface Medicine {
 
 export interface Patient {
     id: number;
+    nid: string;
     hn: string;
     firstName: string;
     middleName: string | null;

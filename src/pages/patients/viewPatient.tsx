@@ -61,6 +61,14 @@ export default function ViewPatient() {
         e.preventDefault();
         if (!id) return;
         if (!formRef.current?.reportValidity()) return;
+        if (info.nid.trim() === "") {
+            toast.error("NID cannot be empty");
+            return;
+        }
+        if (info.nid.trim().length < 13) {
+            toast.error("NID length should be >= 13 digits");
+            return;
+        }
         if (info.hn.trim() === "" || info.firstName.trim() === "" || info.lastName.trim() === "") {
             toast.error("Not enough information");
             return;
@@ -127,6 +135,17 @@ export default function ViewPatient() {
                                 disabled={!checkPermission(Permission.updatePatientPermission)}
                             />
                         )}
+                    </div>
+                    <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>NID*</label>
+                        <input
+                            type="text"
+                            className={styles.infoInput}
+                            value={info.nid}
+                            onChange={(e) => setInfo({ ...info, nid: e.target.value.trim() })}
+                            disabled={!onEdit}
+                            required
+                        />
                     </div>
                     <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>HN*</label>
@@ -365,6 +384,7 @@ export default function ViewPatient() {
 
 const initialInfo: Patient = {
     id: -1,
+    nid: "",
     hn: "-",
     firstName: "-",
     middleName: "-",

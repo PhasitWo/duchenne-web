@@ -4,13 +4,13 @@ import { BsPersonLinesFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AddButton from "../../components/addButton";
-import { Permission } from "../../constants/permission";
-import { useAuthStore } from "../../stores/auth";
+// import { Permission } from "../../constants/permission";
+// import { useAuthStore } from "../../stores/auth";
 import PatientDataGrid from "../../components/datagrid/patientDataGrid";
 
 export default function Patients() {
     const navigate = useNavigate();
-    const { checkPermission } = useAuthStore();
+    // const { checkPermission } = useAuthStore();
     const [searchText, setSearchText] = useState("");
 
     return (
@@ -34,7 +34,7 @@ export default function Patients() {
                         <AddButton
                             style={{ marginLeft: "10px" }}
                             onClick={() => navigate("new")}
-                            disabled={!checkPermission(Permission.createPatientPermission)}
+                            disabled={true} // deprecate
                         />
                     </div>
                     <PatientDataGrid localSearch={searchText} />
