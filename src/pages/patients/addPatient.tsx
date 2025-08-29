@@ -199,6 +199,7 @@ export default function AddPatient() {
 
 const initialInfo: Patient = {
     id: -1,
+    nid: "",
     hn: "",
     firstName: "",
     middleName: "",
