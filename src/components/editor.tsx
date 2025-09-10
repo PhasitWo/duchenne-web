@@ -62,6 +62,7 @@ export default function Editor({ value, onChange, uploadImageFunc, readonly = fa
                 onChange={onChange}
                 readOnly={readonly}
                 placeholder="Write your content..."
+                preserveWhitespace
             />
             <input
                 type="file"

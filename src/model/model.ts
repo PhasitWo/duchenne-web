@@ -97,3 +97,11 @@ export interface Content {
     order: number;
     coverImageURL: string | null;
 }
+
+export interface Consent {
+    id: number;
+    createAt: number;
+    updateAt: number;
+    slug: string;
+    body: string;
+}

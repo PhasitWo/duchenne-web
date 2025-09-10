@@ -9,11 +9,13 @@ import { FaBook } from "react-icons/fa6";
 import logo from "../assets/Branding_logo.png";
 import { BsPersonCircle } from "react-icons/bs";
 import { RiExpandUpDownLine } from "react-icons/ri";
+import { MdOutlinePrivacyTip } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-
+import { useAuthStore } from "../stores/auth";
 
 export default function Navbar() {
     const navigate = useNavigate();
+    const checkPermission = useAuthStore((state) => state.checkPermission);
     return (
         <div id="navbar">
             <div id="top-navbar-box">
@@ -32,33 +34,31 @@ export default function Navbar() {
                 <li>
                     <NavLink to="content">
                         <FaBook />
-                        <div>
-                            Contents
-                        </div>
+                        <div>Contents</div>
                     </NavLink>
                     <NavLink to="doctor">
                         <FaUserDoctor />
-                        <div>
-                            Doctors
-                        </div>
+                        <div>Doctors</div>
                     </NavLink>
                     <NavLink to="patient">
                         <BsPersonLinesFill />
-                        <div>
-                            Patients
-                        </div>
+                        <div>Patients</div>
                     </NavLink>
                     <NavLink to="appointment">
                         <AiOutlineSchedule />
-                        <div>
-                            Appointments
-                        </div>
+                        <div>Appointments</div>
                     </NavLink>
                     <NavLink to="question">
                         <CiCircleQuestion />
-                        <div>
-                            Questions
-                        </div>
+                        <div>Questions</div>
+                    </NavLink>
+                    <NavLink to="privacy-th" >
+                        <MdOutlinePrivacyTip />
+                        <div>Privacy TH</div>
+                    </NavLink>
+                    <NavLink to="privacy-en">
+                        <MdOutlinePrivacyTip />
+                        <div>Privacy EN</div>
                     </NavLink>
                 </li>
             </ul>
