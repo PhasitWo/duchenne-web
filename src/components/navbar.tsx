@@ -11,11 +11,9 @@ import { BsPersonCircle } from "react-icons/bs";
 import { RiExpandUpDownLine } from "react-icons/ri";
 import { MdOutlinePrivacyTip } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../stores/auth";
 
 export default function Navbar() {
     const navigate = useNavigate();
-    const checkPermission = useAuthStore((state) => state.checkPermission);
     return (
         <div id="navbar">
             <div id="top-navbar-box">
