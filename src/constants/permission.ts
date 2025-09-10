@@ -6,6 +6,7 @@ export enum Permission {
     createPatientPermission,
     updatePatientPermission,
     deletePatientPermission,
+    manageConsentPermission
 }
 
 const adminPermissions = [
@@ -18,6 +19,7 @@ const rootPermissions = [
     Permission.createDoctorPermission,
     Permission.updateDoctorPermission,
     Permission.deleteDoctorPermission,
+    Permission.manageConsentPermission
 ];
 
 export const rolePermissionMap: { [key: string]: Permission[] } = {

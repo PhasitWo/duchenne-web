@@ -22,6 +22,8 @@ import ViewContent from "./pages/contents/viewContent.tsx";
 import { useAuthStore } from "./stores/auth.ts";
 import { Permission } from "./constants/permission.ts";
 import { useCallback, useEffect } from "react";
+import Privacy from "./pages/consents/privacy.tsx";
+import NoPermission from "./pages/noPermission.tsx";
 
 export default function App() {
     const { authState, checkPermission, fetchUserData, loginDispatch, logoutDispatch } = useAuthStore();
@@ -90,6 +92,27 @@ export default function App() {
                             <Route index element={<Questions />} />
                             <Route path=":id" element={<ViewQuestion />} />
                         </Route>
+                        {/* use key to force rerender */}
+                        <Route
+                            path="privacy-th"
+                            element={
+                                checkPermission(Permission.manageConsentPermission) ? (
+                                    <Privacy consentSlug="privacy-th" key="th" />
+                                ) : (
+                                    <NoPermission />
+                                )
+                            }
+                        />
+                        <Route
+                            path="privacy-en"
+                            element={
+                                checkPermission(Permission.manageConsentPermission) ? (
+                                    <Privacy consentSlug="privacy-en" key="en" />
+                                ) : (
+                                    <NoPermission />
+                                )
+                            }
+                        />
                         <Route path="notFound" element={<NotFound />} />
                     </Route>
                     <Route path="*" element={<NotFound />} />
