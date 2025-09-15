@@ -26,7 +26,7 @@ import { Permission } from "../../constants/permission";
 import { usePatientStore } from "../../stores/patient";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { unixToYears } from "../../utils";
+// import { unixToYears } from "../../utils";
 
 export default function ViewPatient() {
     const { id } = useParams();
@@ -204,7 +204,7 @@ export default function ViewPatient() {
                             maxLength={15}
                         />
                     </div>
-                    <div className={styles.infoInputContainer}>
+                    {/* <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Weight</label>
                         <input
                             type="number"
@@ -233,9 +233,10 @@ export default function ViewPatient() {
                             }
                             disabled={!onEdit}
                         />
-                    </div>
+                    </div> */}
+                    {/* (age: {unixToYears(info.birthDate)} */}
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Birth Date (age: {unixToYears(info.birthDate)})</label>
+                        <label className={styles.infoLabel}>Birth Date</label>
                         <DatePicker
                             value={dayjs(info.birthDate * 1000)}
                             onChange={(v) => {

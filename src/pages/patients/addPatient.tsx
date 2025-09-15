@@ -13,7 +13,6 @@ import Loading from "../loading";
 import { usePatientStore } from "../../stores/patient";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
-import { unixToYears } from "../../utils";
 
 export default function AddPatient() {
     const navigate = useNavigate();
@@ -118,7 +117,7 @@ export default function AddPatient() {
                             maxLength={15}
                         />
                     </div>
-                    <div className={styles.infoInputContainer}>
+                    {/* <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Weight</label>
                         <input
                             type="number"
@@ -145,9 +144,9 @@ export default function AddPatient() {
                                 })
                             }
                         />
-                    </div>
+                    </div> */}
                     <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Birth Date (age: {unixToYears(info.birthDate)})</label>
+                        <label className={styles.infoLabel}>Birth Date</label>
                         <DatePicker
                             value={dayjs(info.birthDate * 1000)}
                             onChange={(v) => {
