@@ -16,11 +16,11 @@ import Loading from "../loading";
 import { GridSortModel } from "@mui/x-data-grid";
 import { CiTrash } from "react-icons/ci";
 import DeleteDialog from "../../components/deleteDialog";
-import PatientMedicineSection from "../../components/patientMedicineSection";
 import EditButton from "../../components/editButton";
 import CancelButton from "../../components/cancelButton";
 import SaveButton from "../../components/saveButton";
-import PatientVaccineHistorySection from "../../components/patientVaccineHistorySection";
+// import PatientMedicineSection from "../../components/patientMedicineSection";
+// import PatientVaccineHistorySection from "../../components/patientVaccineHistorySection";
 import { useAuthStore } from "../../stores/auth";
 import { Permission } from "../../constants/permission";
 import { usePatientStore } from "../../stores/patient";
@@ -303,8 +303,8 @@ export default function ViewPatient() {
                         </div>
                     )}
                 </form>
-                <PatientMedicineSection patient={infoRef.current ?? initialInfo} onUpdateComplete={fetch} />
-                <PatientVaccineHistorySection patient={infoRef.current ?? initialInfo} onUpdateComplete={fetch} />
+                {/* <PatientMedicineSection patient={infoRef.current ?? initialInfo} onUpdateComplete={fetch} />
+                <PatientVaccineHistorySection patient={infoRef.current ?? initialInfo} onUpdateComplete={fetch} /> */}
                 <div id="patient-appointment">
                     <div
                         style={{

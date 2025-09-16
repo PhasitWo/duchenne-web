@@ -180,8 +180,6 @@ export default function AddPatient() {
                     </div>
                     {!info.verified && (
                         <span style={{ color: "grey" }}>
-                            *with 'unverified' status, this patient is needed to complete signup process in the mobile
-                            app
                         </span>
                     )}
                     <div className={styles.infoFooter}>
