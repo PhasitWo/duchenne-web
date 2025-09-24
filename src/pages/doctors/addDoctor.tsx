@@ -21,7 +21,7 @@ const engRegex = /^[A-Za-z0-9]*$/;
 
 export default function AddDoctor() {
     const [isLoading, setIsLoading] = useState(false);
-    const [info, setInfo] = useState<Doctor>(initialInfo);
+    const [info, setInfo] = useState<Doctor & { password: string }>(initialInfo);
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [confirmPassword, setConfirmPassword] = useState("");
     const navigate = useNavigate();
@@ -220,7 +220,7 @@ export default function AddDoctor() {
     );
 }
 
-const initialInfo: Doctor = {
+const initialInfo: Doctor & { password: string } = {
     id: -1,
     firstName: "",
     middleName: "",

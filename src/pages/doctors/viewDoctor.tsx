@@ -24,7 +24,7 @@ interface PasswordCondition {
     numeric: boolean;
 }
 
-const engRegex = /^[A-Za-z0-9]*$/;
+const engRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]*$/;
 
 export default function ViewDoctor() {
     // hook
@@ -38,6 +38,8 @@ export default function ViewDoctor() {
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [confirmPassword, setConfirmPassword] = useState("");
     const [onEdit, setOnEdit] = useState(false);
+    const [onChangePassword, setOnChangePassword] = useState(false);
+    const [password, setPassword] = useState("");
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const { getDoctor, updateDoctor, deleteDoctor } = useDoctorStore();
@@ -54,13 +56,12 @@ export default function ViewDoctor() {
         if (data) {
             infoRef.current = data;
             setInfo(data);
-            setConfirmPassword(data.password);
         } else if (data === null) navigate("/notFound");
     };
 
     useEffect(() => {
-        checkConditions(info.password);
-    }, [info.password]);
+        checkConditions(password);
+    }, [password]);
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {
@@ -87,25 +88,31 @@ export default function ViewDoctor() {
             info.firstName.trim() === "" ||
             info.lastName.trim() === "" ||
             info.role.trim() === "" ||
-            info.username.trim() === "" ||
-            info.password.trim() === ""
+            info.username.trim() === ""
         ) {
             toast.error("Not enough information");
             return;
         }
-        if (!evaluate(pwdConditions)) {
-            toast.error("Bad password");
-            return;
-        }
-        if (confirmPassword !== info.password) {
-            toast.error("Mismatched password confirmation");
-            return;
-        }
-        const requestBody = {
+        const requestBody: Doctor & { password?: string } = {
             ...info,
             middleName: info.middleName === "" ? null : info.middleName,
             specialist: info.specialist === "" ? null : info.specialist,
         };
+        if (onChangePassword) {
+            if (password.trim() === "") {
+                toast.error("Password cannot be empty");
+                return;
+            }
+            if (!evaluate(pwdConditions)) {
+                toast.error("Bad password");
+                return;
+            }
+            if (confirmPassword !== password) {
+                toast.error("Mismatched password confirmation");
+                return;
+            }
+            requestBody.password = password;
+        }
         setIsLoading(true);
         const succeed = await updateDoctor(id, requestBody);
         setIsLoading(false);
@@ -119,6 +126,13 @@ export default function ViewDoctor() {
         setIsLoading(false);
         if (succeed) navigate("/doctor");
     };
+
+    useEffect(() => {
+        // reset
+        setPassword("");
+        setConfirmPassword("");
+        setOnChangePassword(false);
+    }, [onEdit]);
 
     // appointment
     const [showAppointment, setShowAppointment] = useState(false);
@@ -244,22 +258,34 @@ export default function ViewDoctor() {
                             required
                         />
                     </div>
-                    <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Password*</label>
-                        <input
-                            type={onEdit ? "text" : "password"}
-                            className={styles.infoInput}
-                            value={info.password}
-                            onChange={(e) => {
-                                if (!engRegex.test(e.target.value)) return; // english only
-                                setInfo({ ...info, password: e.target.value.trim() });
-                            }}
-                            disabled={!onEdit}
-                            required
-                        />
-                    </div>
                     {onEdit && (
+                        <div className={styles.infoInputContainer}>
+                            <label className={styles.infoLabel}>Change Password</label>
+                            <Checkbox
+                                sx={{ width: "fit-content", padding: 0 }}
+                                checked={onChangePassword}
+                                onChange={(_, v) => setOnChangePassword(v)}
+                                disabled={!onEdit}
+                            />
+                        </div>
+                    )}
+
+                    {onEdit && onChangePassword && (
                         <>
+                            <div className={styles.infoInputContainer}>
+                                <label className={styles.infoLabel}>Password*</label>
+                                <input
+                                    type="password"
+                                    className={styles.infoInput}
+                                    value={password}
+                                    onChange={(e) => {
+                                        if (!engRegex.test(e.target.value)) return; // english only
+                                        setPassword(e.target.value);
+                                    }}
+                                    disabled={!onEdit}
+                                    required
+                                />
+                            </div>
                             <div className={styles.infoInputContainer}>
                                 <div style={{ color: "grey" }}>(Password Conditions)</div>
                                 <div>
@@ -289,36 +315,38 @@ export default function ViewDoctor() {
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                 />
                             </div>
-                            <div className={styles.infoFooter}>
-                                <button
-                                    className={styles.deleteButton}
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        deleteDialogRef.current!.showModal();
-                                    }}
-                                    disabled={!checkPermission(Permission.deleteDoctorPermission)}
-                                >
-                                    <CiTrash />
-                                    <span>Delete</span>
-                                </button>
-                                <div className={styles.infoCancelSaveContainer}>
-                                    <button
-                                        className={styles.outlinedButton}
-                                        onClick={() => {
-                                            setOnEdit(false);
-                                            setInfo(infoRef.current as Doctor);
-                                        }}
-                                    >
-                                        <ImCancelCircle />
-                                        <span>Cancel</span>
-                                    </button>
-                                    <button className={styles.button} onClick={handleSave}>
-                                        <IoSaveOutline />
-                                        <span>Save</span>
-                                    </button>
-                                </div>
-                            </div>
                         </>
+                    )}
+                    {onEdit && (
+                        <div className={styles.infoFooter}>
+                            <button
+                                className={styles.deleteButton}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    deleteDialogRef.current!.showModal();
+                                }}
+                                disabled={!checkPermission(Permission.deleteDoctorPermission)}
+                            >
+                                <CiTrash />
+                                <span>Delete</span>
+                            </button>
+                            <div className={styles.infoCancelSaveContainer}>
+                                <button
+                                    className={styles.outlinedButton}
+                                    onClick={() => {
+                                        setOnEdit(false);
+                                        setInfo(infoRef.current as Doctor);
+                                    }}
+                                >
+                                    <ImCancelCircle />
+                                    <span>Cancel</span>
+                                </button>
+                                <button className={styles.button} onClick={handleSave}>
+                                    <IoSaveOutline />
+                                    <span>Save</span>
+                                </button>
+                            </div>
+                        </div>
                     )}
                 </form>
                 <div id="doctor-appointment">
@@ -369,7 +397,6 @@ const initialInfo: Doctor = {
     lastName: "-",
     role: "user",
     username: "-",
-    password: "-",
     specialist: null,
     canBeAppointed: true,
 };
