@@ -19,7 +19,7 @@ interface PasswordCondition {
     numeric: boolean;
 }
 
-const engRegex = /^[A-Za-z0-9]*$/;
+const engRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]*$/;
 
 export default function Profile() {
     // hook
@@ -28,29 +28,12 @@ export default function Profile() {
     const [isLoading, setIsLoading] = useState(true);
     const infoRef = useRef<Doctor>(); // save prevState on editing
     const [info, setInfo] = useState<Doctor>(initialInfo);
-    const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
+    const [onChangePassword, setOnChangePassword] = useState(false);
+    const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [onEdit, setOnEdit] = useState(false);
     const { getProfile, updateProfile } = useDoctorStore();
-
-    const fetch = useCallback(async () => {
-        setIsLoading(true);
-        const profile = await getProfile();
-        setIsLoading(false);
-        if (profile) {
-            infoRef.current = profile;
-            setInfo(profile);
-            setConfirmPassword(profile.password);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetch();
-    }, []);
-
-    useEffect(() => {
-        checkConditions(info.password);
-    }, [info.password]);
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {
@@ -74,30 +57,62 @@ export default function Profile() {
             info.firstName.trim() === "" ||
             info.lastName.trim() === "" ||
             info.role.trim() === "" ||
-            info.username.trim() === "" ||
-            info.password.trim() === ""
+            info.username.trim() === ""
         ) {
             toast.error("Not enough information");
             return;
         }
-        if (!evaluate(pwdConditions)) {
-            toast.error("Bad password");
-            return;
-        }
-        if (confirmPassword !== info.password) {
-            toast.error("Mismatched password confirmation");
-            return;
-        }
-        const requestBody = {
+        const requestBody: Doctor & { password?: string } = {
             ...info,
             middleName: info.middleName === "" ? null : info.middleName,
             specialist: info.specialist === "" ? null : info.specialist,
         };
+        if (onChangePassword) {
+            if (password.trim() === "") {
+                toast.error("Password cannot be empty");
+                return;
+            }
+            if (!evaluate(pwdConditions)) {
+                toast.error("Bad password");
+                return;
+            }
+            if (confirmPassword !== password) {
+                toast.error("Mismatched password confirmation");
+                return;
+            }
+            requestBody.password = password;
+        }
         setIsLoading(true);
         const succeed = await updateProfile(requestBody);
         setIsLoading(false);
         if (succeed) navigate("/reload");
     };
+
+    const fetch = useCallback(async () => {
+        setIsLoading(true);
+        const profile = await getProfile();
+        setIsLoading(false);
+        if (profile) {
+            infoRef.current = profile;
+            setInfo(profile);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetch();
+    }, []);
+
+    useEffect(() => {
+        checkConditions(password);
+    }, [password]);
+
+    useEffect(() => {
+        // reset
+        setPassword("");
+        setConfirmPassword("");
+        setOnChangePassword(false);
+    }, [onEdit]);
+    
     if (isLoading) return <Loading />;
     return (
         <>
@@ -189,21 +204,32 @@ export default function Profile() {
                             disabled={!onEdit}
                         />
                     </div>
-                    <div className={styles.infoInputContainer}>
-                        <label className={styles.infoLabel}>Password*</label>
-                        <input
-                            type={onEdit ? "text" : "password"}
-                            className={styles.infoInput}
-                            value={info.password}
-                            onChange={(e) => {
-                                if (!engRegex.test(e.target.value)) return; // english only
-                                setInfo({ ...info, password: e.target.value.trim() });
-                            }}
-                            disabled={!onEdit}
-                        />
-                    </div>
                     {onEdit && (
+                        <div className={styles.infoInputContainer}>
+                            <label className={styles.infoLabel}>Change Password</label>
+                            <Checkbox
+                                sx={{ width: "fit-content", padding: 0 }}
+                                checked={onChangePassword}
+                                onChange={(_, v) => setOnChangePassword(v)}
+                                disabled={!onEdit}
+                            />
+                        </div>
+                    )}
+                    {onEdit && onChangePassword && (
                         <>
+                            <div className={styles.infoInputContainer}>
+                                <label className={styles.infoLabel}>Password*</label>
+                                <input
+                                    type={onEdit ? "text" : "password"}
+                                    className={styles.infoInput}
+                                    value={password}
+                                    onChange={(e) => {
+                                        if (!engRegex.test(e.target.value)) return; // english only
+                                        setPassword(e.target.value.trim());
+                                    }}
+                                    disabled={!onEdit}
+                                />
+                            </div>
                             <div className={styles.infoInputContainer}>
                                 <div style={{ color: "grey" }}>(Password Conditions)</div>
                                 <div>
@@ -233,7 +259,13 @@ export default function Profile() {
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                 />
                             </div>
-                            <div className={styles.infoFooter}>
+                        </>
+                    )}
+
+                    {onEdit && (
+                        <div className={styles.infoFooter}>
+                            <div></div>
+                            <div className={styles.infoCancelSaveContainer}>
                                 <button
                                     className={styles.outlinedButton}
                                     onClick={() => {
@@ -249,7 +281,7 @@ export default function Profile() {
                                     <span>Save</span>
                                 </button>
                             </div>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
@@ -264,7 +296,6 @@ const initialInfo: Doctor = {
     lastName: "-",
     role: "user",
     username: "-",
-    password: "-",
     specialist: null,
     canBeAppointed: true,
 };
