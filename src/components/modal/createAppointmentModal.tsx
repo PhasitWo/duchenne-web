@@ -20,7 +20,7 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
     const { open, setOpen, onComplete } = props;
     const formRef = useRef<HTMLFormElement>(null);
     const [appointmentDate, setAppointmentDate] = useState(dayjs());
-    const [approve, setApprove] = useState(false);
+    const [approve, setApprove] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const { createAppointment } = useAppointmentStore();
     const { listDoctors } = useDoctorStore();
@@ -94,6 +94,20 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
                         <h1 style={{ textAlign: "center" }}>Create Appointment</h1>
                         <form ref={formRef}>
                             <div style={style.inputContainer}>
+                                <DateTimePicker
+                                    label="Date"
+                                    value={appointmentDate}
+                                    onChange={(v) => {
+                                        if (v) setAppointmentDate(v);
+                                    }}
+                                    slotProps={{ textField: { size: "small", fullWidth: true } }}
+                                    sx={{
+                                        "& .MuiInputBase-root": { fontSize: "0.8rem" },
+                                    }}
+                                    minDate={dayjs()}
+                                    ampm={false}
+                                    format="DD/MM/YYYY HH:mm"
+                                />
                                 <Autocomplete
                                     sx={{
                                         "& .MuiInputBase-root": { fontSize: "0.9rem" },
@@ -147,20 +161,6 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
                                             required
                                         />
                                     )}
-                                />
-                                <DateTimePicker
-                                    label="Date"
-                                    value={appointmentDate}
-                                    onChange={(v) => {
-                                        if (v) setAppointmentDate(v);
-                                    }}
-                                    slotProps={{ textField: { size: "small", fullWidth: true } }}
-                                    sx={{
-                                        "& .MuiInputBase-root": { fontSize: "0.8rem" },
-                                    }}
-                                    minDate={dayjs()}
-                                    ampm={false}
-                                    format="DD/MM/YYYY HH:mm"
                                 />
                                 <div>
                                     <Checkbox checked={approve} onChange={(_, value) => setApprove(value)} />
