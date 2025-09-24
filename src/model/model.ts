@@ -17,7 +17,6 @@ export interface Doctor {
     middleName: string | null;
     lastName: string;
     username: string;
-    password: string;
     specialist: string | null;
     role: string;
     canBeAppointed: boolean;
