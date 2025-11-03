@@ -7,9 +7,9 @@ import { IoSaveOutline } from "react-icons/io5";
 import { ImCancelCircle } from "react-icons/im";
 import { CiTrash } from "react-icons/ci";
 import GoBack from "../../components/goback";
-import { Content } from "../../model/model";
+import { Content, ContentType } from "../../model/model";
 import Loading from "../loading";
-import { Checkbox } from "@mui/material";
+import { Checkbox, MenuItem, Select } from "@mui/material";
 import DeleteDialog from "../../components/deleteDialog";
 import "react-quill/dist/quill.snow.css";
 import Editor from "../../components/editor";
@@ -151,6 +151,19 @@ export default function ViewContent({ createMode = false }) {
                         </div>
                     )}
                     <div className={styles.infoInputContainer}>
+                        <label className={styles.infoLabel}>Type</label>
+                        <Select
+                            value={info.contentType}
+                            onChange={(e) => setInfo({ ...info, contentType: e.target.value as ContentType })}
+                            size="small"
+                            required
+                            disabled={!createMode}
+                        >
+                            <MenuItem value="article">Article</MenuItem>
+                            <MenuItem value="link">Link</MenuItem>
+                        </Select>
+                    </div>
+                    <div className={styles.infoInputContainer}>
                         <label className={styles.infoLabel}>Title</label>
                         <input
                             type="text"
@@ -235,14 +248,30 @@ export default function ViewContent({ createMode = false }) {
                             <div style={{ fontWeight: "bold" }}>{info.title}</div>
                         </div>
                     </div>
-                    <div style={{ padding: "20px 0 20px 0" }}>
-                        <Editor
-                            value={info.body}
-                            onChange={(v) => setInfo({ ...info, body: v })}
-                            readonly={(!createMode && !onEdit) || isUploading}
-                            uploadImageFunc={handleUploadImage}
-                        />
-                    </div>
+                    {info.contentType === "article" && (
+                        <div style={{ padding: "20px 0 20px 0" }}>
+                            <Editor
+                                value={info.body}
+                                onChange={(v) => setInfo({ ...info, body: v })}
+                                readonly={(!createMode && !onEdit) || isUploading}
+                                uploadImageFunc={handleUploadImage}
+                            />
+                        </div>
+                    )}
+                    {info.contentType === "link" && (
+                        <div className={styles.infoInputContainer} style={{ marginTop: "20px" }}>
+                            <label className={styles.infoLabel}>URL</label>
+                            <input
+                                type="text"
+                                className={styles.infoInput}
+                                value={info.body}
+                                onChange={(e) => setInfo({ ...info, body: e.target.value })}
+                                disabled={!createMode && !onEdit}
+                                required
+                                placeholder="ex. https://youtu.be/jNQXAC9IVRw?si=7PCE0kmSRbUw2a64"
+                            />
+                        </div>
+                    )}
                     <div className={styles.infoFooter}>
                         {onEdit && (
                             <>
@@ -298,4 +327,5 @@ const initialInfo: Content = {
     isPublished: false,
     order: 1,
     coverImageURL: null,
+    contentType: "article",
 };
