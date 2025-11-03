@@ -85,7 +85,7 @@ export interface Question {
     patient: Patient;
     doctor: Omit<TrimDoctor, "role"> | null;
 }
-
+export type ContentType = "article" | "link"
 export interface Content {
     id: number;
     createAt: number;
@@ -95,6 +95,7 @@ export interface Content {
     isPublished: boolean;
     order: number;
     coverImageURL: string | null;
+    contentType: ContentType
 }
 
 export interface Consent {

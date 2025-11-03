@@ -20,7 +20,11 @@ const columns: GridColDef<Content>[] = [
             </NavLink>
         ),
     },
-
+    {
+        field: "contentType",
+        headerName: "Type",
+        flex: 2,
+    },
     {
         field: "createAt",
         headerName: "Create At",

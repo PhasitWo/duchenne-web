@@ -112,4 +112,5 @@ const initialInfo: Content = {
     isPublished: false,
     order: 1,
     coverImageURL: null,
+    contentType: "article"
 };
