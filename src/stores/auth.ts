@@ -5,6 +5,8 @@ import { AxiosError } from "axios";
 import { ErrResponse } from "../model/model";
 import { toast } from "react-toastify";
 import { type NavigateFunction } from "react-router-dom";
+import Cookies from "js-cookie";
+import { AuthCookie } from "../constants";
 
 type State = {
     authState: AuthState;
@@ -67,7 +69,7 @@ export const useAuthStore = create<State & Action>((set, get) => ({
     },
     login: async (username, password, navigateFunc) => {
         try {
-            const response = await api.post("/auth/login", {
+            const response = await api.post<{ token: string }>("/auth/login", {
                 username: username,
                 password: password,
             });
@@ -75,6 +77,7 @@ export const useAuthStore = create<State & Action>((set, get) => ({
                 case 200:
                     get().loginDispatch(navigateFunc);
                     get().fetchUserData();
+                    Cookies.set(AuthCookie.ACCESS_TOKEN, response.data.token);
                     toast.success("Login successfully");
                     break;
                 case 401:
@@ -89,12 +92,8 @@ export const useAuthStore = create<State & Action>((set, get) => ({
         }
     },
     logout: async (navigateFunc) => {
-        const response = await api.post("/auth/logout");
-        if (response.status !== 200) {
-            toast.error("Cannot logout");
-        } else {
-            get().logoutDispatch(navigateFunc);
-        }
+        Cookies.remove(AuthCookie.ACCESS_TOKEN);
+        get().logoutDispatch(navigateFunc);
     },
     loginDispatch: (navigateFunc, skipNavigate = false) => {
         set(() => ({ authState: { isLoading: false, isSignin: true } }));
