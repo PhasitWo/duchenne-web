@@ -26,7 +26,11 @@ import Privacy from "./pages/consents/privacy.tsx";
 import NoPermission from "./pages/noPermission.tsx";
 
 export default function App() {
-    const { authState, checkPermission, fetchUserData, loginDispatch, logoutDispatch } = useAuthStore();
+    const authState = useAuthStore((state) => state.authState);
+    const checkPermission = useAuthStore((state) => state.checkPermission);
+    const fetchUserData = useAuthStore((state) => state.fetchUserData);
+    const loginDispatch = useAuthStore((state) => state.loginDispatch);
+    const logoutDispatch = useAuthStore((state) => state.logoutDispatch);
     const navigate = useNavigate();
 
     const checkAuthState = useCallback(async () => {

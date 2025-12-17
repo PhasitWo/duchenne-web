@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Header({ children }: PropsWithChildren) {
     const navigate = useNavigate();
-    const { userData, logout } = useAuthStore();
+    const userData = useAuthStore((state) => state.userData);
+    const logout = useAuthStore((state) => state.logout);
 
     const handleLogout = async () => {
         await logout(navigate);

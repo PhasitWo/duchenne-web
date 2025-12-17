@@ -30,7 +30,7 @@ import dayjs from "dayjs";
 
 export default function ViewPatient() {
     const { id } = useParams();
-    const { checkPermission } = useAuthStore();
+    const checkPermission = useAuthStore((state) => state.checkPermission);
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const [info, setInfo] = useState<Patient>(initialInfo);
@@ -38,7 +38,9 @@ export default function ViewPatient() {
     const formRef = useRef<HTMLFormElement>(null);
     const [onEdit, setOnEdit] = useState(false);
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
-    const { getPatient, updatePatientGeneralInfo, deletePatient } = usePatientStore();
+    const getPatient = usePatientStore((state) => state.getPatient);
+    const updatePatientGeneralInfo = usePatientStore((state) => state.updatePatientGeneralInfo);
+    const deletePatient = usePatientStore((state) => state.deletePatient);
 
     useEffect(() => {
         fetch();

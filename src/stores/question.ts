@@ -23,22 +23,21 @@ type ListQuestionsResponse = {
 };
 
 export const useQuestionStore = create<Action>(() => ({
-    listQuestions: async (params) => {
+    listQuestions: async ({ limit, offset, type, doctorId, patientId }) => {
         let result: ListQuestionsResponse = { data: [], hasNextPage: false };
         try {
-            let res = await api.get<QuestionTopic[]>(
-                attachQueryParams(
-                    "/api/question",
-                    params.limit + 1,
-                    params.offset,
-                    params.type,
-                    params.doctorId,
-                    params.patientId
-                )
-            );
+            let res = await api.get<QuestionTopic[]>("/api/question", {
+                params: {
+                    limit: limit + 1,
+                    offset,
+                    type,
+                    doctorId,
+                    patientId,
+                },
+            });
             switch (res.status) {
                 case 200:
-                    if (res.data.length == params.limit + 1) {
+                    if (res.data.length == limit + 1) {
                         res.data.pop();
                         result.hasNextPage = true;
                     } else {
@@ -89,21 +88,3 @@ export const useQuestionStore = create<Action>(() => ({
         }
     },
 }));
-
-// helper
-const attachQueryParams = (
-    url: string,
-    limit: number,
-    offset: number,
-    type: string,
-    doctorId?: number,
-    patientId?: number
-) => {
-    url +=
-        `?type=${type}` +
-        (doctorId ? `&doctorId=${doctorId}` : "") +
-        (patientId ? `&patientId=${patientId}` : "") +
-        `&limit=${limit}` +
-        `&offset=${offset}`;
-    return url;
-};

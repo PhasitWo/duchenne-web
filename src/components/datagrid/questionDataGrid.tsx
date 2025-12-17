@@ -86,7 +86,7 @@ export default function QuestionDataGrid({
     });
     const [hasNextPage, setHasNextPage] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const { listQuestions } = useQuestionStore();
+    const listQuestions = useQuestionStore((state) => state.listQuestions);
 
     const handlePaginationModelChange = async (model: GridPaginationModel) => {
         await fetch(model.pageSize, model.page * model.pageSize);

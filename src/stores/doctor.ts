@@ -7,7 +7,7 @@ type Action = {
     getProfile: () => Promise<Doctor | undefined>;
     updateProfile: (doctorInfo: Doctor) => Promise<boolean | undefined>;
     createDoctor: (data: Doctor) => Promise<number | undefined>;
-    listDoctors: (limit: number, offset: number) => Promise<ListDoctorsResponse>;
+    listDoctors: (limit: number, offset: number, filter?: { canBeAppointed?: boolean }) => Promise<ListDoctorsResponse>;
     getDoctor: (id: string | number) => Promise<Doctor | null | undefined>;
     updateDoctor: (id: string | number, data: Doctor) => Promise<boolean>;
     deleteDoctor: (id: string | number) => Promise<boolean>;
@@ -69,10 +69,12 @@ export const useDoctorStore = create<Action>(() => ({
             handleError(err);
         }
     },
-    listDoctors: async (limit, offset) => {
+    listDoctors: async (limit, offset, filter) => {
         let result: ListDoctorsResponse = { data: [], hasNextPage: false };
         try {
-            let res = await api.get<TrimDoctor[]>(attachQueryParams("/api/doctor", limit + 1, offset));
+            let res = await api.get<TrimDoctor[]>("/api/doctor", {
+                params: { limit: limit + 1, offset, canBeAppointed: filter?.canBeAppointed },
+            });
             switch (res.status) {
                 case 200:
                     if (res.data.length == limit + 1) {
@@ -148,9 +150,3 @@ export const useDoctorStore = create<Action>(() => ({
         }
     },
 }));
-
-// helper
-const attachQueryParams = (url: string, limit: number, offset: number) => {
-    url += `?limit=${limit}` + `&offset=${offset}`;
-    return url;
-};

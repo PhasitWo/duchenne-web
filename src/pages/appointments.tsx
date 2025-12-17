@@ -16,7 +16,7 @@ type AppointmentOwner = "myappointment" | "allappointment";
 export default function Appointments() {
     const [apmtOwner, setApmntOwner] = useState<AppointmentOwner>("allappointment");
     const [apmtType, setApmntType] = useState<AppointmentType>("incoming");
-    const { userData } = useAuthStore();
+    const userData = useAuthStore((state) => state.userData);
     const [openCreate, setOpenCreate] = useState(false);
     const navigate = useNavigate();
 

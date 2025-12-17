@@ -29,7 +29,7 @@ const engRegex = /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]*$/;
 export default function ViewDoctor() {
     // hook
     const { id } = useParams();
-    const { checkPermission } = useAuthStore();
+    const checkPermission = useAuthStore((state) => state.checkPermission);
     const navigate = useNavigate();
     // state
     const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +42,9 @@ export default function ViewDoctor() {
     const [password, setPassword] = useState("");
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
-    const { getDoctor, updateDoctor, deleteDoctor } = useDoctorStore();
+    const getDoctor = useDoctorStore((state) => state.getDoctor);
+    const updateDoctor = useDoctorStore((state) => state.updateDoctor);
+    const deleteDoctor = useDoctorStore((state) => state.deleteDoctor);
 
     useEffect(() => {
         fetch();

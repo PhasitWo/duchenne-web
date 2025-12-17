@@ -56,7 +56,7 @@ export default function PatientDataGrid({
     });
     const [hasNextPage, setHasNextPage] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-     const { listPatients } = usePatientStore();
+    const listPatients = usePatientStore((state) => state.listPatients);
 
     useEffect(() => {
         fetch(paginationModel.pageSize, 0);
@@ -65,7 +65,7 @@ export default function PatientDataGrid({
     useEffect(() => {
         let result: Patient[] = [];
         if (!localSearch) {
-            setRows(initialRows.current)
+            setRows(initialRows.current);
             return;
         }
         try {

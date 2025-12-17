@@ -19,7 +19,7 @@ export default function AddPatient() {
     const [isLoading, setIsLoading] = useState(false);
     const [info, setInfo] = useState<Patient>(initialInfo);
     const formRef = useRef<HTMLFormElement>(null);
-    const { createPatient } = usePatientStore();
+    const createPatient = usePatientStore((state) => state.createPatient);
 
     const handleSave = async (e: FormEvent) => {
         e.preventDefault();
@@ -178,10 +178,7 @@ export default function AddPatient() {
                             </Select>
                         </div>
                     </div>
-                    {!info.verified && (
-                        <span style={{ color: "grey" }}>
-                        </span>
-                    )}
+                    {!info.verified && <span style={{ color: "grey" }}></span>}
                     <div className={styles.infoFooter}>
                         <button className={styles.button} onClick={handleSave}>
                             <IoSaveOutline />

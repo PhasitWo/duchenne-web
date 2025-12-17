@@ -26,7 +26,7 @@ export default function AddDoctor() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const navigate = useNavigate();
     const formRef = useRef<HTMLFormElement>(null);
-    const { createDoctor } = useDoctorStore();
+    const createDoctor = useDoctorStore((state) => state.createDoctor);
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {

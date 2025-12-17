@@ -33,7 +33,8 @@ export default function AppointmentDataGrid({
     const [isLoading, setIsLoading] = useState(true);
     const [toEditAppointment, setToEditAppointment] = useState<Appointment | null>(null);
     const [openEdit, setOpenEdit] = useState(false);
-    const { listAppointments, updateAppointment } = useAppointmentStore();
+    const listAppointments = useAppointmentStore((state) => state.listAppointments);
+    const updateAppointment = useAppointmentStore((state) => state.updateAppointment);
 
     const handlePaginationModelChange = async (model: GridPaginationModel) => {
         await fetch(model.pageSize, model.page * model.pageSize);

@@ -36,7 +36,7 @@ export const useContentStore = create<Action>(() => ({
     listContents: async (limit, offset) => {
         let result: ListContentsResponse = { data: [], hasNextPage: false };
         try {
-            let res = await api.get<Content[]>(attachQueryParams("/api/content", limit + 1, offset));
+            let res = await api.get<Content[]>("/api/content", { params: { limit: limit + 1, offset } });
             switch (res.status) {
                 case 200:
                     if (res.data.length == limit + 1) {
@@ -130,9 +130,3 @@ export const useContentStore = create<Action>(() => ({
         }
     },
 }));
-
-// helper
-const attachQueryParams = (url: string, limit: number, offset: number) => {
-    url += `?limit=${limit}` + `&offset=${offset}`;
-    return url;
-};

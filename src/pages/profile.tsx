@@ -33,7 +33,8 @@ export default function Profile() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [pwdConditions, setPwdConditions] = useState<PasswordCondition>(initialPwdCondition);
     const [onEdit, setOnEdit] = useState(false);
-    const { getProfile, updateProfile } = useDoctorStore();
+    const getProfile = useDoctorStore((state) => state.getProfile);
+    const updateProfile = useDoctorStore((state) => state.updateProfile);
 
     const checkConditions = (password: string) => {
         if (password.length === 0) {
@@ -112,7 +113,7 @@ export default function Profile() {
         setConfirmPassword("");
         setOnChangePassword(false);
     }, [onEdit]);
-    
+
     if (isLoading) return <Loading />;
     return (
         <>

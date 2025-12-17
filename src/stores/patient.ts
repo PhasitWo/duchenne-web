@@ -41,7 +41,12 @@ export const usePatientStore = create<Action>(() => ({
     listPatients: async (limit, offset) => {
         let result: ListPatientsResponse = { data: [], hasNextPage: false };
         try {
-            let res = await api.get<Patient[]>(attachQueryParams("/api/patient", limit + 1, offset));
+            let res = await api.get<Patient[]>("/api/patient", {
+                params: {
+                    limit: limit + 1,
+                    offset,
+                },
+            });
             switch (res.status) {
                 case 200:
                     if (res.data.length == limit + 1) {
@@ -157,9 +162,3 @@ export const usePatientStore = create<Action>(() => ({
         }
     },
 }));
-
-// helper
-const attachQueryParams = (url: string, limit: number, offset: number) => {
-    url += `?limit=${limit}` + `&offset=${offset}`;
-    return url;
-};
