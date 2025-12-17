@@ -70,7 +70,7 @@ export default function ContentDataGrid({ ...rest }: Omit<DataGridProps, "column
     });
     const [hasNextPage, setHasNextPage] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const { listContents } = useContentStore();
+    const listContents = useContentStore((state) => state.listContents);
 
     useEffect(() => {
         fetch(paginationModel.pageSize, 0);

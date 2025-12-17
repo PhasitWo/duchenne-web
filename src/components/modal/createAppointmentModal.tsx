@@ -22,9 +22,9 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
     const [appointmentDate, setAppointmentDate] = useState(dayjs());
     const [approve, setApprove] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const { createAppointment } = useAppointmentStore();
-    const { listDoctors } = useDoctorStore();
-    const { listPatients } = usePatientStore();
+    const createAppointment = useAppointmentStore((state) => state.createAppointment);
+    const listDoctors = useDoctorStore((state) => state.listDoctors);
+    const listPatients = usePatientStore((state) => state.listPatients);
 
     // onmount
     useEffect(() => {
@@ -67,7 +67,7 @@ export default function CreateAppointmentModal(props: CreateAppointmentModalProp
 
     const fetchDoctors = async () => {
         setDoctorLoading(true);
-        const res = await listDoctors(100, 0);
+        const res = await listDoctors(100, 0, { canBeAppointed: true });
         setDoctorList(res.data);
         setDoctorLoading(false);
     };

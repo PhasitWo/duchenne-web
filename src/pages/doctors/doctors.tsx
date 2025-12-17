@@ -8,10 +8,9 @@ import { useAuthStore } from "../../stores/auth";
 import { Permission } from "../../constants/permission";
 import DoctorDataGrid from "../../components/datagrid/doctorDataGrid";
 
-
 export default function Doctors() {
     const navigate = useNavigate();
-    const { checkPermission } = useAuthStore();
+    const checkPermission = useAuthStore((state) => state.checkPermission);
     const [searchText, setSearchText] = useState("");
 
     return (
@@ -38,7 +37,7 @@ export default function Doctors() {
                             disabled={!checkPermission(Permission.createDoctorPermission)}
                         />
                     </div>
-                    <DoctorDataGrid localSearch={searchText}/>
+                    <DoctorDataGrid localSearch={searchText} />
                 </div>
             </div>
         </>

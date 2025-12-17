@@ -20,12 +20,12 @@ export default function PatientVaccineHistorySection({
     onUpdateComplete: Function;
 }) {
     const [isLoading, setIsLoading] = useState(false);
-    const { checkPermission } = useAuthStore();
+    const checkPermission = useAuthStore((state) => state.checkPermission);
     const vaccineHistoryRef = useRef<ExtendedVaccineHistory[]>([]); // save prevState on editing
     const [vaccineHistory, setVaccineHistory] = useState<ExtendedVaccineHistory[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const [onEdit, setOnEdit] = useState(false);
-    const { updatePateintVaccineHistory } = usePatientStore();
+    const updatePateintVaccineHistory = usePatientStore((state) => state.updatePateintVaccineHistory);
 
     useEffect(() => {
         if (patient.vaccineHistory) {

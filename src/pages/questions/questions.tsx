@@ -15,7 +15,7 @@ export default function Questions() {
     const [questionOwner, setQuestionOwner] = useState<QuestionOwner>("allquestion");
     const [questionType, setQuestionType] = useState<QuestionType>("unreplied");
     const [sortModel, setSortModel] = useState<GridSortModel>(sortCreateAtModel);
-    const { userData } = useAuthStore();
+    const userData = useAuthStore((state) => state.userData);
 
     const handleQuestionOwnerChange = (e: SelectChangeEvent) => {
         if ((e.target.value as QuestionOwner) === "myquestion") {

@@ -45,7 +45,7 @@ export default function DoctorDataGrid({
     });
     const [hasNextPage, setHasNextPage] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const { listDoctors } = useDoctorStore();
+    const listDoctors = useDoctorStore((state) => state.listDoctors);
 
     useEffect(() => {
         fetch(paginationModel.pageSize, 0);
@@ -54,7 +54,7 @@ export default function DoctorDataGrid({
     useEffect(() => {
         let result: TrimDoctor[] = [];
         if (!localSearch) {
-            setRows(initialRows.current)
+            setRows(initialRows.current);
             return;
         }
         try {

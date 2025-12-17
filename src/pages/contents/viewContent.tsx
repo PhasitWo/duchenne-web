@@ -28,7 +28,11 @@ export default function ViewContent({ createMode = false }) {
     const [onEdit, setOnEdit] = useState(false);
     const deleteDialogRef = useRef<HTMLDialogElement>(null);
     const formRef = useRef<HTMLFormElement>(null);
-    const { uploadImage, getContent, updateContent, deleteContent, createContent } = useContentStore();
+    const uploadImage = useContentStore((state) => state.uploadImage);
+    const getContent = useContentStore((state) => state.getContent);
+    const updateContent = useContentStore((state) => state.updateContent);
+    const deleteContent = useContentStore((state) => state.deleteContent);
+    const createContent = useContentStore((state) => state.createContent);
     // cover image
     const [useCover, setUseCover] = useState(false);
     const inputCoverRef = useRef<HTMLInputElement>(null);

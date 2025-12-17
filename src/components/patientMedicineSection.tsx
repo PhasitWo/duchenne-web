@@ -19,12 +19,12 @@ export default function PatientMedicineSection({
     onUpdateComplete: Function;
 }) {
     const [isLoading, setIsLoading] = useState(false);
-    const { checkPermission } = useAuthStore();
+    const checkPermission = useAuthStore((state) => state.checkPermission);
     const medicinesRef = useRef<ExtendedMedicine[]>([]); // save prevState on editing
     const [medicines, setMedicines] = useState<ExtendedMedicine[]>([]);
     const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
     const [onEdit, setOnEdit] = useState(false);
-    const { updatePatientMedicine } = usePatientStore();
+    const updatePatientMedicine = usePatientStore((state) => state.updatePatientMedicine);
 
     useEffect(() => {
         if (patient.medicine) {

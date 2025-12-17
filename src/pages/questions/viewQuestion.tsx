@@ -16,7 +16,8 @@ export default function ViewQuestion() {
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState<Question | null>(null);
     const [reply, setReply] = useState("");
-    const { getQuestion, answerQuestion } = useQuestionStore();
+    const getQuestion = useQuestionStore((state) => state.getQuestion);
+    const answerQuestion = useQuestionStore((state) => state.answerQuestion);
 
     useEffect(() => {
         fetch();

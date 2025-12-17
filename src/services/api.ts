@@ -35,6 +35,10 @@ instance.interceptors.response.use((res) => {
 
 export const handleError = (err: unknown) => {
     if (err instanceof AxiosError) {
+        if (axios.isCancel(err)) {
+            // silently ignore cancellations
+            return;
+        }
         let error = err as AxiosError<ErrResponse>;
         toast.error(error.response?.data.error);
     } else toast.error(`Fatal Error: ${err}`);

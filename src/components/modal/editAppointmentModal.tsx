@@ -23,9 +23,10 @@ export default function EditAppointmentModal({ open, setOpen, onComplete, initia
     const [appointmentDate, setAppointmentDate] = useState(dayjs());
     const [approve, setApprove] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const { listDoctors } = useDoctorStore();
-    const { listPatients } = usePatientStore();
-    const { updateAppointment, deleteAppointment } = useAppointmentStore();
+    const listDoctors = useDoctorStore((state) => state.listDoctors);
+    const listPatients = usePatientStore((state) => state.listPatients);
+    const updateAppointment = useAppointmentStore((state) => state.updateAppointment);
+    const deleteAppointment = useAppointmentStore((state) => state.deleteAppointment);
 
     useEffect(() => {
         if (initialData) {
@@ -51,7 +52,7 @@ export default function EditAppointmentModal({ open, setOpen, onComplete, initia
 
     const fetchDoctors = async () => {
         setDoctorLoading(true);
-        const res = await listDoctors(100, 0);
+        const res = await listDoctors(100, 0, { canBeAppointed: true });
         setDoctorList(res.data);
         setDoctorLoading(false);
     };

@@ -24,7 +24,8 @@ export default function Privacy({ consentSlug }: { consentSlug: string }) {
     const [info, setInfo] = useState<Consent>({ ...initialInfo, slug: consentSlug });
     const [onEdit, setOnEdit] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
-    const { getConsentBySlug, upsertConsent } = useConsentStore();
+    const getConsentBySlug = useConsentStore((state) => state.getConsentBySlug);
+    const upsertConsent = useConsentStore((state) => state.upsertConsent);
     const uploadImage = useContentStore((state) => state.uploadImage);
 
     useEffect(() => {
