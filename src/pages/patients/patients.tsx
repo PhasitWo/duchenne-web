@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AddButton from "../../components/addButton";
 import PatientDataGrid from "../../components/datagrid/patientDataGrid";
+import { useDebounce } from "../../hooks/useDebounce";
 
 export default function Patients() {
     const navigate = useNavigate();
     const [searchText, setSearchText] = useState("");
+    const debouncedSearchText = useDebounce(searchText, 1000);
 
     return (
         <>
@@ -34,7 +36,7 @@ export default function Patients() {
                             disabled={true} // deprecate
                         />
                     </div>
-                    <PatientDataGrid localSearch={searchText} />
+                    <PatientDataGrid search={debouncedSearchText} />
                 </div>
             </div>
         </>

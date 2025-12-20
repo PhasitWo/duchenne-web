@@ -1,12 +1,12 @@
-import { create } from "zustand";
 import { Patient, VaccineHistory } from "../model/model";
 import api, { handleError } from "../services/api";
 import { ExtendedMedicine } from "../components/datagrid/medicineDataGrid";
 import { toast } from "react-toastify";
+import { createWithBaseController } from "./controller";
 
 type Action = {
     createPatient: (data: Patient) => Promise<number | undefined>;
-    listPatients: (limit: number, offset: number) => Promise<ListPatientsResponse>;
+    listPatients: (limit: number, offset: number, filter?: { search?: string }) => Promise<ListPatientsResponse>;
     getPatient: (id: string | number) => Promise<Patient | null | undefined>;
     updatePatientGeneralInfo: (id: string | number, data: Patient) => Promise<boolean>;
     updatePatientMedicine: (patientId: string | number, data: ExtendedMedicine[]) => Promise<boolean>;
@@ -19,7 +19,7 @@ type ListPatientsResponse = {
     hasNextPage: boolean;
 };
 
-export const usePatientStore = create<Action>(() => ({
+export const usePatientStore = createWithBaseController<Action>((_, get) => ({
     createPatient: async (data) => {
         try {
             const res = await api.post<{ id: number }>("/api/patient", data);
@@ -38,14 +38,17 @@ export const usePatientStore = create<Action>(() => ({
             handleError(err);
         }
     },
-    listPatients: async (limit, offset) => {
+    listPatients: async (limit, offset, filter) => {
+        const controller = get().getNewController();
         let result: ListPatientsResponse = { data: [], hasNextPage: false };
         try {
             let res = await api.get<Patient[]>("/api/patient", {
                 params: {
                     limit: limit + 1,
                     offset,
+                    search: filter?.search,
                 },
+                signal: controller.signal,
             });
             switch (res.status) {
                 case 200:

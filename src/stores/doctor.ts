@@ -1,13 +1,17 @@
-import { create } from "zustand";
 import { Doctor, TrimDoctor } from "../model/model";
 import api, { handleError } from "../services/api";
 import { toast } from "react-toastify";
+import { createWithBaseController } from "./controller";
 
 type Action = {
     getProfile: () => Promise<Doctor | undefined>;
     updateProfile: (doctorInfo: Doctor) => Promise<boolean | undefined>;
     createDoctor: (data: Doctor) => Promise<number | undefined>;
-    listDoctors: (limit: number, offset: number, filter?: { canBeAppointed?: boolean }) => Promise<ListDoctorsResponse>;
+    listDoctors: (
+        limit: number,
+        offset: number,
+        filter?: { canBeAppointed?: boolean; search?: string }
+    ) => Promise<ListDoctorsResponse>;
     getDoctor: (id: string | number) => Promise<Doctor | null | undefined>;
     updateDoctor: (id: string | number, data: Doctor) => Promise<boolean>;
     deleteDoctor: (id: string | number) => Promise<boolean>;
@@ -18,7 +22,7 @@ type ListDoctorsResponse = {
     hasNextPage: boolean;
 };
 
-export const useDoctorStore = create<Action>(() => ({
+export const useDoctorStore = createWithBaseController<Action>((_, get) => ({
     getProfile: async () => {
         try {
             let res = await api.get<Doctor>("/api/profile");
@@ -70,10 +74,12 @@ export const useDoctorStore = create<Action>(() => ({
         }
     },
     listDoctors: async (limit, offset, filter) => {
+        const controller = get().getNewController();
         let result: ListDoctorsResponse = { data: [], hasNextPage: false };
         try {
             let res = await api.get<TrimDoctor[]>("/api/doctor", {
-                params: { limit: limit + 1, offset, canBeAppointed: filter?.canBeAppointed },
+                params: { limit: limit + 1, offset, canBeAppointed: filter?.canBeAppointed, search: filter?.search },
+                signal: controller.signal,
             });
             switch (res.status) {
                 case 200:
