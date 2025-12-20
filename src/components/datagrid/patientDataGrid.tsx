@@ -44,10 +44,7 @@ const columns: GridColDef<Patient>[] = [
     },
 ];
 
-export default function PatientDataGrid({
-    localSearch,
-    ...rest
-}: Omit<DataGridProps, "columns"> & { localSearch?: string }) {
+export default function PatientDataGrid({ search, ...rest }: Omit<DataGridProps, "columns"> & { search?: string }) {
     const [rows, setRows] = useState<Patient[]>([]);
     const initialRows = useRef<Patient[]>([]);
     const [paginationModel, setPaginationModel] = useState({
@@ -59,36 +56,19 @@ export default function PatientDataGrid({
     const listPatients = usePatientStore((state) => state.listPatients);
 
     useEffect(() => {
-        fetch(paginationModel.pageSize, 0);
-    }, []);
-
-    useEffect(() => {
-        let result: Patient[] = [];
-        if (!localSearch) {
-            setRows(initialRows.current);
-            return;
-        }
-        try {
-            result = initialRows.current.filter(
-                (v) =>
-                    (v.firstName + v.middleName + v.lastName).search(RegExp(localSearch, "i")) != -1 ||
-                    String(v.id).search(RegExp(localSearch, "i")) != -1
-            );
-        } catch (e) {
-            console.log(e);
-        } finally {
-            setRows(result);
-        }
-    }, [localSearch]);
+        // when search value is changed, reset state
+        setPaginationModel((state) => ({ page: 0, pageSize: state.pageSize }));
+        fetch(paginationModel.pageSize, 0, search);
+    }, [search]);
 
     const handlePaginationModelChange = async (model: GridPaginationModel) => {
-        await fetch(model.pageSize, model.page * model.pageSize);
+        await fetch(model.pageSize, model.page * model.pageSize, search);
         setPaginationModel(model);
     };
 
-    const fetch = async (limit: number, offset: number) => {
+    const fetch = async (limit: number, offset: number, search?: string) => {
         setIsLoading(true);
-        const result = await listPatients(limit, offset);
+        const result = await listPatients(limit, offset, { search });
         initialRows.current = result.data;
         setIsLoading(false);
         setRows(result.data);

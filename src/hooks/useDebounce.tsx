@@ -1,0 +1,17 @@
+import { useState, useEffect } from "react";
+
+// Custom hook to debounce any value
+export function useDebounce<T>(value: T, delay: number): T {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        // Cleanup: cancels the timeout if value changes before delay is over
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+
+    return debouncedValue;
+}

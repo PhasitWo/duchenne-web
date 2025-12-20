@@ -8,6 +8,7 @@ import { CiCircleQuestion } from "react-icons/ci";
 import QuestionDataGrid from "../../components/datagrid/questionDataGrid";
 import { QuestionType, sortCreateAtModel, sortAnswerAtModel } from "../../components/datagrid/questionDataGrid";
 import { useAuthStore } from "../../stores/auth";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type QuestionOwner = "myquestion" | "allquestion";
 
@@ -16,6 +17,9 @@ export default function Questions() {
     const [questionType, setQuestionType] = useState<QuestionType>("unreplied");
     const [sortModel, setSortModel] = useState<GridSortModel>(sortCreateAtModel);
     const userData = useAuthStore((state) => state.userData);
+
+    const [searchText, setSearchText] = useState("");
+    const debouncedSearchText = useDebounce(searchText, 1000);
 
     const handleQuestionOwnerChange = (e: SelectChangeEvent) => {
         if ((e.target.value as QuestionOwner) === "myquestion") {
@@ -67,7 +71,14 @@ export default function Questions() {
                         }}
                     >
                         <label>Search</label>
-                        <input type="text" className={styles.searchInput} style={{ flex: 1 }} placeholder="id / name" />
+                        <input
+                            type="text"
+                            className={styles.searchInput}
+                            style={{ flex: 1 }}
+                            placeholder="topic"
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                        />
                     </div>
                     <QuestionDataGrid
                         type={questionType}
@@ -75,6 +86,7 @@ export default function Questions() {
                         className={styles.datagrid}
                         sortModel={sortModel}
                         onSortModelChange={setSortModel}
+                        search={debouncedSearchText}
                     />
                 </div>
             </div>

@@ -1,7 +1,7 @@
-import { create } from "zustand";
 import { Question, QuestionTopic } from "../model/model";
 import api, { handleError } from "../services/api";
 import { toast } from "react-toastify";
+import { createWithBaseController } from "./controller";
 
 type Action = {
     listQuestions: (params: ListQuestionsParams) => Promise<ListQuestionsResponse>;
@@ -15,6 +15,7 @@ type ListQuestionsParams = {
     type: string;
     doctorId?: number;
     patientId?: number;
+    filter?: { search?: string };
 };
 
 type ListQuestionsResponse = {
@@ -22,8 +23,9 @@ type ListQuestionsResponse = {
     hasNextPage: boolean;
 };
 
-export const useQuestionStore = create<Action>(() => ({
-    listQuestions: async ({ limit, offset, type, doctorId, patientId }) => {
+export const useQuestionStore = createWithBaseController<Action>((_, get) => ({
+    listQuestions: async ({ limit, offset, type, doctorId, patientId, filter }) => {
+        const controller = get().getNewController();
         let result: ListQuestionsResponse = { data: [], hasNextPage: false };
         try {
             let res = await api.get<QuestionTopic[]>("/api/question", {
@@ -33,7 +35,9 @@ export const useQuestionStore = create<Action>(() => ({
                     type,
                     doctorId,
                     patientId,
+                    search: filter?.search,
                 },
+                signal: controller.signal,
             });
             switch (res.status) {
                 case 200:

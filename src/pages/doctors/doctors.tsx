@@ -7,11 +7,13 @@ import AddButton from "../../components/addButton";
 import { useAuthStore } from "../../stores/auth";
 import { Permission } from "../../constants/permission";
 import DoctorDataGrid from "../../components/datagrid/doctorDataGrid";
+import { useDebounce } from "../../hooks/useDebounce";
 
 export default function Doctors() {
     const navigate = useNavigate();
     const checkPermission = useAuthStore((state) => state.checkPermission);
     const [searchText, setSearchText] = useState("");
+    const debouncedSearchText = useDebounce(searchText, 1000);
 
     return (
         <>
@@ -27,7 +29,7 @@ export default function Doctors() {
                             type="text"
                             className={styles.searchInput}
                             style={{ flex: 1 }}
-                            placeholder="ID / Name"
+                            placeholder="Name"
                             value={searchText}
                             onChange={(e) => setSearchText(e.target.value)}
                         />
@@ -37,7 +39,7 @@ export default function Doctors() {
                             disabled={!checkPermission(Permission.createDoctorPermission)}
                         />
                     </div>
-                    <DoctorDataGrid localSearch={searchText} />
+                    <DoctorDataGrid search={debouncedSearchText} />
                 </div>
             </div>
         </>

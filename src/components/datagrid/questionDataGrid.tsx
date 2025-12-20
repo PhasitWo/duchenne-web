@@ -77,8 +77,9 @@ export default function QuestionDataGrid({
     type = "unreplied",
     doctorId,
     patientId,
+    search,
     ...rest
-}: Omit<DataGridProps, "columns"> & QuestionDataGridProps) {
+}: Omit<DataGridProps, "columns"> & QuestionDataGridProps & { search?: string }) {
     const [rows, setRows] = useState<QuestionTopic[]>([]);
     const [paginationModel, setPaginationModel] = useState({
         pageSize: 10,
@@ -88,19 +89,26 @@ export default function QuestionDataGrid({
     const [isLoading, setIsLoading] = useState(true);
     const listQuestions = useQuestionStore((state) => state.listQuestions);
 
+    useEffect(() => {
+        setPaginationModel({ ...paginationModel, page: 0 });
+        fetch(paginationModel.pageSize, 0, search);
+    }, [type, doctorId, patientId, search]);
+
     const handlePaginationModelChange = async (model: GridPaginationModel) => {
-        await fetch(model.pageSize, model.page * model.pageSize);
+        await fetch(model.pageSize, model.page * model.pageSize, search);
         setPaginationModel(model);
     };
 
-    useEffect(() => {
-        setPaginationModel({ ...paginationModel, page: 0 });
-        fetch(paginationModel.pageSize, 0);
-    }, [type, doctorId, patientId]);
-
-    const fetch = async (limit: number, offset: number) => {
+    const fetch = async (limit: number, offset: number, search?: string) => {
         setIsLoading(true);
-        const { data, hasNextPage } = await listQuestions({ limit, offset, type, doctorId, patientId });
+        const { data, hasNextPage } = await listQuestions({
+            limit,
+            offset,
+            type,
+            doctorId,
+            patientId,
+            filter: { search },
+        });
         setRows(data);
         setHasNextPage(hasNextPage);
         setIsLoading(false);
